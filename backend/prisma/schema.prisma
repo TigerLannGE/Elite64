@@ -1,0 +1,258 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum KycStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TOURNAMENT_BUY_IN
+  TOURNAMENT_PAYOUT
+  BONUS
+  FEE
+}
+
+enum TournamentStatus {
+  DRAFT
+  SCHEDULED
+  READY
+  RUNNING
+  FINISHED
+  CANCELED
+}
+
+enum TournamentEntryStatus {
+  PENDING
+  CONFIRMED
+  ELIMINATED
+  COMPLETED
+}
+
+enum MatchStatus {
+  PENDING    // Match créé mais pas encore démarré
+  RUNNING    // Match en cours
+  FINISHED   // Match terminé
+  CANCELED   // Match annulé
+}
+
+enum MatchResult {
+  WHITE_WIN
+  BLACK_WIN
+  DRAW
+  BYE        // Victoire automatique (par ex. bye en bracket)
+}
+
+enum PlayerRole {
+  PLAYER
+  ADMIN
+  SUPER_ADMIN
+}
+
+// ============================================
+// MODELS
+// ============================================
+
+model Player {
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  username    String    @unique
+  email       String    @unique
+  passwordHash String
+  countryCode String    // ISO (ex: "GB", "CA", "IN")
+  dateOfBirth DateTime  // Date de naissance pour vérification d'âge
+  elo         Int       // Elo interne
+  kycStatus   KycStatus @default(PENDING)
+  role        PlayerRole @default(PLAYER)
+  isActive    Boolean   @default(true)
+  
+  // Restrictions ciblées (modération fine)
+  blockTournaments       Boolean @default(false)
+  blockWalletDeposits    Boolean @default(false)
+  blockWalletWithdrawals Boolean @default(false)
+  moderationNote         String?  // note laissée par les admins (optionnel)
+  
+  isEmailVerified Boolean @default(false)
+  emailVerificationToken String? @unique
+  emailVerificationExpiresAt DateTime?
+  passwordResetToken String? @unique
+  passwordResetExpiresAt DateTime?
+
+  // Relations
+  wallet          Wallet?
+  tournamentEntries TournamentEntry[]
+
+  @@map("players")
+  @@index([countryCode])
+  @@index([elo])
+  @@index([kycStatus])
+}
+
+model Wallet {
+  id           String   @id @default(cuid())
+  playerId     String   @unique
+  balanceCents Int      @default(0)
+  currency     String   @default("EUR") // "EUR", "USD", etc.
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  player      Player       @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@map("wallets")
+  @@index([playerId])
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  createdAt   DateTime        @default(now())
+  walletId    String
+  type        TransactionType
+  amountCents Int             // positif pour dépôt/payout, négatif pour withdrawal/buy-in
+  description String?
+  externalRef String?         // id Stripe ou autre PSP plus tard
+
+  // Relations
+  wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
+  @@index([walletId])
+  @@index([type])
+  @@index([createdAt])
+  @@index([externalRef])
+}
+
+model Tournament {
+  id              String            @id @default(cuid())
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  name            String
+  status          TournamentStatus  @default(DRAFT)
+  timeControl     String            // "10+0", "3+0", "1+0"
+  buyInCents      Int
+  currency        String            @default("EUR")
+  minPlayers      Int
+  maxPlayers      Int
+  eloMin          Int?
+  eloMax          Int?
+  startsAt        DateTime?
+  endsAt          DateTime?
+  registrationClosesAt DateTime?    // Date/heure de clôture des inscriptions
+  legalZoneCode   String            // ex: "UK", "US-CA" pour Etat, "EU", etc.
+
+  // Relations
+  entries    TournamentEntry[]
+  matches    Match[]
+  prizePool  PrizePool?
+
+  @@map("tournaments")
+  @@index([status])
+  @@index([legalZoneCode])
+  @@index([startsAt])
+  @@index([endsAt])
+  @@index([registrationClosesAt])
+}
+
+model TournamentEntry {
+  id              String                @id @default(cuid())
+  playerId        String
+  tournamentId    String
+  createdAt       DateTime              @default(now())
+  status          TournamentEntryStatus @default(PENDING)
+  buyInPaidCents  Int
+
+  // Relations
+  player     Player     @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  matchesAsWhite Match[] @relation("MatchWhiteEntry")
+  matchesAsBlack Match[] @relation("MatchBlackEntry")
+
+  @@map("tournament_entries")
+  @@unique([playerId, tournamentId])
+  @@index([playerId])
+  @@index([tournamentId])
+  @@index([status])
+}
+
+model Match {
+  id             String       @id @default(cuid())
+
+  tournamentId   String
+  roundNumber    Int          // 1 = premier tour, etc.
+  boardNumber    Int          // Numéro de table dans la ronde
+
+  whiteEntryId   String
+  blackEntryId   String
+
+  status         MatchStatus  @default(PENDING)
+  result         MatchResult?
+  resultReason   String?      // ex: "CHECKMATE", "TIMEOUT", "RESIGNATION", "NO_SHOW"
+
+  startedAt      DateTime?
+  finishedAt     DateTime?
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  // Relations
+  tournament     Tournament   @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  whiteEntry     TournamentEntry @relation("MatchWhiteEntry", fields: [whiteEntryId], references: [id])
+  blackEntry     TournamentEntry @relation("MatchBlackEntry", fields: [blackEntryId], references: [id])
+
+  @@map("matches")
+  @@index([tournamentId])
+  @@index([roundNumber, tournamentId])
+}
+
+model PrizePool {
+  id                  String   @id @default(cuid())
+  tournamentId        String   @unique
+  totalEntriesCents    Int      // Somme des buy-ins
+  commissionCents     Int      @default(0) // Commission totale prélevée
+  distributableCents  Int      // Montant total redistribuable aux joueurs
+  currency            String   // Doit correspondre à Tournament.currency
+  distributionJson    Json?    // Ex: {"1": 0.7, "2": 0.3}
+  lockedAt            DateTime // Quand le prize pool a été figé
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  @@map("prize_pools")
+  @@index([tournamentId])
+}
+
+model CountryRule {
+  id                String   @id @default(cuid())
+  code              String   @unique // ex: "UK", "CA", "US-NY", "IN-KA"
+  name              String
+  skillGamesAllowed Boolean  @default(true)
+  maxBuyInCents     Int?     // plafond éventuel
+  isBlocked         Boolean  @default(false) // si ce pays/état est interdit
+  notes             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("country_rules")
+  @@index([code])
+  @@index([isBlocked])
+}

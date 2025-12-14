@@ -88,6 +88,7 @@ Les README sont organisés par domaine :
 **Dernière mise à jour** : 14 Décembre 2025
 
 **Changements récents** :
+- ✅ **Phase 6.0.A terminée** (14 Décembre 2025) : Extension du modèle Match avec champs gameplay, création du modèle MatchMove, enum MatchColor, migration Prisma appliquée
 - ✅ PostgreSQL mis à jour vers version 17 (compatibilité avec dumps récents)
 - ✅ Script d'import automatisé créé (`backend/import-database.ps1`)
 - ✅ Documentation d'audit et de restauration ajoutée

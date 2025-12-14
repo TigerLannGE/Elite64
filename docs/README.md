@@ -51,6 +51,9 @@ Ce dossier contient toute la documentation du projet ChessBet.
 - **[README - Matches et résultats de tournoi.md](./backend/README%20-%20Matches%20et%20résultats%20de%20tournoi.md)**  
   Documentation complète du module Matches : génération des brackets, gestion des matches, enregistrement des résultats, génération automatique des rondes, finalisation et distribution des gains (Phase 5).
 
+- **[README - Phase 6.0.B Moteur d'échecs backend.md](./backend/README%20-%20Phase%206.0.B%20Moteur%20d'échecs%20backend.md)**  
+  Documentation du moteur d'échecs backend : ChessEngineService, validation de coups, détection de fin de partie, tests unitaires (Phase 6.0.B).
+
 ### Documentation Frontend
 
 - **[README - Développement frontend plateforme d'échecs.md](./frontend/README%20-%20Développement%20frontend%20plateforme%20d'échecs.md)**  
@@ -85,9 +88,10 @@ Les README sont organisés par domaine :
 
 ---
 
-**Dernière mise à jour** : 14 Décembre 2025
+**Dernière mise à jour** : Décembre 2025
 
 **Changements récents** :
+- ✅ **Phase 6.0.B terminée** (Décembre 2025) : Moteur d'échecs backend (ChessEngineService), validation de coups, détection de fin de partie, 32 tests unitaires, service pur et déterministe
 - ✅ **Phase 6.0.A terminée** (14 Décembre 2025) : Extension du modèle Match avec champs gameplay, création du modèle MatchMove, enum MatchColor, migration Prisma appliquée
 - ✅ PostgreSQL mis à jour vers version 17 (compatibilité avec dumps récents)
 - ✅ Script d'import automatisé créé (`backend/import-database.ps1`)
@@ -117,7 +121,8 @@ Les README sont organisés par domaine :
 - Génération automatique des rondes suivantes
 - Finalisation automatique des tournois avec distribution des gains
 - Calcul des classements basés sur les résultats
-- ⚠️ **Note** : Pas encore de plateau d'échecs intégré (Phase 6+)
+- Moteur d'échecs backend (ChessEngineService) - validation de coups, détection de fin de partie (Phase 6.0.B)
+- ⚠️ **Note** : Pas encore d'intégration complète avec le gameplay en direct (Phase 6.1+)
 
 ### Frontend ✅
 - Landing page avec textes légaux

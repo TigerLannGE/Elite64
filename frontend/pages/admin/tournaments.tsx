@@ -48,6 +48,7 @@ export default function AdminTournaments() {
   const [success, setSuccess] = useState<string | null>(null)
   const [closingId, setClosingId] = useState<string | null>(null)
   const [startingId, setStartingId] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!authLoading) {
@@ -119,6 +120,27 @@ export default function AdminTournaments() {
     return tournament.status === 'READY'
   }
 
+  const handleDeleteTournament = async (tournamentId: string, tournamentName: string) => {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer le tournoi "${tournamentName}" ? Cette action est irréversible.`)) {
+      return
+    }
+
+    try {
+      setDeletingId(tournamentId)
+      setError(null)
+      setSuccess(null)
+      await api.deleteTournament(tournamentId)
+      setSuccess('Tournoi supprimé avec succès')
+      // Recharger la liste des tournois après succès
+      await loadTournaments()
+    } catch (err) {
+      const apiError = err as ApiError
+      setError(apiError.message || 'Erreur lors de la suppression du tournoi')
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   if (authLoading || !isAdmin) {
     return (
       <Layout title="Admin - Tournois - ChessBet">
@@ -141,6 +163,12 @@ export default function AdminTournaments() {
               Gestion des tournois
             </h1>
             <div className="flex items-center gap-4">
+              <Link
+                href="/admin/tournaments/create"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded transition-colors"
+              >
+                + Créer un tournoi
+              </Link>
               <Link
                 href="/lobby"
                 className="text-gray-300 hover:text-white transition-colors text-sm"
@@ -290,6 +318,18 @@ export default function AdminTournaments() {
                                 Clôturer les inscriptions
                               </button>
                             ) : null}
+
+                            {/* Bouton "Supprimer" */}
+                            {deletingId === tournament.id ? (
+                              <div className="text-gray-400 text-sm text-center">Suppression...</div>
+                            ) : (
+                              <button
+                                onClick={() => handleDeleteTournament(tournament.id, tournament.name)}
+                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded transition-colors"
+                              >
+                                Supprimer
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -304,4 +344,3 @@ export default function AdminTournaments() {
     </Layout>
   )
 }
-

@@ -1044,5 +1044,28 @@ export class TournamentsService {
 
     return standings;
   }
+
+  /**
+   * Supprime un tournoi (admin uniquement)
+   * Permet de nettoyer les tournois de test
+   */
+  async deleteTournament(tournamentId: string): Promise<{ message: string }> {
+    const tournament = await this.prisma.tournament.findUnique({
+      where: { id: tournamentId },
+    });
+
+    if (!tournament) {
+      throw new NotFoundException(
+        `Tournoi avec l'ID "${tournamentId}" introuvable`,
+      );
+    }
+
+    // Supprimer le tournoi et toutes ses relations (cascade via Prisma)
+    await this.prisma.tournament.delete({
+      where: { id: tournamentId },
+    });
+
+    return { message: `Tournoi "${tournament.name}" supprimé avec succès` };
+  }
 }
 

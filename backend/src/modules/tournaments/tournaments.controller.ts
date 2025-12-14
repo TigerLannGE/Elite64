@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Param,
   Body,
   UseGuards,
@@ -149,9 +150,18 @@ export class TournamentsAdminController {
     return this.tournamentsService.startTournament(tournamentId);
   }
 
+  /**
+   * DELETE /admin/tournaments/:id
+   * Supprime un tournoi (admin uniquement)
+   * Permet de nettoyer les tournois de test
+   */
+  @Delete(':id')
+  async deleteTournament(@Param('id') tournamentId: string) {
+    return this.tournamentsService.deleteTournament(tournamentId);
+  }
+
   // @Post(':id/finish')
   // async finishTournament(@Param('id', ParseUUIDPipe) tournamentId: string) {
   //   // Terminer le tournoi (changer statut à FINISHED, distribuer les gains, etc.)
   // }
 }
-

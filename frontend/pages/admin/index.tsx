@@ -84,10 +84,21 @@ export default function AdminDashboard() {
                 Consulter tous les tournois, voir les détails et gérer leur statut.
               </p>
             </Link>
+
+            <Link
+              href="/admin/tournaments/create"
+              className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20 hover:bg-white/15 transition-colors block"
+            >
+              <h2 className="text-2xl font-bold text-white mb-2">
+                Créer un tournoi
+              </h2>
+              <p className="text-gray-300 text-sm">
+                Créer un nouveau tournoi avec tous les paramètres nécessaires. Idéal pour les tests et la gestion avancée.
+              </p>
+            </Link>
           </div>
         </div>
       </div>
     </Layout>
   )
 }
-

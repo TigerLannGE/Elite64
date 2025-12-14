@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
   Inject,
   forwardRef,
 } from '@nestjs/common';
@@ -10,11 +11,17 @@ import {
   Match,
   MatchStatus,
   MatchResult,
+  MatchColor,
   TournamentStatus,
   TournamentEntryStatus,
 } from '@prisma/client';
+import { Chess } from 'chess.js';
 import { ReportMatchResultDto } from './dto/report-match-result.dto';
+import { PlayMoveDto } from './dto/play-move.dto';
+import { MatchStateViewDto } from './dto/match-state-view.dto';
 import { TournamentsService } from '../tournaments/tournaments.service';
+import { ChessEngineService } from './chess-engine.service';
+import { GameEndReason } from './types/chess-engine.types';
 
 @Injectable()
 export class MatchesService {
@@ -22,6 +29,7 @@ export class MatchesService {
     private readonly prisma: PrismaService,
     @Inject(forwardRef(() => TournamentsService))
     private readonly tournamentsService: TournamentsService,
+    private readonly chessEngineService: ChessEngineService,
   ) {}
 
   /**
@@ -530,6 +538,596 @@ export class MatchesService {
         tournamentId,
       );
     }
+  }
+
+  /**
+   * Phase 6.0.C - Rejoindre un match
+   * Marque la présence et initialise la partie quand les deux joueurs ont rejoint
+   */
+  async joinMatch(
+    matchId: string,
+    playerId: string,
+  ): Promise<MatchStateViewDto> {
+    // 1. Charger le match avec les entrées
+    const match = await this.prisma.match.findUnique({
+      where: { id: matchId },
+      include: {
+        whiteEntry: {
+          include: {
+            player: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
+        blackEntry: {
+          include: {
+            player: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
+        tournament: {
+          select: {
+            id: true,
+            timeControl: true,
+          },
+        },
+      },
+    });
+
+    if (!match) {
+      throw new NotFoundException(
+        `Match avec l'ID "${matchId}" introuvable`,
+      );
+    }
+
+    // 2. Vérifier que le joueur est dans le match
+    const whitePlayerId = match.whiteEntry.playerId;
+    const blackPlayerId = match.blackEntry.playerId;
+
+    if (playerId !== whitePlayerId && playerId !== blackPlayerId) {
+      throw new ForbiddenException({
+        code: 'PLAYER_NOT_IN_MATCH',
+        message: 'Vous n\'êtes pas un participant de ce match',
+      });
+    }
+
+    // 3. Vérifier que le match peut être rejoint
+    if (
+      match.status === MatchStatus.FINISHED ||
+      match.status === MatchStatus.CANCELED
+    ) {
+      throw new BadRequestException({
+        code: 'MATCH_NOT_JOINABLE',
+        message: 'Ce match ne peut plus être rejoint',
+      });
+    }
+
+    const now = new Date();
+    const isWhite = playerId === whitePlayerId;
+
+    // 4. Mettre à jour les timestamps de présence
+    const updateData: any = {};
+
+    if (!match.readyAt) {
+      updateData.readyAt = now;
+    }
+
+    if (isWhite && !match.whiteJoinedAt) {
+      updateData.whiteJoinedAt = now;
+    } else if (!isWhite && !match.blackJoinedAt) {
+      updateData.blackJoinedAt = now;
+    }
+
+    // 5. Si les deux joueurs ont rejoint et le match est PENDING, initialiser la partie
+    const bothJoined =
+      (match.whiteJoinedAt || updateData.whiteJoinedAt) &&
+      (match.blackJoinedAt || updateData.blackJoinedAt);
+
+    if (bothJoined && match.status === MatchStatus.PENDING) {
+      // Initialiser la partie
+      const startFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
+      // Parser timeControl (ex: "10+0" => baseMinutes=10, incrementSeconds=0)
+      const timeControlMatch = match.tournament.timeControl.match(
+        /^(\d+)\+(\d+)$/,
+      );
+      if (!timeControlMatch) {
+        throw new BadRequestException(
+          `Format de time control invalide: ${match.tournament.timeControl}`,
+        );
+      }
+
+      const baseMinutes = parseInt(timeControlMatch[1], 10);
+      const timeMs = baseMinutes * 60 * 1000;
+
+      updateData.status = MatchStatus.RUNNING;
+      updateData.startedAt = now;
+      updateData.initialFen = startFen;
+      updateData.currentFen = startFen;
+      updateData.lastMoveAt = now;
+      updateData.whiteTimeMsRemaining = timeMs;
+      updateData.blackTimeMsRemaining = timeMs;
+    }
+
+    // 6. Mettre à jour le match
+    const updatedMatch = await this.prisma.match.update({
+      where: { id: matchId },
+      data: updateData,
+      include: {
+        whiteEntry: {
+          include: {
+            player: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
+        blackEntry: {
+          include: {
+            player: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
+        moves: {
+          orderBy: {
+            moveNumber: 'desc',
+          },
+          take: 1,
+        },
+        tournament: {
+          select: {
+            id: true,
+            timeControl: true,
+          },
+        },
+      },
+    });
+
+    // 7. Construire et retourner MatchStateViewDto
+    return this.buildMatchStateViewDto(updatedMatch);
+  }
+
+  /**
+   * Phase 6.0.C - Récupérer l'état d'un match
+   */
+  async getMatchState(
+    matchId: string,
+    playerId: string,
+  ): Promise<MatchStateViewDto> {
+    // 1. Charger le match
+    const match = await this.prisma.match.findUnique({
+      where: { id: matchId },
+      include: {
+        whiteEntry: {
+          include: {
+            player: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
+        blackEntry: {
+          include: {
+            player: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
+        moves: {
+          orderBy: {
+            moveNumber: 'desc',
+          },
+          take: 1,
+        },
+        tournament: {
+          select: {
+            id: true,
+            timeControl: true,
+          },
+        },
+      },
+    });
+
+    if (!match) {
+      throw new NotFoundException(
+        `Match avec l'ID "${matchId}" introuvable`,
+      );
+    }
+
+    // 2. Vérifier que le joueur est dans le match
+    const whitePlayerId = match.whiteEntry.playerId;
+    const blackPlayerId = match.blackEntry.playerId;
+
+    if (playerId !== whitePlayerId && playerId !== blackPlayerId) {
+      throw new ForbiddenException({
+        code: 'PLAYER_NOT_IN_MATCH',
+        message: 'Vous n\'êtes pas un participant de ce match',
+      });
+    }
+
+    // 3. Construire et retourner MatchStateViewDto
+    return this.buildMatchStateViewDto(match);
+  }
+
+  /**
+   * Phase 6.0.C - Jouer un coup
+   * Transaction atomique pour valider, appliquer et persister le coup
+   */
+  async playMove(
+    matchId: string,
+    playerId: string,
+    dto: PlayMoveDto,
+  ): Promise<MatchStateViewDto> {
+    return await this.prisma.$transaction(async (tx) => {
+      // 1. Charger le match avec verrouillage (pour éviter les conditions de course)
+      const match = await tx.match.findUnique({
+        where: { id: matchId },
+        include: {
+          whiteEntry: {
+            include: {
+              player: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+          blackEntry: {
+            include: {
+              player: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+          tournament: {
+            select: {
+              id: true,
+              timeControl: true,
+            },
+          },
+          moves: {
+            orderBy: {
+              moveNumber: 'desc',
+            },
+          },
+        },
+      });
+
+      if (!match) {
+        throw new NotFoundException(
+          `Match avec l'ID "${matchId}" introuvable`,
+        );
+      }
+
+      // 2. Vérifier que le joueur est dans le match
+      const whitePlayerId = match.whiteEntry.playerId;
+      const blackPlayerId = match.blackEntry.playerId;
+
+      if (playerId !== whitePlayerId && playerId !== blackPlayerId) {
+        throw new ForbiddenException({
+          code: 'PLAYER_NOT_IN_MATCH',
+          message: 'Vous n\'êtes pas un participant de ce match',
+        });
+      }
+
+      // 3. Vérifier que le match est RUNNING
+      if (match.status !== MatchStatus.RUNNING) {
+        throw new BadRequestException({
+          code: 'MATCH_NOT_RUNNING',
+          message: 'Ce match n\'est pas en cours',
+        });
+      }
+
+      // 4. Déterminer la couleur du joueur
+      const playerColor =
+        playerId === whitePlayerId ? MatchColor.WHITE : MatchColor.BLACK;
+
+      // 5. Déterminer le trait actuel
+      const currentFen = match.currentFen || match.initialFen;
+      if (!currentFen) {
+        throw new BadRequestException(
+          'Position FEN introuvable pour ce match',
+        );
+      }
+
+      const chess = this.chessEngineService.initializeGame(currentFen);
+      const currentTurn = chess.turn() === 'w' ? MatchColor.WHITE : MatchColor.BLACK;
+
+      // 6. Vérifier que c'est au joueur de jouer
+      if (currentTurn !== playerColor) {
+        throw new BadRequestException({
+          code: 'NOT_YOUR_TURN',
+          message: 'Ce n\'est pas votre tour de jouer',
+        });
+      }
+
+      // 7. Calculer le temps écoulé et décrémenter le pendule
+      const now = new Date();
+      const lastMoveAt = match.lastMoveAt || match.startedAt || now;
+      const elapsedMs = Math.max(0, now.getTime() - lastMoveAt.getTime());
+
+      let whiteTimeMs = match.whiteTimeMsRemaining ?? 0;
+      let blackTimeMs = match.blackTimeMsRemaining ?? 0;
+
+      // Décrémenter le temps du joueur qui joue
+      if (playerColor === MatchColor.WHITE) {
+        whiteTimeMs = Math.max(0, whiteTimeMs - elapsedMs);
+      } else {
+        blackTimeMs = Math.max(0, blackTimeMs - elapsedMs);
+      }
+
+      // 8. Vérifier timeout avant d'appliquer le coup
+      if (
+        (playerColor === MatchColor.WHITE && whiteTimeMs <= 0) ||
+        (playerColor === MatchColor.BLACK && blackTimeMs <= 0)
+      ) {
+        // Timeout : terminer le match
+        const winnerColor =
+          playerColor === MatchColor.WHITE ? MatchColor.BLACK : MatchColor.WHITE;
+        const winnerEntryId =
+          winnerColor === MatchColor.WHITE
+            ? match.whiteEntryId
+            : match.blackEntryId;
+        const result =
+          winnerColor === MatchColor.WHITE
+            ? MatchResult.WHITE_WIN
+            : MatchResult.BLACK_WIN;
+
+        const finishedMatch = await tx.match.update({
+          where: { id: matchId },
+          data: {
+            status: MatchStatus.FINISHED,
+            result,
+            resultReason: 'TIMEOUT',
+            finishedAt: now,
+            whiteTimeMsRemaining: whiteTimeMs,
+            blackTimeMsRemaining: blackTimeMs,
+          },
+          include: {
+            whiteEntry: {
+              include: {
+                player: {
+                  select: {
+                    id: true,
+                  },
+                },
+              },
+            },
+            blackEntry: {
+              include: {
+                player: {
+                  select: {
+                    id: true,
+                  },
+                },
+              },
+            },
+            moves: {
+              orderBy: {
+                moveNumber: 'desc',
+              },
+              take: 1,
+            },
+            tournament: {
+              select: {
+                id: true,
+                timeControl: true,
+              },
+            },
+          },
+        });
+
+        // Appeler generateNextRoundIfNeeded après la transaction
+        setImmediate(() => {
+          this.generateNextRoundIfNeeded(match.tournamentId).catch((err) => {
+            console.error(
+              'Erreur lors de la génération de la ronde suivante:',
+              err,
+            );
+          });
+        });
+
+        return this.buildMatchStateViewDto(finishedMatch);
+      }
+
+      // 9. Valider et appliquer le coup via ChessEngineService
+      const moveResult = this.chessEngineService.validateAndApplyMove(
+        currentFen,
+        {
+          from: dto.from,
+          to: dto.to,
+          promotion: dto.promotion,
+        },
+      );
+
+      if (!moveResult.success) {
+        throw new BadRequestException({
+          code: 'ILLEGAL_MOVE',
+          message: moveResult.error || 'Ce coup est illégal',
+        });
+      }
+
+      // 10. Compter les coups existants
+      const moveCount = match.moves.length;
+      const nextMoveNumber = moveCount + 1;
+
+      // 11. Créer le MatchMove
+      await tx.matchMove.create({
+        data: {
+          matchId,
+          moveNumber: nextMoveNumber,
+          playerId,
+          color: playerColor,
+          san: moveResult.san,
+          from: dto.from,
+          to: dto.to,
+          promotion: dto.promotion || null,
+          fenBefore: moveResult.fenBefore,
+          fenAfter: moveResult.fenAfter,
+          whiteTimeMsRemaining: whiteTimeMs,
+          blackTimeMsRemaining: blackTimeMs,
+        },
+      });
+
+      // 12. Vérifier si la partie est terminée
+      let updateData: any = {
+        currentFen: moveResult.fenAfter,
+        lastMoveAt: now,
+        whiteTimeMsRemaining: whiteTimeMs,
+        blackTimeMsRemaining: blackTimeMs,
+      };
+
+      if (moveResult.gameEnd) {
+        // Mapper GameEndReason vers MatchResult et resultReason
+        let result: MatchResult | null = null;
+        let resultReason: string | null = null;
+
+        switch (moveResult.gameEnd.reason) {
+          case GameEndReason.CHECKMATE:
+            result =
+              moveResult.gameEnd.winner === 'white'
+                ? MatchResult.WHITE_WIN
+                : MatchResult.BLACK_WIN;
+            resultReason = 'CHECKMATE';
+            break;
+          case GameEndReason.STALEMATE:
+            result = MatchResult.DRAW;
+            resultReason = 'STALEMATE';
+            break;
+          case GameEndReason.INSUFFICIENT_MATERIAL:
+            result = MatchResult.DRAW;
+            resultReason = 'INSUFFICIENT_MATERIAL';
+            break;
+          case GameEndReason.FIFTY_MOVE_RULE:
+            result = MatchResult.DRAW;
+            resultReason = 'FIFTY_MOVE_RULE';
+            break;
+          case GameEndReason.THREE_FOLD_REPETITION:
+            result = MatchResult.DRAW;
+            resultReason = 'THREE_FOLD_REPETITION';
+            break;
+        }
+
+        if (result) {
+          updateData.status = MatchStatus.FINISHED;
+          updateData.result = result;
+          updateData.resultReason = resultReason;
+          updateData.finishedAt = now;
+        }
+      }
+
+      // 13. Mettre à jour le match
+      const updatedMatch = await tx.match.update({
+        where: { id: matchId },
+        data: updateData,
+        include: {
+          whiteEntry: {
+            include: {
+              player: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+          blackEntry: {
+            include: {
+              player: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+          moves: {
+            orderBy: {
+              moveNumber: 'desc',
+            },
+            take: 1,
+          },
+          tournament: {
+            select: {
+              id: true,
+              timeControl: true,
+            },
+          },
+        },
+      });
+
+      // 14. Si la partie est terminée, appeler generateNextRoundIfNeeded après la transaction
+      if (updateData.status === MatchStatus.FINISHED) {
+        setImmediate(() => {
+          this.generateNextRoundIfNeeded(match.tournamentId).catch((err) => {
+            console.error(
+              'Erreur lors de la génération de la ronde suivante:',
+              err,
+            );
+          });
+        });
+      }
+
+      // 15. Retourner l'état du match
+      return this.buildMatchStateViewDto(updatedMatch);
+    });
+  }
+
+  /**
+   * Phase 6.0.C - Construire MatchStateViewDto depuis un match
+   */
+  private buildMatchStateViewDto(match: any): MatchStateViewDto {
+    const whitePlayerId = match.whiteEntry.playerId;
+    const blackPlayerId = match.blackEntry.playerId;
+
+    // Déterminer le FEN actuel
+    const fen = match.currentFen || match.initialFen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
+    // Compter les coups
+    const moveCount = match.moves?.length || 0;
+
+    // Déterminer le trait depuis le FEN
+    const chess = this.chessEngineService.initializeGame(fen);
+    const turn = chess.turn() === 'w' ? MatchColor.WHITE : MatchColor.BLACK;
+
+    // Dernier coup
+    const lastMove = match.moves && match.moves.length > 0
+      ? {
+          san: match.moves[0].san,
+          from: match.moves[0].from,
+          to: match.moves[0].to,
+          promotion: match.moves[0].promotion || null,
+        }
+      : null;
+
+    return {
+      matchId: match.id,
+      tournamentId: match.tournamentId,
+      status: match.status,
+      result: match.result || null,
+      resultReason: match.resultReason || null,
+      whitePlayerId,
+      blackPlayerId,
+      fen,
+      moveNumber: moveCount,
+      turn,
+      whiteTimeMsRemaining: match.whiteTimeMsRemaining ?? 0,
+      blackTimeMsRemaining: match.blackTimeMsRemaining ?? 0,
+      lastMove,
+      serverTimeUtc: new Date().toISOString(),
+    };
   }
 }
 

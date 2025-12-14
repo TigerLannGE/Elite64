@@ -1,7 +1,9 @@
 import {
   Controller,
   Get,
+  Post,
   Param,
+  Body,
   UseGuards,
   Request,
   Query,
@@ -10,6 +12,7 @@ import {
 import { MatchesService } from './matches.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { ActivePlayerGuard } from '../../auth/guards/active-player.guard';
+import { PlayMoveDto } from './dto/play-move.dto';
 
 @Controller('matches')
 export class MatchesController {
@@ -60,6 +63,43 @@ export class MatchesController {
   @Get(':id')
   async getMatchById(@Param('id') matchId: string) {
     return this.matchesService.getMatchById(matchId);
+  }
+
+  /**
+   * POST /matches/:id/join
+   * Phase 6.0.C - Rejoindre un match
+   */
+  @UseGuards(JwtAuthGuard, ActivePlayerGuard)
+  @Post(':id/join')
+  async joinMatch(@Param('id') matchId: string, @Request() req: any) {
+    const playerId = req.user.sub;
+    return this.matchesService.joinMatch(matchId, playerId);
+  }
+
+  /**
+   * GET /matches/:id/state
+   * Phase 6.0.C - Récupérer l'état d'un match
+   */
+  @UseGuards(JwtAuthGuard, ActivePlayerGuard)
+  @Get(':id/state')
+  async getMatchState(@Param('id') matchId: string, @Request() req: any) {
+    const playerId = req.user.sub;
+    return this.matchesService.getMatchState(matchId, playerId);
+  }
+
+  /**
+   * POST /matches/:id/move
+   * Phase 6.0.C - Jouer un coup
+   */
+  @UseGuards(JwtAuthGuard, ActivePlayerGuard)
+  @Post(':id/move')
+  async playMove(
+    @Param('id') matchId: string,
+    @Body() dto: PlayMoveDto,
+    @Request() req: any,
+  ) {
+    const playerId = req.user.sub;
+    return this.matchesService.playMove(matchId, playerId, dto);
   }
 }
 

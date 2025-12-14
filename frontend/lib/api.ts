@@ -386,6 +386,26 @@ export const api = {
   getAdminTournaments: () =>
     apiRequest<AdminTournament[]>('/admin/tournaments'),
 
+  createTournament: (data: {
+    name: string
+    timeControl: string
+    buyInCents: number
+    currency?: string
+    minPlayers: number
+    maxPlayers: number
+    eloMin?: number
+    eloMax?: number
+    startsAt?: string
+    endsAt?: string
+    registrationClosesAt?: string
+    legalZoneCode: string
+    status?: TournamentStatus
+  }) =>
+    apiRequest<AdminTournament>('/admin/tournaments', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
   closeRegistration: (tournamentId: string) =>
     apiRequest<{ message: string }>(`/admin/tournaments/${tournamentId}/close-registration`, {
       method: 'POST',
@@ -405,5 +425,9 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
-}
 
+  deleteTournament: (tournamentId: string) =>
+    apiRequest<{ message: string }>(`/admin/tournaments/${tournamentId}`, {
+      method: 'DELETE',
+    }),
+}

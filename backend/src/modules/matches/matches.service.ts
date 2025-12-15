@@ -22,6 +22,11 @@ import { MatchStateViewDto } from './dto/match-state-view.dto';
 import { TournamentsService } from '../tournaments/tournaments.service';
 import { ChessEngineService } from './chess-engine.service';
 import { GameEndReason } from './types/chess-engine.types';
+import {
+  JOIN_WINDOW_SECONDS,
+  NO_SHOW_GRACE_SECONDS,
+  TOTAL_NO_SHOW_MS,
+} from './match.config';
 
 @Injectable()
 export class MatchesService {
@@ -168,6 +173,87 @@ export class MatchesService {
     });
 
     return matches;
+  }
+
+  /**
+   * Résout éventuellement un no-show pré-premier coup pour un match donné.
+   *
+   * - Ne fait rien si le match n'est pas PENDING, si readyAt est null,
+   *   si noShowResolvedAt est déjà renseigné, ou si le délai (JOIN_WINDOW_SECONDS
+   *   + NO_SHOW_GRACE_SECONDS) n'est pas encore écoulé.
+   * - Si aucun joueur n'a rejoint → DOUBLE_NO_SHOW (DRAW).
+   * - Si un seul joueur a rejoint → NO_SHOW, l'autre perd par forfait.
+   *
+   * Retourne true si une résolution a été appliquée, false sinon.
+   */
+  private async maybeResolveNoShow(matchId: string): Promise<boolean> {
+    const result = await this.prisma.$transaction(async (tx) => {
+      const match = await tx.match.findUnique({
+        where: { id: matchId },
+        include: {
+          whiteEntry: true,
+          blackEntry: true,
+        },
+      });
+
+      if (
+        !match ||
+        match.status !== MatchStatus.PENDING ||
+        !match.readyAt ||
+        match.noShowResolvedAt
+      ) {
+        return { resolved: false, tournamentId: null as string | null };
+      }
+
+      const now = new Date();
+      const deadline = new Date(match.readyAt.getTime() + TOTAL_NO_SHOW_MS);
+
+      if (now < deadline) {
+        return { resolved: false, tournamentId: null as string | null };
+      }
+
+      const whiteJoined = !!match.whiteJoinedAt;
+      const blackJoined = !!match.blackJoinedAt;
+      const joinedCount = (whiteJoined ? 1 : 0) + (blackJoined ? 1 : 0);
+
+      // Deux joueurs présents : pas de no-show à résoudre
+      if (joinedCount === 2) {
+        return { resolved: false, tournamentId: null as string | null };
+      }
+
+      let data: any = {
+        status: MatchStatus.FINISHED,
+        noShowResolvedAt: now,
+        finishedAt: now,
+      };
+
+      if (joinedCount === 0) {
+        // DOUBLE_NO_SHOW → match nul
+        data.result = MatchResult.DRAW;
+        data.resultReason = 'DOUBLE_NO_SHOW';
+      } else {
+        // Un seul joueur présent → victoire par no-show
+        const winnerIsWhite = whiteJoined && !blackJoined;
+        data.result = winnerIsWhite
+          ? MatchResult.WHITE_WIN
+          : MatchResult.BLACK_WIN;
+        data.resultReason = 'NO_SHOW';
+      }
+
+      await tx.match.update({
+        where: { id: matchId },
+        data,
+      });
+
+      return { resolved: true, tournamentId: match.tournamentId as string };
+    });
+
+    if (result.resolved && result.tournamentId) {
+      await this.generateNextRoundIfNeeded(result.tournamentId);
+      return true;
+    }
+
+    return false;
   }
 
   /**
@@ -548,6 +634,8 @@ export class MatchesService {
     matchId: string,
     playerId: string,
   ): Promise<MatchStateViewDto> {
+    // Résoudre éventuellement un no-show avant toute autre logique
+    await this.maybeResolveNoShow(matchId);
     // 1. Charger le match avec les entrées
     const match = await this.prisma.match.findUnique({
       where: { id: matchId },
@@ -703,6 +791,8 @@ export class MatchesService {
     matchId: string,
     playerId: string,
   ): Promise<MatchStateViewDto> {
+    // Résoudre éventuellement un no-show avant de retourner l'état
+    await this.maybeResolveNoShow(matchId);
     // 1. Charger le match
     const match = await this.prisma.match.findUnique({
       where: { id: matchId },
@@ -770,6 +860,8 @@ export class MatchesService {
     playerId: string,
     dto: PlayMoveDto,
   ): Promise<MatchStateViewDto> {
+    // Sécurité : tenter de résoudre un éventuel no-show avant d'autoriser un coup
+    await this.maybeResolveNoShow(matchId);
     return await this.prisma.$transaction(async (tx) => {
       // 1. Charger le match avec verrouillage (pour éviter les conditions de course)
       const match = await tx.match.findUnique({
@@ -803,6 +895,11 @@ export class MatchesService {
             orderBy: {
               moveNumber: 'desc',
             },
+            // On ne charge que le dernier coup pour :
+            // - limiter la charge en DB
+            // - respecter le contrat de buildMatchStateViewDto,
+            //   qui s'attend à recevoir le dernier coup en premier.
+            take: 1,
           },
         },
       });
@@ -961,9 +1058,16 @@ export class MatchesService {
         });
       }
 
-      // 10. Compter les coups existants
-      const moveCount = match.moves.length;
-      const nextMoveNumber = moveCount + 1;
+      // 10. Déterminer le prochain numéro de coup
+      // Comme nous ne chargeons que le dernier coup (take: 1, orderBy desc),
+      // `match.moves[0].moveNumber` reflète le nombre TOTAL de coups joués.
+      const lastRecordedMove =
+        match.moves && match.moves.length > 0 ? match.moves[0] : null;
+      const lastMoveNumber =
+        lastRecordedMove && typeof lastRecordedMove.moveNumber === 'number'
+          ? lastRecordedMove.moveNumber
+          : 0;
+      const nextMoveNumber = lastMoveNumber + 1;
 
       // 11. Créer le MatchMove
       await tx.matchMove.create({
@@ -1083,6 +1187,140 @@ export class MatchesService {
       // 15. Retourner l'état du match
       return this.buildMatchStateViewDto(updatedMatch);
     });
+  }
+
+  /**
+   * Phase 6.0.C1 - Abandonner un match
+   *
+   * - match doit exister
+   * - joueur doit être participant
+   * - match doit être RUNNING
+   * - termine le match par RESIGNATION et déclenche la logique de tournoi
+   */
+  async resignMatch(
+    matchId: string,
+    playerId: string,
+  ): Promise<MatchStateViewDto> {
+    const finishedMatch = await this.prisma.$transaction(async (tx) => {
+      // 1. Charger le match avec les entrées et le tournoi
+      const match = await tx.match.findUnique({
+        where: { id: matchId },
+        include: {
+          whiteEntry: true,
+          blackEntry: true,
+          tournament: {
+            select: {
+              id: true,
+              timeControl: true,
+            },
+          },
+          moves: {
+            orderBy: {
+              moveNumber: 'desc',
+            },
+            take: 1,
+          },
+        },
+      });
+
+      if (!match) {
+        throw new NotFoundException(
+          `Match avec l'ID "${matchId}" introuvable`,
+        );
+      }
+
+      const whitePlayerId = match.whiteEntry.playerId;
+      const blackPlayerId = match.blackEntry.playerId;
+
+      // 2. Vérifier que le joueur est dans le match
+      if (playerId !== whitePlayerId && playerId !== blackPlayerId) {
+        throw new ForbiddenException({
+          code: 'PLAYER_NOT_IN_MATCH',
+          message: 'Vous n\'êtes pas un participant de ce match',
+        });
+      }
+
+      // 3. Vérifier que le match est RUNNING
+      if (match.status !== MatchStatus.RUNNING) {
+        throw new BadRequestException({
+          code: 'MATCH_NOT_RUNNING',
+          message: 'Ce match n\'est pas en cours',
+        });
+      }
+
+      // 4. Déterminer la couleur du joueur qui abandonne et le gagnant
+      const resigningColor =
+        playerId === whitePlayerId ? MatchColor.WHITE : MatchColor.BLACK;
+      const winnerColor =
+        resigningColor === MatchColor.WHITE ? MatchColor.BLACK : MatchColor.WHITE;
+
+      const result =
+        winnerColor === MatchColor.WHITE
+          ? MatchResult.WHITE_WIN
+          : MatchResult.BLACK_WIN;
+
+      const now = new Date();
+
+      // 5. Mettre à jour le match comme terminé par résignation
+      const updated = await tx.match.update({
+        where: { id: matchId },
+        data: {
+          status: MatchStatus.FINISHED,
+          result,
+          resultReason: 'RESIGNATION',
+          finishedAt: now,
+        },
+        include: {
+          whiteEntry: {
+            include: {
+              player: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+          blackEntry: {
+            include: {
+              player: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+          moves: {
+            orderBy: {
+              moveNumber: 'desc',
+            },
+            take: 1,
+          },
+          tournament: {
+            select: {
+              id: true,
+              timeControl: true,
+            },
+          },
+        },
+      });
+
+      return updated as any;
+    });
+
+    // 6. Après commit : déclencher la logique de tournoi (Phase 5)
+    setImmediate(() => {
+      this.generateNextRoundIfNeeded(finishedMatch.tournamentId).catch(
+        (err) => {
+          console.error(
+            'Erreur lors de la génération de la ronde suivante après résignation:',
+            err,
+          );
+        },
+      );
+    });
+
+    // 7. Retourner l'état canonique du match
+    return this.buildMatchStateViewDto(finishedMatch);
   }
 
   /**

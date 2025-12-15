@@ -2,7 +2,9 @@
 
 **Guide condensé pour lancer le projet en local**
 
-**Dernière mise à jour** : 14 Décembre 2025
+> 📖 **Version détaillée disponible** : Si vous démarrez pour la première fois ou rencontrez des problèmes, consultez le [Guide de démarrage rapide détaillé](./phase-00_quickstart-detaille_cross.md) qui contient des explications complètes et un troubleshooting approfondi.
+
+**Dernière mise à jour** : 15 Décembre 2025
 
 ---
 
@@ -98,7 +100,7 @@ cd C:\xampp\htdocs\ChessBet\backend
 .\import-database.ps1 -DumpPath "C:\chemin\vers\votre_dump.dump" -DropDatabase
 ```
 
-**Voir** : `docs/audits/README - Restauration base de données PostgreSQL.md` pour plus de détails.
+**Voir** : [Restauration base de données PostgreSQL](./phase-00_postgresql-restore_cross.md) pour plus de détails.
 
 ### Prisma Studio (Interface graphique - Recommandé)
 

@@ -5,78 +5,105 @@ Ce dossier contient toute la documentation du projet ChessBet.
 ## 📚 Structure
 
 ### Documentation Générale
-- **[README - Squelette monorepo tournois échecs légaux.md](./README%20-%20Squelette%20monorepo%20tournois%20échecs%20légaux.md)**  
+- **[Squelette monorepo tournois échecs légaux](./phase-00_fondations-techniques/cross/phase-00_squelette-monorepo_cross.md)**  
   Vue d'ensemble du projet, architecture et structure du monorepo.
 
-- **[README - Démarrage rapide du projet.md](./README%20-%20Démarrage%20rapide%20du%20projet.md)**  
+- **[Démarrage rapide du projet](./phase-00_fondations-techniques/cross/phase-00_quickstart-detaille_cross.md)**  
   Guide rapide pour démarrer le projet après avoir éteint votre PC (PostgreSQL, Backend, Frontend).
 
 ### Documentation Audits
 
-- **[README - Rapport d'audit technique du codebase 14.12.2025.md](./audits/README%20-%20Rapport%20d'audit%20technique%20du%20codebase%2014.12.2025.md)**  
-  Rapport d'audit exhaustif de l'état du codebase par rapport aux phases 5, 6.0, 6.1, 6.2 et 6.3.
+- **[Rapport d'audit technique du codebase 14.12.2025 (OBSOLÈTE)](./_archives/OBSOLETE_audit-codebase_2024-12-14.md)**  
+  Rapport d'audit exhaustif de l'état du codebase par rapport aux phases 5, 6.0, 6.1, 6.2 et 6.3. ⚠️ **OBSOLÈTE** : Ce rapport précède l'implémentation des phases 6.0.B et 6.0.C.
 
-- **[README - Restauration base de données PostgreSQL.md](./audits/README%20-%20Restauration%20base%20de%20données%20PostgreSQL.md)**  
+- **[Restauration base de données PostgreSQL](./phase-00_fondations-techniques/cross/phase-00_postgresql-restore_cross.md)**  
   Guide complet pour restaurer une base de données PostgreSQL depuis un dump, avec script automatisé.
 
 ### Documentation Backend
 
-- **[README - Intégrer prisma et modules joueurs-wallets.md](./backend/README%20-%20Intégrer%20prisma%20et%20modules%20joueurs-wallets.md)**  
-  Documentation complète de l'intégration Prisma et des modules Players/Wallets.
-
-- **[README - Renforcer l'authentification et la conformité légale.md](./backend/README%20-%20Renforcer%20l'authentification%20et%20la%20conformité%20légale.md)**  
-  Documentation du système d'authentification renforcé et des mesures de conformité légale.
-
-- **[README - Définir modèles prisma tournoi échecs.md](./backend/README%20-%20Définir%20modèles%20prisma%20tournoi%20échecs.md)**  
+**Phase 00 - Fondations Techniques**
+- **[Schéma Prisma - Vue d'ensemble](./phase-00_fondations-techniques/backend/phase-00_prisma-schema_overview-backend.md)**  
   Documentation complète du schéma Prisma, des modèles et des migrations.
-
-- **[README - Configuration SMTP.md](./backend/README%20-%20Configuration%20SMTP.md)**  
+- **[Configuration SMTP - Guide général](./phase-00_fondations-techniques/backend/phase-00_smtp-configuration_generique-backend.md)**  
   Guide général de configuration SMTP avec plusieurs options (Gmail, Mailtrap, Infomaniak, SendGrid).
-
-- **[README - Configuration SMTP Infomaniak.md](./backend/README%20-%20Configuration%20SMTP%20Infomaniak.md)**  
+- **[Configuration SMTP Infomaniak](./phase-00_fondations-techniques/backend/phase-00_smtp-configuration_infomaniak-backend.md)**  
   Guide détaillé spécifique à Infomaniak avec dépannage approfondi.
 
-- **[README - Mise en place transactions et gestion portefeuilles.md](./backend/README%20-%20Mise%20en%20place%20transactions%20et%20gestion%20portefeuilles.md)**  
+**Phase 01 - Auth et Comptes Joueurs**
+- **[Intégration Prisma et modules Players/Wallets](./phase-01_auth-et-comptes-joueurs/backend/phase-01_prisma-players-wallets_backend.md)**  
+  Documentation complète de l'intégration Prisma et des modules Players/Wallets.
+- **[Authentification JWT et conformité légale](./phase-01_auth-et-comptes-joueurs/backend/phase-01_auth-jwt-email-age-verification_backend.md)**  
+  Documentation du système d'authentification renforcé et des mesures de conformité légale.
+
+**Phase 02 - Wallets et Transactions**
+- **[Module Transactions et gestion des portefeuilles](./phase-02_wallets-et-transactions/backend/phase-02_transactions-wallets_backend.md)**  
   Documentation du module Transactions centralisé et de l'extension du module Wallets.
 
-- **[README - Implémenter module tournois et prize pool.md](./backend/README%20-%20Implémenter%20module%20tournois%20et%20prize%20pool.md)**  
-  Documentation complète de l'implémentation des modules Tournaments et PrizePool (Phase 4).
+**Phase 03 - Tournois Structure**
+- **[Modules Tournaments et PrizePool](./phase-03_tournois-structure/backend/phase-03_tournaments-prize-pool_backend.md)**  
+  Documentation complète de l'implémentation des modules Tournaments et PrizePool.
 
-- **[README - Implémenter les rôles joueur et l'API admin.md](./backend/README%20-%20Implémenter%20les%20rôles%20joueur%20et%20l'API%20admin.md)**  
-  Documentation du système de rôles (PLAYER, ADMIN, SUPER_ADMIN), protection des endpoints admin, et API admin v1 (Phase 4.5).
+**Phase 04 - Prize Pool et Modération**
+- **[Rôles joueur et API admin v1](./phase-04_prize-pool-et-moderation/backend/phase-04_roles-admin-api_backend.md)**  
+  Documentation du système de rôles (PLAYER, ADMIN, SUPER_ADMIN) et API admin v1.
+- **[Suspension de comptes](./phase-04_prize-pool-et-moderation/backend/phase-04_account-suspension_backend.md)**  
+  Documentation du système de suspension des comptes utilisateurs.
+- **[Restrictions ciblées et modération avancée](./phase-04_prize-pool-et-moderation/backend/phase-04_targeted-restrictions_backend.md)**  
+  Documentation du système de restrictions ciblées (blocage tournois, dépôts, retraits).
 
-- **[README - Restrictions ciblées et modération avancée.md](./backend/README%20-%20Restrictions%20ciblées%20et%20modération%20avancée.md)**  
-  Documentation du système de restrictions ciblées permettant de bloquer finement l'accès aux tournois, dépôts et retraits sans suspendre complètement le compte (Phase 4.7).
+**Phase 05 - Matches et Brackets**
+- **[Module Matches et résultats de tournoi](./phase-05_matches-et-brackets/backend/phase-05_matches-brackets-standings_backend.md)**  
+  Documentation complète du module Matches : génération des brackets, gestion des matches, résultats, finalisation et distribution des gains.
+- **[BASELINE Phase 5 - Référence](./phase-05_matches-et-brackets/cross/phase-05_baseline-reference_cross.md)**  
+  Spécification de référence complète de la Phase 5.
 
-- **[README - Matches et résultats de tournoi.md](./backend/README%20-%20Matches%20et%20résultats%20de%20tournoi.md)**  
-  Documentation complète du module Matches : génération des brackets, gestion des matches, enregistrement des résultats, génération automatique des rondes, finalisation et distribution des gains (Phase 5).
-
-- **[README - Phase 6.0.B Moteur d'échecs backend.md](./backend/README%20-%20Phase%206.0.B%20Moteur%20d'échecs%20backend.md)**  
-  Documentation du moteur d'échecs backend : ChessEngineService, validation de coups, détection de fin de partie, tests unitaires (Phase 6.0.B).
+**Phase 06 - Gameplay Échecs**
+- **[Phase 6.0.A - Extension Schéma Prisma](./phase-06_gameplay-echecs/cross/phase-06.0.A_schema-extension_cross.md)**  
+  Extension du schéma Prisma pour le gameplay : nouveaux champs Match, modèle MatchMove, enum MatchColor.
+- **[Phase 6.0.B - Moteur d'échecs backend](./phase-06_gameplay-echecs/backend/phase-06.0.B_chess-engine_backend.md)**  
+  Documentation du moteur d'échecs backend : ChessEngineService, validation de coups, détection de fin de partie.
+- **[Phase 6.0.C - Orchestration Gameplay](./phase-06_gameplay-echecs/cross/phase-06.0.C_gameplay-orchestration_cross.md)**  
+  Spécification détaillée de l'orchestration gameplay côté backend : endpoints REST, DTO canonique, gestion du temps, résignation, no-show.
+- **[Phase 6.0.C - Audit Report](./phase-06_gameplay-echecs/cross/phase-06.0.C_audit-report_cross.md)**  
+  Rapport d'audit strict de la Phase 6.0.C : vérification des invariants, transactions Prisma, détection de fin de partie.
 
 ### Documentation Frontend
 
-- **[README - Développement frontend plateforme d'échecs.md](./frontend/README%20-%20Développement%20frontend%20plateforme%20d'échecs.md)**  
+**Phase 00 - Fondations Techniques**
+- **[Configuration favicon et icônes](./phase-00_fondations-techniques/frontend/phase-00_favicon-et-icones_frontend.md)**  
+  Configuration du favicon et des icônes PWA pour la plateforme.
+
+**Phase 04 - Prize Pool et Modération**
+- **[Rôles et espace admin v1](./phase-04_prize-pool-et-moderation/frontend/phase-04_roles-admin-interface_frontend.md)**  
+  Documentation de l'implémentation frontend du système de rôles et de l'espace admin v1.
+- **[Gestion des comptes suspendus](./phase-04_prize-pool-et-moderation/frontend/phase-04_suspended-accounts-ux_frontend.md)**  
+  Documentation de la gestion frontend des comptes suspendus (messages d'erreur, déconnexion automatique).
+- **[Restrictions ciblées joueurs](./phase-04_prize-pool-et-moderation/frontend/phase-04_targeted-restrictions-ui_frontend.md)**  
+  Documentation de l'implémentation frontend des restrictions ciblées (UI admin, codes d'erreur).
+
+**Phase 05 - Matches et Brackets**
+- **[Développement frontend - Vue d'ensemble](./phase-05_matches-et-brackets/frontend/phase-05_frontend-overview_frontend.md)**  
   Documentation complète du développement frontend : pages, authentification, composants, et conformité légale.
-
-- **[README - Implémenter les rôles et l'espace admin v1.md](./frontend/README%20-%20Implémenter%20les%20rôles%20et%20l'espace%20admin%20v1.md)**  
-  Documentation de l'implémentation frontend du système de rôles, affichage visuel (couleurs + icônes), et espace admin v1 (Phase 4.5).
-
-- **[README - Gérer les comptes suspendus côté frontend.md](./frontend/README%20-%20Gérer%20les%20comptes%20suspendus%20côté%20frontend.md)**  
-  Documentation de la gestion frontend des comptes suspendus avec messages d'erreur et déconnexion automatique (Phase 4.6).
-
-- **[README - Développer restrictions ciblées joueurs.md](./frontend/README%20-%20Développer%20restrictions%20ciblées%20joueurs.md)**  
-  Documentation de l'implémentation frontend du système de restrictions ciblées : UI admin, gestion des codes d'erreur, et affichage cohérent des messages (Phase 4.7).
 
 ---
 
 ## 🗂️ Organisation
 
-Les README sont organisés par domaine :
+La documentation est organisée par **phases de développement** :
 
-- **Racine** : Documentation générale du projet
-- **backend/** : Toute la documentation spécifique au backend NestJS (Prisma, modules, authentification, SMTP, etc.)
-- **frontend/** : Documentation du développement frontend (pages, authentification, composants, etc.)
+- **Phase 00 - Fondations Techniques** : Infrastructure, Prisma, PostgreSQL, SMTP, configuration
+- **Phase 01 - Auth et Comptes Joueurs** : Authentification JWT, Players, Wallets initiaux
+- **Phase 02 - Wallets et Transactions** : Module Transactions centralisé, gestion financière
+- **Phase 03 - Tournois Structure** : Modules Tournaments et PrizePool
+- **Phase 04 - Prize Pool et Modération** : Rôles, admin, suspension, restrictions ciblées
+- **Phase 05 - Matches et Brackets** : Génération brackets, gestion matches, standings, frontend complet
+- **Phase 06 - Gameplay Échecs** : Moteur d'échecs, orchestration gameplay temps réel
+- **_archives/** : Documents obsolètes ou historiques
+
+Chaque phase est subdivisée en :
+- **`backend/`** : Documentation spécifique au backend NestJS
+- **`frontend/`** : Documentation spécifique au frontend Next.js
+- **`cross/`** : Documentation transversale (backend + frontend)
 
 ---
 
@@ -91,8 +118,9 @@ Les README sont organisés par domaine :
 **Dernière mise à jour** : Décembre 2025
 
 **Changements récents** :
-- ✅ **Phase 6.0.B terminée** (Décembre 2025) : Moteur d'échecs backend (ChessEngineService), validation de coups, détection de fin de partie, 32 tests unitaires, service pur et déterministe
-- ✅ **Phase 6.0.A terminée** (14 Décembre 2025) : Extension du modèle Match avec champs gameplay, création du modèle MatchMove, enum MatchColor, migration Prisma appliquée
+- ✅ **Phase 6.0.C terminée** : Backend Gameplay Orchestration (endpoints `/matches/:id/join`, `/state`, `/move`, `/resign`, DTO `MatchStateViewDto`, résignation, no-show lazy à 90s, intégration avec Phase 5).
+- ✅ **Phase 6.0.B terminée** : Moteur d'échecs backend (ChessEngineService), validation de coups, détection de fin de partie, 32 tests unitaires, service pur et déterministe.
+- ✅ **Phase 6.0.A terminée** (14 Décembre 2025) : Extension du modèle Match avec champs gameplay, création du modèle MatchMove, enum MatchColor, migration Prisma appliquée.
 - ✅ PostgreSQL mis à jour vers version 17 (compatibilité avec dumps récents)
 - ✅ Script d'import automatisé créé (`backend/import-database.ps1`)
 - ✅ Documentation d'audit et de restauration ajoutée

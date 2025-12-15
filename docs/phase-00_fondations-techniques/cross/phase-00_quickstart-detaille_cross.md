@@ -1,6 +1,8 @@
 # Démarrage Rapide du Projet ChessBet
 
-**Guide pour reprendre le travail après avoir éteint votre PC**
+**Guide détaillé pour reprendre le travail après avoir éteint votre PC**
+
+> 📖 **Version condensée disponible** : Si vous connaissez déjà le projet et voulez juste un rappel rapide des commandes, consultez le [Guide de démarrage rapide condensé](./phase-00_quickstart-condense_cross.md).
 
 ---
 
@@ -228,7 +230,7 @@ docker compose -f infra/docker-compose.yml up -d postgres
 **Solution :**
 - Vérifiez les variables SMTP dans `backend/.env`
 - Vérifiez que les identifiants Infomaniak sont corrects
-- Consultez : `docs/backend/README - Configuration SMTP Infomaniak.md`
+- Consultez : [Configuration SMTP Infomaniak](../../phase-00_fondations-techniques/backend/phase-00_smtp-configuration_infomaniak-backend.md)
 
 ### Erreur 500 lors de la connexion
 
@@ -403,9 +405,10 @@ GRANT ALL ON SCHEMA public TO chessbet_user;
 
 ## 📚 Documentation complète
 
-- **Backend :** `docs/backend/`
-- **Frontend :** `docs/frontend/`
-- **Configuration SMTP :** `docs/backend/README - Configuration SMTP Infomaniak.md`
+- **Index complet :** [README principal](../../README.md)
+- **Backend :** Documentation organisée par phases
+- **Frontend :** Documentation organisée par phases
+- **Configuration SMTP :** [Configuration SMTP Infomaniak](../backend/phase-00_smtp-configuration_infomaniak-backend.md)
 
 ---
 
@@ -454,4 +457,6 @@ npx prisma studio
 ---
 
 **Dernière mise à jour :** Décembre 2025
+
+
 

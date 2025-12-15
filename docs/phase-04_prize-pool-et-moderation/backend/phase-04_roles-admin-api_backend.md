@@ -218,7 +218,7 @@ curl -X PATCH http://localhost:4000/admin/players/clxxx/status \
 
 ### Documentation Complète
 
-Pour plus de détails, voir : [README - Bloquer la connexion des comptes suspendus](./README%20-%20Bloquer%20la%20connexion%20des%20comptes%20suspendus.md)
+Pour plus de détails, voir : [Bloquer la connexion des comptes suspendus](./phase-04_account-suspension_backend.md)
 
 ## 🔒 Protection des endpoints admin
 

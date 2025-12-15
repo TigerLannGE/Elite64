@@ -568,9 +568,9 @@ Le système est conçu pour être facilement extensible. Pour ajouter une nouvel
 
 ## 📚 Références
 
-- [README - Bloquer la connexion des comptes suspendus](./README%20-%20Bloquer%20la%20connexion%20des%20comptes%20suspendus.md) - Phase 4.6
-- [README - Implémenter les rôles joueur et l'API admin](./README%20-%20Implémenter%20les%20rôles%20joueur%20et%20l'API%20admin.md) - Phase 4.3
-- [README Frontend - Développer restrictions ciblées joueurs](../frontend/README%20-%20Développer%20restrictions%20ciblées%20joueurs.md) - Phase 4.7
+- [Bloquer la connexion des comptes suspendus](./phase-04_account-suspension_backend.md) - Phase 4.6
+- [Implémenter les rôles joueur et l'API admin](./phase-04_roles-admin-api_backend.md) - Phase 4.3
+- [Frontend - Développer restrictions ciblées joueurs](../frontend/phase-04_targeted-restrictions-ui_frontend.md) - Phase 4.7
 
 ---
 

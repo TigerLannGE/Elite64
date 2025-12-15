@@ -41,11 +41,9 @@ Règles :
   - `status = RUNNING`.
   - `startedAt = now`.
   - `initialFen` et `currentFen` = FEN de départ standard.
+  - `readyAt` reste inchangé (premier join).
   - `lastMoveAt = now`.
   - `whiteTimeMsRemaining` et `blackTimeMsRemaining` = temps de base dérivé de `Tournament.timeControl` ("M+I").
-
-Limites Phase 6.0.C :
-- Pas encore de logique no-show (JOIN_WINDOW_SECONDS + NO_SHOW_GRACE_SECONDS).
 
 ---
 
@@ -104,9 +102,61 @@ Pipeline (dans une transaction Prisma) :
     - Appeler `generateNextRoundIfNeeded(tournamentId)` **après** la transaction.
 11. Retourner `MatchStateViewDto` issu du match mis à jour.
 
-Limites Phase 6.0.C :
+Remarques Phase 6.0.C :
 - L'incrément de temps (partie "+I") est parsé mais pas encore ajouté au temps après chaque coup.
-- Pas de no-show évalué ici.
+- La logique de no-show est évaluée de façon **lazy** avant chaque appel via `maybeResolveNoShow(matchId)`.
+
+---
+
+### 2.4 `POST /matches/:id/resign`
+
+**But** : permettre à un joueur de s'**abandonner** (résignation) sans jouer de coup supplémentaire.
+
+- **Route** : `MatchesController.resignMatch()`
+- **Protection** : `JwtAuthGuard` + `ActivePlayerGuard`
+- **Input** : `:id` = ID du match, body vide
+- **Output** : `MatchStateViewDto` du match terminé
+
+Règles :
+- Le joueur doit être `whiteEntry.playerId` ou `blackEntry.playerId`, sinon 403 :
+
+```json
+{ "code": "PLAYER_NOT_IN_MATCH", "message": "Vous n'êtes pas un participant de ce match" }
+```
+
+- Le match doit être en statut `RUNNING`. Si le match est `PENDING`, `FINISHED` ou `CANCELED` :
+
+```json
+{ "code": "MATCH_NOT_RUNNING", "message": "Ce match n'est pas en cours" }
+```
+
+- Le joueur qui abandonne perd, l'adversaire gagne :
+
+| Qui abandonne | `result` renvoyé |
+|---------------|------------------|
+| Blanc         | `BLACK_WIN`      |
+| Noir          | `WHITE_WIN`      |
+
+- Le match est mis à jour avec :
+
+```json
+{
+  "status": "FINISHED",
+  "result": "WHITE_WIN" | "BLACK_WIN",
+  "resultReason": "RESIGNATION",
+  "finishedAt": "<nowUTC>"
+}
+```
+
+Exemple curl :
+
+```bash
+TOKEN_WHITE="jwt-du-joueur-blanc"
+MATCH_ID="match-123"
+
+curl -X POST http://localhost:4000/matches/$MATCH_ID/resign \
+  -H "Authorization: Bearer $TOKEN_WHITE"
+```
 
 ---
 
@@ -190,15 +240,53 @@ Lors du passage en `RUNNING` (dans `joinMatch`) :
 
 ## 5. No-show et tie-break (statut)
 
-### 5.1 No-show
+### 5.1 No-show (lazy evaluation)
 
 Infrastructure :
 - Champs Prisma : `readyAt`, `whiteJoinedAt`, `blackJoinedAt`, `noShowResolvedAt`.
+- Fichier de config : `backend/src/modules/matches/match.config.ts` avec :
+  - `JOIN_WINDOW_SECONDS = 30`
+  - `NO_SHOW_GRACE_SECONDS = 60`
+  - `TOTAL_NO_SHOW_MS = (JOIN_WINDOW_SECONDS + NO_SHOW_GRACE_SECONDS) * 1000`
 
-Non implémenté en Phase 6.0.C :
-- Pas de check `readyAt + 90s`.
-- Pas de mise à jour automatique en `NO_SHOW` ou double no-show.
-- Pas de constantes `JOIN_WINDOW_SECONDS`, `NO_SHOW_GRACE_SECONDS` dans le code.
+Logique (méthode privée `MatchesService.maybeResolveNoShow(matchId)`) :
+
+- Conditions pour tenter une résolution :
+  - `match.status === PENDING`.
+  - `readyAt` non nul (défini au **premier join**).
+  - `noShowResolvedAt` nul (idempotence).
+  - `now >= readyAt + TOTAL_NO_SHOW_MS` (soit 30s de fenêtre de join + 60s de grâce = 90s).
+- Cas traités à l'intérieur d'une transaction Prisma :
+  - **0 joueurs ont rejoint** (`whiteJoinedAt` null, `blackJoinedAt` null) :
+    - `status = FINISHED`
+    - `result = DRAW`
+    - `resultReason = "DOUBLE_NO_SHOW"`
+    - `finishedAt = nowUTC`
+    - `noShowResolvedAt = nowUTC`
+  - **1 seul joueur a rejoint** :
+    - Le joueur présent est déclaré vainqueur :
+      - `result = WHITE_WIN` ou `BLACK_WIN` selon `whiteJoinedAt` ou `blackJoinedAt`.
+      - `resultReason = "NO_SHOW"`.
+    - `status = FINISHED`
+    - `finishedAt = nowUTC`
+    - `noShowResolvedAt = nowUTC`
+- Après commit :
+  - `generateNextRoundIfNeeded(tournamentId)` est appelé de manière asynchrone.
+
+Timeline simplifiée :
+
+1. Premier joueur rejoint : `readyAt = now`.
+2. Deuxième joueur ne rejoint pas :
+   - Tant que `now < readyAt + 90s` : rien ne se passe, le match reste `PENDING`.
+   - À partir de `readyAt + 90s` :
+     - Lors du prochain appel à :
+       - `POST /matches/:id/join`
+       - `GET /matches/:id/state`
+       - `POST /matches/:id/move`
+     - `maybeResolveNoShow(matchId)` est exécutée et applique la résolution appropriée (`NO_SHOW` ou `DOUBLE_NO_SHOW`).
+
+Idempotence :
+- Si `noShowResolvedAt` est déjà renseigné, `maybeResolveNoShow()` **ne fait rien** et retourne immédiatement.
 
 ### 5.2 Tie-break
 
@@ -228,11 +316,9 @@ Conclusion : la logique de brackets et de payouts Phase 5 reste la **source de v
 
 ## 7. Limitations connues de la Phase 6.0.C
 
-1. **Pas d'endpoint `/matches/:id/resign`** : abandon non encore implémenté côté joueur.
-2. **No-show non géré** : un match peut rester bloqué si un joueur ne rejoint jamais.
-3. **Incrément de temps ignoré** : pas critique pour `10+0`, `3+0`, `1+0`.
-4. **Pas de WebSockets** : le frontend devra poller `GET /matches/:id/state`.
-5. **Pas d'interface de jeu frontend** : la partie est jouable via HTTP, mais aucun plateau n'est encore exposé côté Next.js.
+1. **Incrément de temps ignoré** : pas critique pour `10+0`, `3+0`, `1+0`.
+2. **Pas de WebSockets** : le frontend devra poller `GET /matches/:id/state`.
+3. **Pas d'interface de jeu frontend** : la partie est jouable via HTTP, mais aucun plateau n'est encore exposé côté Next.js.
 
 ---
 

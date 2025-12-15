@@ -74,7 +74,7 @@ FRONTEND_URL=http://localhost:3000
 
 **Avantages :** Service professionnel, adapté à la production
 
-**📖 Guide détaillé :** Consultez le **[README - Configuration SMTP Infomaniak.md](./README%20-%20Configuration%20SMTP%20Infomaniak.md)** pour un guide complet et détaillé spécifique à Infomaniak, incluant :
+**📖 Guide détaillé :** Consultez le **[Configuration SMTP Infomaniak](./phase-00_smtp-configuration_infomaniak-backend.md)** pour un guide complet et détaillé spécifique à Infomaniak, incluant :
 - Étapes détaillées de configuration
 - Dépannage approfondi
 - Solutions aux problèmes courants

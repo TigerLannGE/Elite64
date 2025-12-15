@@ -1,0 +1,138 @@
+# 📚 RÈGLES DE DOCUMENTATION - ChessBet
+
+## Structure et Organisation
+
+La documentation est organisée par **phases de développement** :
+
+### Convention de Nommage des Fichiers
+Format : `phase-XX[.X.X]_description-kebab-case_scope.md`
+
+Exemples :
+- `phase-00_prisma-schema_overview-backend.md`
+- `phase-06.0.C_gameplay-orchestration_cross.md`
+
+### Scopes Disponibles
+- `backend` : Documentation spécifique au backend NestJS
+- `frontend` : Documentation spécifique au frontend Next.js
+- `cross` : Documentation transversale (backend + frontend)
+
+### Structure des Dossiers
+```
+docs/
+├── phase-00_fondations-techniques/
+├── phase-01_auth-et-comptes-joueurs/
+├── phase-02_wallets-et-transactions/
+├── phase-03_tournois-structure/
+├── phase-04_prize-pool-et-moderation/
+├── phase-05_matches-et-brackets/
+├── phase-06_gameplay-echecs/
+├── _archives/          # Documents obsolètes (préfixe OBSOLETE_)
+└── README.md           # Index principal
+```
+
+## Commandes de Maintenance Documentation
+
+### Créer une nouvelle documentation
+Quand on crée un nouveau document de documentation :
+1. Identifier la phase (00-99)
+2. Identifier le scope (backend/frontend/cross)
+3. Créer le fichier dans le bon dossier avec la convention de nommage
+4. Ajouter le lien dans `docs/README.md` sous la section de phase appropriée
+5. Template à utiliser : voir docs/MAINTENANCE_GUIDE.md
+
+### Archiver un document obsolète
+Quand un document devient obsolète :
+1. Déplacer vers `docs/_archives/`
+2. Renommer avec préfixe `OBSOLETE_`
+3. Ajouter une note d'obsolescence en haut du fichier
+4. Mettre à jour tous les liens vers ce document dans la doc
+5. Marquer comme obsolète dans `docs/README.md`
+
+### Mettre à jour la documentation
+Quand on modifie un document :
+1. Mettre à jour la date "Dernière mise à jour" en haut du fichier
+2. Ajouter une note dans la section "Changements récents" si pertinent
+3. Vérifier que tous les liens internes fonctionnent
+4. Mettre à jour `docs/README.md` si le titre/description change
+
+### Corriger les liens
+Après un renommage/déplacement :
+1. Utiliser grep pour trouver toutes les références : `grep -r "ancien-nom" docs/`
+2. Mettre à jour tous les liens dans les fichiers .md
+3. Mettre à jour `docs/README.md`
+4. Mettre à jour `docs/_CORRESPONDANCE_CHEMINS.md` si nécessaire
+
+## Format des Documents
+
+### En-tête Standard
+```markdown
+# Titre du Document
+
+**Date de création** : JJ mois AAAA  
+**Dernière mise à jour** : JJ mois AAAA  
+**Statut** : ✅ Complété / 🔄 En cours / ⚠️ Obsolète
+
+---
+
+## 📋 Vue d'ensemble
+...
+```
+
+### Sections Recommandées
+- Vue d'ensemble
+- Objectifs
+- Architecture/Structure (si technique)
+- Implémentation (si technique)
+- Exemples d'utilisation
+- Dépannage/Troubleshooting
+- Références et liens connexes
+
+### Liens Internes
+Toujours utiliser des chemins relatifs :
+- Depuis même dossier : `./autre-fichier.md`
+- Depuis dossier parent : `../autre-dossier/fichier.md`
+- Depuis racine docs : `../../README.md`
+
+## Règles AI Assistant
+
+Quand tu crées/modifies de la documentation :
+1. TOUJOURS respecter la convention de nommage
+2. TOUJOURS placer dans le bon dossier de phase
+3. TOUJOURS ajouter le lien dans README.md
+4. TOUJOURS utiliser des chemins relatifs pour les liens
+5. TOUJOURS marquer la date de dernière mise à jour
+6. TOUJOURS vérifier que les liens fonctionnent
+7. NE JAMAIS supprimer un document (le déplacer vers _archives/)
+8. TOUJOURS préfixer les documents obsolètes avec "OBSOLETE_"
+
+## Maintenance Préventive
+
+Vérifications régulières à effectuer :
+- [ ] Tous les liens internes fonctionnent
+- [ ] Aucun fichier dans l'ancienne structure (backend/, frontend/, audits/)
+- [ ] Convention de nommage respectée partout
+- [ ] README.md à jour avec tous les documents
+- [ ] Documents obsolètes archivés avec mention explicite
+
+## Exemples de Commandes
+
+### Créer un nouveau document
+```
+@AI Crée une nouvelle documentation pour [description] dans la Phase [XX] scope [backend/frontend/cross]
+```
+
+### Archiver un document
+```
+@AI Archive le document [nom-fichier.md] car [raison]
+```
+
+### Vérifier la cohérence
+```
+@AI Vérifie la cohérence de toute la documentation selon les règles établies
+```
+
+### Mettre à jour un document
+```
+@AI Mets à jour la documentation [nom-fichier.md] avec [modifications]
+```
+

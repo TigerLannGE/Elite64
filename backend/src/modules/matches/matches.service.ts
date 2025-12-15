@@ -1096,7 +1096,18 @@ export class MatchesService {
     const fen = match.currentFen || match.initialFen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
     // Compter les coups
-    const moveCount = match.moves?.length || 0;
+    // IMPORTANT :
+    // - Dans plusieurs appels (joinMatch, getMatchState, playMove),
+    //   nous chargeons uniquement le dernier coup avec `take: 1` et
+    //   `orderBy: moveNumber desc`.
+    // - Dans ce cas, `match.moves.length` vaut 1, mais le champ
+    //   `moveNumber` du premier élément reflète le nombre TOTAL de coups
+    //   joués dans la partie.
+    const moves = match.moves ?? [];
+    const moveCount =
+      moves.length > 0 && typeof moves[0].moveNumber === 'number'
+        ? moves[0].moveNumber
+        : moves.length;
 
     // Déterminer le trait depuis le FEN
     const chess = this.chessEngineService.initializeGame(fen);

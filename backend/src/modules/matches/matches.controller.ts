@@ -57,15 +57,6 @@ export class MatchesController {
   }
 
   /**
-   * GET /matches/:id
-   * Récupère un match par id (public)
-   */
-  @Get(':id')
-  async getMatchById(@Param('id') matchId: string) {
-    return this.matchesService.getMatchById(matchId);
-  }
-
-  /**
    * POST /matches/:id/join
    * Phase 6.0.C - Rejoindre un match
    */
@@ -100,6 +91,19 @@ export class MatchesController {
   ) {
     const playerId = req.user.sub;
     return this.matchesService.playMove(matchId, playerId, dto);
+  }
+
+  /**
+   * GET /matches/:id
+   * Récupère un match par id (public)
+   *
+   * IMPORTANT :
+   * Cette route générique doit être définie en dernier pour ne pas
+   * intercepter les routes plus spécifiques comme /matches/:id/state.
+   */
+  @Get(':id')
+  async getMatchById(@Param('id') matchId: string) {
+    return this.matchesService.getMatchById(matchId);
   }
 }
 

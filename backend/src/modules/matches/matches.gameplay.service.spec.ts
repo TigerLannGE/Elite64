@@ -277,8 +277,10 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
 
       expect(moveResult.success).toBe(true);
 
-      // Mock pour la transaction
-      mockTransaction.match.findUnique.mockResolvedValueOnce(runningMatch);
+      // Mock pour la transaction (1er appel depuis maybeResolveNoShow, 2e depuis playMove)
+      mockTransaction.match.findUnique
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(runningMatch);
       mockTransaction.matchMove.create.mockResolvedValueOnce({
         id: 'move-123',
         matchId: mockMatchId,
@@ -323,8 +325,10 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
     });
 
     it('devrait rejeter un coup illégal', async () => {
-      // Mock pour la transaction
-      mockTransaction.match.findUnique.mockResolvedValueOnce(runningMatch);
+      // Mock pour la transaction (1er appel depuis maybeResolveNoShow, 2e depuis playMove)
+      mockTransaction.match.findUnique
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(runningMatch);
 
       await expect(
         service.playMove(mockMatchId, mockWhitePlayerId, {
@@ -341,8 +345,10 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
         currentFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1', // Après e4, c'est au noir
       };
 
-      // Mock pour la transaction
-      mockTransaction.match.findUnique.mockResolvedValueOnce(matchAfterWhiteMove);
+      // Mock pour la transaction (1er appel depuis maybeResolveNoShow, 2e depuis playMove)
+      mockTransaction.match.findUnique
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(matchAfterWhiteMove);
 
       await expect(
         service.playMove(mockMatchId, mockWhitePlayerId, {
@@ -358,8 +364,10 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
         { from: 'e2', to: 'e4' },
       );
 
-      // Mock pour la transaction
-      mockTransaction.match.findUnique.mockResolvedValueOnce(runningMatch);
+      // Mock pour la transaction (1er appel depuis maybeResolveNoShow, 2e depuis playMove)
+      mockTransaction.match.findUnique
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(runningMatch);
       mockTransaction.matchMove.create.mockResolvedValueOnce({
         id: 'move-123',
         matchId: mockMatchId,
@@ -412,11 +420,13 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
     });
 
     it('devrait rejeter un match qui n\'est pas RUNNING', async () => {
-      // Mock pour la transaction
-      mockTransaction.match.findUnique.mockResolvedValueOnce({
-        ...mockMatch,
-        status: MatchStatus.PENDING,
-      });
+      // Mock pour la transaction (1er appel depuis maybeResolveNoShow, 2e depuis playMove)
+      mockTransaction.match.findUnique
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({
+          ...mockMatch,
+          status: MatchStatus.PENDING,
+        });
 
       await expect(
         service.playMove(mockMatchId, mockWhitePlayerId, {
@@ -424,6 +434,166 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
           to: 'e4',
         }),
       ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('resignMatch', () => {
+    const runningMatch = {
+      ...mockMatch,
+      status: MatchStatus.RUNNING,
+      whiteEntry: {
+        ...mockMatch.whiteEntry,
+        playerId: mockWhitePlayerId,
+      },
+      blackEntry: {
+        ...mockMatch.blackEntry,
+        playerId: mockBlackPlayerId,
+      },
+      tournament: {
+        id: mockTournamentId,
+        timeControl: '10+0',
+      },
+      moves: [],
+    };
+
+    it('devrait terminer le match par BLACK_WIN + RESIGNATION quand les blancs abandonnent', async () => {
+      mockTransaction.match.findUnique.mockResolvedValueOnce(runningMatch);
+
+      const finishedMatch = {
+        ...runningMatch,
+        status: MatchStatus.FINISHED,
+        result: MatchResult.BLACK_WIN,
+        resultReason: 'RESIGNATION',
+        finishedAt: new Date(),
+      };
+
+      mockTransaction.match.update.mockResolvedValueOnce(finishedMatch);
+
+      const result = await service.resignMatch(
+        mockMatchId,
+        mockWhitePlayerId,
+      );
+
+      expect(result.status).toBe(MatchStatus.FINISHED);
+      expect(result.result).toBe(MatchResult.BLACK_WIN);
+      expect(result.resultReason).toBe('RESIGNATION');
+    });
+
+    it('devrait rejeter un joueur qui n\'est pas dans le match', async () => {
+      mockTransaction.match.findUnique.mockResolvedValueOnce(runningMatch);
+
+      await expect(
+        service.resignMatch(mockMatchId, 'other-player-123'),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('devrait rejeter un match qui n\'est pas RUNNING', async () => {
+      mockTransaction.match.findUnique.mockResolvedValueOnce({
+        ...runningMatch,
+        status: MatchStatus.FINISHED,
+      });
+
+      await expect(
+        service.resignMatch(mockMatchId, mockWhitePlayerId),
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('maybeResolveNoShow', () => {
+    beforeEach(() => {
+      // S'assurer que generateNextRoundIfNeeded ne casse pas les tests
+      jest
+        .spyOn(service as any, 'generateNextRoundIfNeeded')
+        .mockResolvedValue(undefined);
+    });
+    it('devrait résoudre DOUBLE_NO_SHOW quand aucun joueur ne rejoint après 90s', async () => {
+      const pastReadyAt = new Date(Date.now() - 91 * 1000);
+
+      const pendingMatch = {
+        ...mockMatch,
+        status: MatchStatus.PENDING,
+        readyAt: pastReadyAt,
+        whiteJoinedAt: null,
+        blackJoinedAt: null,
+        noShowResolvedAt: null,
+      };
+
+      mockTransaction.match.findUnique.mockResolvedValueOnce(pendingMatch);
+      mockTransaction.match.update.mockResolvedValueOnce({
+        ...pendingMatch,
+        status: MatchStatus.FINISHED,
+        result: MatchResult.DRAW,
+        resultReason: 'DOUBLE_NO_SHOW',
+        noShowResolvedAt: new Date(),
+        finishedAt: new Date(),
+      });
+
+      const resolved = await (service as any).maybeResolveNoShow(mockMatchId);
+
+      expect(resolved).toBe(true);
+      expect(mockTransaction.match.update).toHaveBeenCalledWith({
+        where: { id: mockMatchId },
+        data: expect.objectContaining({
+          status: MatchStatus.FINISHED,
+          result: MatchResult.DRAW,
+          resultReason: 'DOUBLE_NO_SHOW',
+        }),
+      });
+    });
+
+    it('devrait résoudre NO_SHOW en faveur du joueur présent', async () => {
+      const pastReadyAt = new Date(Date.now() - 91 * 1000);
+
+      const pendingMatch = {
+        ...mockMatch,
+        status: MatchStatus.PENDING,
+        readyAt: pastReadyAt,
+        whiteJoinedAt: new Date(),
+        blackJoinedAt: null,
+        noShowResolvedAt: null,
+      };
+
+      mockTransaction.match.findUnique.mockResolvedValueOnce(pendingMatch);
+      mockTransaction.match.update.mockResolvedValueOnce({
+        ...pendingMatch,
+        status: MatchStatus.FINISHED,
+        result: MatchResult.WHITE_WIN,
+        resultReason: 'NO_SHOW',
+        noShowResolvedAt: new Date(),
+        finishedAt: new Date(),
+      });
+
+      const resolved = await (service as any).maybeResolveNoShow(mockMatchId);
+
+      expect(resolved).toBe(true);
+      expect(mockTransaction.match.update).toHaveBeenCalledWith({
+        where: { id: mockMatchId },
+        data: expect.objectContaining({
+          status: MatchStatus.FINISHED,
+          result: MatchResult.WHITE_WIN,
+          resultReason: 'NO_SHOW',
+        }),
+      });
+    });
+
+    it('doit être idempotent si noShowResolvedAt est déjà renseigné', async () => {
+      const pastReadyAt = new Date(Date.now() - 91 * 1000);
+
+      const alreadyResolvedMatch = {
+        ...mockMatch,
+        status: MatchStatus.FINISHED,
+        readyAt: pastReadyAt,
+        whiteJoinedAt: null,
+        blackJoinedAt: null,
+        noShowResolvedAt: new Date(),
+      };
+
+      mockTransaction.match.findUnique.mockResolvedValueOnce(alreadyResolvedMatch);
+
+      const resolved = await (service as any).maybeResolveNoShow(mockMatchId);
+
+      expect(resolved).toBe(false);
+      expect(mockTransaction.match.update).not.toHaveBeenCalled();
     });
   });
 });

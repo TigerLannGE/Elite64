@@ -94,6 +94,17 @@ export class MatchesController {
   }
 
   /**
+   * POST /matches/:id/resign
+   * Phase 6.0.C1 - Abandonner un match
+   */
+  @UseGuards(JwtAuthGuard, ActivePlayerGuard)
+  @Post(':id/resign')
+  async resignMatch(@Param('id') matchId: string, @Request() req: any) {
+    const playerId = req.user.sub;
+    return this.matchesService.resignMatch(matchId, playerId);
+  }
+
+  /**
    * GET /matches/:id
    * Récupère un match par id (public)
    *

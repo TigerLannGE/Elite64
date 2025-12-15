@@ -758,8 +758,8 @@ Le frontend sera accessible sur `http://localhost:3000`
 
 ### Documentation Interne
 
-- [README - Gérer les comptes suspendus côté frontend](./README%20-%20Gérer%20les%20comptes%20suspendus%20côté%20frontend.md) - Phase 4.6
-- [README - Implémenter les rôles et l'espace admin v1](./README%20-%20Implémenter%20les%20rôles%20et%20l'espace%20admin%20v1.md)
+- [Gérer les comptes suspendus côté frontend](../../phase-04_prize-pool-et-moderation/frontend/phase-04_suspended-accounts-ux_frontend.md) - Phase 4.6
+- [Implémenter les rôles et l'espace admin v1](../../phase-04_prize-pool-et-moderation/frontend/phase-04_roles-admin-interface_frontend.md)
 - [React Context API](https://react.dev/reference/react/useContext)
 
 ### Fichiers de Référence

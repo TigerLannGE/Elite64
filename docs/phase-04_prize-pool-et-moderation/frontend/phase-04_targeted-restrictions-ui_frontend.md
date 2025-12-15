@@ -362,9 +362,9 @@ Toutes les pages utilisent maintenant un style cohérent :
 
 ## 🔗 Références
 
-- [README Backend - Restrictions ciblées et modération avancée](../backend/README%20-%20Restrictions%20ciblées%20et%20modération%20avancée.md) - Phase 4.7
-- [README Frontend - Gérer les comptes suspendus](./README%20-%20Gérer%20les%20comptes%20suspendus%20côté%20frontend.md) - Phase 4.6
-- [README Frontend - Implémenter les rôles et l'espace admin v1](./README%20-%20Implémenter%20les%20rôles%20et%20l'espace%20admin%20v1.md) - Phase 4.5
+- [Backend - Restrictions ciblées et modération avancée](../backend/phase-04_targeted-restrictions_backend.md) - Phase 4.7
+- [Frontend - Gérer les comptes suspendus](./phase-04_suspended-accounts-ux_frontend.md) - Phase 4.6
+- [Frontend - Implémenter les rôles et l'espace admin v1](./phase-04_roles-admin-interface_frontend.md) - Phase 4.5
 
 ---
 

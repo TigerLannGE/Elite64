@@ -435,10 +435,10 @@ async validate(payload: JwtPayload): Promise<JwtPayload> {
 
 ### Documentation Backend
 
-- [README - Implémenter les rôles joueur et l'API admin](./README%20-%20Implémenter%20les%20rôles%20joueur%20et%20l'API%20admin.md)
-- [README - Renforcer l'authentification et la conformité légale](./README%20-%20Renforcer%20l'authentification%20et%20la%20conformité%20légale.md)
+- [Implémenter les rôles joueur et l'API admin](./phase-04_roles-admin-api_backend.md)
+- [Renforcer l'authentification et la conformité légale](../../phase-01_auth-et-comptes-joueurs/backend/phase-01_auth-jwt-email-age-verification_backend.md)
 
 ### Documentation Frontend
 
-- [README - Gérer les comptes suspendus côté frontend](../frontend/README%20-%20Gérer%20les%20comptes%20suspendus%20côté%20frontend.md) - Phase 4.6 Frontend
+- [Gérer les comptes suspendus côté frontend](../frontend/phase-04_suspended-accounts-ux_frontend.md) - Phase 4.6 Frontend
 

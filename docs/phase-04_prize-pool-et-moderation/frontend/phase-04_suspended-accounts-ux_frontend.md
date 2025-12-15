@@ -458,9 +458,9 @@ Toutes les pages utilisent un style distinct pour les erreurs de suspension :
 
 ## 🔗 Voir Aussi
 
-- [README Backend - Bloquer la connexion des comptes suspendus](../backend/README%20-%20Bloquer%20la%20connexion%20des%20comptes%20suspendus.md)
-- [README Frontend - Développement frontend plateforme d'échecs](./README%20-%20Développement%20frontend%20plateforme%20d'échecs.md)
-- [README Frontend - Implémenter les rôles et l'espace admin v1](./README%20-%20Implémenter%20les%20rôles%20et%20l'espace%20admin%20v1.md)
+- [Backend - Bloquer la connexion des comptes suspendus](../backend/phase-04_account-suspension_backend.md)
+- [Frontend - Développement frontend plateforme d'échecs](../../phase-05_matches-et-brackets/frontend/phase-05_frontend-overview_frontend.md)
+- [Frontend - Implémenter les rôles et l'espace admin v1](./phase-04_roles-admin-interface_frontend.md)
 
 ---
 

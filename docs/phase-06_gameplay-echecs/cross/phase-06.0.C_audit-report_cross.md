@@ -8,16 +8,15 @@
 
 ## 1. Résumé exécutif
 
-- ✅ Les endpoints HTTP `POST /matches/:id/join`, `GET /matches/:id/state`, `POST /matches/:id/move` sont bien implémentés dans `MatchesController` et délèguent à `MatchesService`.
+- ✅ Les endpoints HTTP `POST /matches/:id/join`, `GET /matches/:id/state`, `POST /matches/:id/move`, `POST /matches/:id/resign` sont bien implémentés dans `MatchesController` et délèguent à `MatchesService`.
 - ✅ La validation des coups s'appuie correctement sur `ChessEngineService` (Phase 6.0.B, déjà testée).
 - ✅ Les coups sont persistés dans `MatchMove` (1 ligne par coup) avec FEN avant/après, SAN et temps restants.
 - ✅ Le statut du match, les pendules et `currentFen` sont mis à jour de manière atomique dans une transaction Prisma.
-- ✅ La fin de partie (checkmate, stalemate, timeout, etc.) est détectée et déclenche `generateNextRoundIfNeeded()` sans casser la Phase 5.
-- ⚠️ L'endpoint `POST /matches/:id/resign` n'est pas implémenté.
-- ⚠️ La logique de no-show (JOIN_WINDOW_SECONDS + NO_SHOW_GRACE_SECONDS) n'est pas encore codée, bien que les champs Prisma existent.
+- ✅ La fin de partie (checkmate, stalemate, timeout, résignation, etc.) est détectée ou enregistrée et déclenche `generateNextRoundIfNeeded()` sans casser la Phase 5.
+- ✅ La logique de no-show (JOIN_WINDOW_SECONDS + NO_SHOW_GRACE_SECONDS, soit 90s après `readyAt`) est implémentée via une évaluation lazy dans `MatchesService.maybeResolveNoShow()`, appelée par `joinMatch`, `getMatchState` et `playMove`.
 - ⚠️ L'incrément de temps (partie "+I" dans le time control) est parsé mais pas appliqué après chaque coup.
 
-Conclusion : **Phase 6.0.C est fonctionnelle et conforme au périmètre minimal**, mais certaines sous-fonctionnalités prévues (resign, no-show, incrément) restent à implémenter.
+Conclusion : **Phase 6.0.C (incluant 6.0.C1 résignation et 6.0.C2 no-show lazy)** est fonctionnelle et conforme au périmètre défini ; seule l'application de l'incrément reste à implémenter.
 
 ---
 
@@ -114,11 +113,20 @@ Limites :
 
 ### 3.4 `POST /matches/:id/resign`
 
-- **Statut** : ❌ **Non implémenté**.
-- Aucun endpoint dédié dans `MatchesController`.
-- Aucune méthode `resignMatch()` dans `MatchesService`.
+- **Statut** : ✅ **Implémenté**.
+- **Controller** : `MatchesController.resignMatch()`  
+- **Service** : `MatchesService.resignMatch(matchId, playerId)`  
 
-Conséquence : un joueur ne peut pas abandonner seul via une route publique ; il faut passer par l'API admin (`POST /admin/matches/:id/result`) si on veut simuler un abandon.
+Comportement :
+- Vérifie que le joueur est bien participant, sinon 403 `PLAYER_NOT_IN_MATCH`.
+- Vérifie que le match est `RUNNING`, sinon 400 `MATCH_NOT_RUNNING`.
+- Marque le match comme terminé avec :
+  - `status = FINISHED`
+  - `result = WHITE_WIN` ou `BLACK_WIN` (l'adversaire du joueur qui abandonne)
+  - `resultReason = "RESIGNATION"`
+  - `finishedAt = nowUTC`
+- Planifie l'appel à `generateNextRoundIfNeeded(tournamentId)` après la transaction.
+- Retourne un `MatchStateViewDto` du match terminé.
 
 ---
 
@@ -127,13 +135,39 @@ Conséquence : un joueur ne peut pas abandonner seul via une route publique ; il
 ### 4.1 No-show
 
 - Les champs Prisma `readyAt`, `whiteJoinedAt`, `blackJoinedAt`, `noShowResolvedAt` existent dans le modèle `Match`.
-- Aucune logique n'utilise encore ces champs pour :
-  - Déclarer un `NO_SHOW` après `readyAt + 90s`.
-  - Déclarer un double no-show.
-  - Renseigner `noShowResolvedAt`.
-- Aucun `JOIN_WINDOW_SECONDS` ni `NO_SHOW_GRACE_SECONDS` n'est codé.
+- Des constantes de configuration sont définies dans `backend/src/modules/matches/match.config.ts` :
+  - `JOIN_WINDOW_SECONDS = 30`
+  - `NO_SHOW_GRACE_SECONDS = 60`
+  - `TOTAL_NO_SHOW_MS = (JOIN_WINDOW_SECONDS + NO_SHOW_GRACE_SECONDS) * 1000`
+- Une méthode privée `MatchesService.maybeResolveNoShow(matchId)` implémente la résolution lazy :
+  - S'exécute uniquement si :
+    - `match.status === PENDING`
+    - `readyAt` non nul
+    - `noShowResolvedAt` null
+    - `now >= readyAt + TOTAL_NO_SHOW_MS`
+  - Cas 0 joined :
+    - `status = FINISHED`
+    - `result = DRAW`
+    - `resultReason = "DOUBLE_NO_SHOW"`
+    - `finishedAt = nowUTC`
+    - `noShowResolvedAt = nowUTC`
+  - Cas 1 joined :
+    - Le joueur présent est déclaré vainqueur (`WHITE_WIN` ou `BLACK_WIN`)
+    - `resultReason = "NO_SHOW"`
+    - `status = FINISHED`
+    - `finishedAt = nowUTC`
+    - `noShowResolvedAt = nowUTC`
+- Après commit :
+  - `generateNextRoundIfNeeded(tournamentId)` est appelé (async) pour faire avancer le tournoi.
+- La méthode est **idempotente** : si `noShowResolvedAt` est déjà renseigné, elle ne modifie rien.
 
-**Conclusion** : la structure est prête (Phase 6.0.A), mais le comportement no-show est **reporté** (probablement 6.0.D).
+Appels :
+- `maybeResolveNoShow(matchId)` est appelée au début de :
+  - `joinMatch(matchId, playerId)`
+  - `getMatchState(matchId, playerId)`
+  - `playMove(matchId, playerId, dto)`
+
+**Conclusion** : la logique no-show prévue pour 6.0.C2 (JOIN_WINDOW_SECONDS + NO_SHOW_GRACE_SECONDS) est bien implémentée et intégrée dans le flux gameplay.
 
 ### 4.2 Tie-break
 
@@ -160,38 +194,32 @@ Conséquence : un joueur ne peut pas abandonner seul via une route publique ; il
 
 ### 5.1 Bloquants
 
-1. **Absence de `/matches/:id/resign`**
-   - Difficulté à implémenter un abandon propre côté joueur.
-   - Actuellement, seul un admin peut simuler une résignation via l'API admin.
-
-2. **No-show non implémenté**
-   - Un match restera `PENDING` si un seul joueur ne rejoint jamais.
-   - Il faudra un traitement manuel (via admin) pour dénouer la situation.
+- Aucun point bloquant identifié au niveau backend pour la Phase 6.0.C (incluant résignation et no-show lazy).
 
 ### 5.2 Non bloquants mais à surveiller
 
-3. **Incrément ignoré**
+1. **Incrément ignoré**
    - Aucun impact pour "10+0", "3+0", "1+0".
    - Impact potentiel si de futurs time controls avec incrément sont proposés.
 
-4. **Documentation Phase 6.0.C**
-   - Sans documentation, la compréhension du flux gameplay côté backend repose uniquement sur la lecture du code.
+2. **Documentation Phase 6.0.C**
+   - La documentation doit rester alignée avec l'implémentation (ce fichier + `PHASE-6.0.C.md` sont désormais à jour).
 
 ---
 
 ## 6. Exit criteria — Check-list Phase 6.0.C
 
 1. [x] Endpoints `join`, `state`, `move` implémentés et protégés par `JwtAuthGuard` + `ActivePlayerGuard`.
-2. [x] `PlayMoveDto` créé et utilisé.
-3. [x] `MatchStateViewDto` créé, utilisé et renvoyé par toutes les routes gameplay.
-4. [x] Validation des coups via `ChessEngineService` (`validateAndApplyMove`).
-5. [x] Persistance des coups dans `MatchMove` avec `moveNumber` unique par match.
-6. [x] Mise à jour de `Match.currentFen`, `lastMoveAt`, `whiteTimeMsRemaining`, `blackTimeMsRemaining` à chaque coup.
-7. [x] Détection et gestion des fins de partie (checkmate, stalemate, insufficient material, fifty-move rule, threefold, timeout).
-8. [x] Appel de `generateNextRoundIfNeeded()` après un match terminé via gameplay.
-9. [x] Tests unitaires de base sur `joinMatch`, `getMatchState`, `playMove`.
-10. [ ] Endpoint `POST /matches/:id/resign` implémenté.
-11. [ ] Logique no-show (JOIN_WINDOW_SECONDS + NO_SHOW_GRACE_SECONDS) implémentée.
+2. [x] Endpoint `POST /matches/:id/resign` implémenté et protégé par `JwtAuthGuard` + `ActivePlayerGuard`.
+3. [x] `PlayMoveDto` créé et utilisé.
+4. [x] `MatchStateViewDto` créé, utilisé et renvoyé par toutes les routes gameplay.
+5. [x] Validation des coups via `ChessEngineService` (`validateAndApplyMove`).
+6. [x] Persistance des coups dans `MatchMove` avec `moveNumber` unique par match.
+7. [x] Mise à jour de `Match.currentFen`, `lastMoveAt`, `whiteTimeMsRemaining`, `blackTimeMsRemaining` à chaque coup.
+8. [x] Détection et gestion des fins de partie (checkmate, stalemate, insufficient material, fifty-move rule, threefold, timeout, resignation).
+9. [x] Appel de `generateNextRoundIfNeeded()` après un match terminé via gameplay.
+10. [x] Tests unitaires de base sur `joinMatch`, `getMatchState`, `playMove`, `resignMatch`.
+11. [x] Logique no-show (JOIN_WINDOW_SECONDS + NO_SHOW_GRACE_SECONDS) implémentée (lazy via `maybeResolveNoShow()`).
 12. [ ] Incrément de temps appliqué après chaque coup.
 13. [ ] Documentation dédiée Phase 6.0.C référencée dans `docs/README.md`.
 

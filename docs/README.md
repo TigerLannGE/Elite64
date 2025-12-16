@@ -185,10 +185,11 @@ Chaque phase est subdivisée en :
 - UI admin pour restrictions ciblées (gestion tournois, dépôts, retraits)
 - Gestion des codes d'erreur spécifiques (TOURNAMENTS_BLOCKED, DEPOSITS_BLOCKED, WITHDRAWALS_BLOCKED)
 - Pages tournois (`/tournaments` et `/tournaments/[id]`) avec onglets "À venir / En cours" et "Terminés", affichage des matches et classements (Phase 5)
-- Page de match (`/matches/[id]`) avec échiquier interactif (Phase 6.1)
+- Page de match (`/matches/[id]`) avec échiquier interactif (Phase 6.1 - tag: `phase6-1-20251216`)
 - Échiquier React avec `react-chessboard` (MIT license, non-GPL)
 - Gameplay complet : jouer des coups, promotion des pions, résignation
 - Polling automatique (2s) pour mises à jour en temps réel
 - Navigation depuis tournoi vers match jouable
-- ⚠️ **Note** : MVP strict (pas de chronomètre visuel, pas de WebSocket, pas d'historique des coups - Phase 6.2+)
+- Tests E2E exhaustifs validés (Phase 6.2 - tag: `phase6-2-20251216` - 11/11 tests PASS 100%)
+- ⚠️ **Note** : MVP strict (pas de chronomètre visuel, pas de WebSocket, pas d'historique des coups visibles)
 

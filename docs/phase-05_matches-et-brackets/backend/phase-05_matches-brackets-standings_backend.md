@@ -693,8 +693,13 @@ Liste les matches d'un tournoi (alternative à `/tournaments/:id/matches`).
 
 - Les positions 3+ ne sont pas encore gérées dans la finalisation (TODO)
 - Le système de pairing est simple (pas de système suisse ou round-robin)
-- Pas de gestion des forfaits (NO_SHOW) pour l'instant
-- **⚠️ Pas de plateau d'échecs intégré** : À ce stade (Phase 5), il n'y a pas encore d'interface de jeu. Les résultats sont enregistrés manuellement par l'admin via l'API. L'intégration d'un moteur d'échecs (chess.js) et d'une interface de plateau est prévue pour une phase ultérieure (Phase 6+).
+- **Gestion des forfaits (NO_SHOW)** : ✅ **Implémentée en Phase 6.0.C** (tag: `phase6-0c-20251215`)
+  - Logique de no-show **lazy** avant premier coup (90 secondes)
+  - Résolution automatique après timeout
+- **Plateau d'échecs intégré** : ✅ **Implémenté en Phase 6.1** (tag: `phase6-1-20251216`)
+  - Moteur d'échecs backend (chess.js) : Phase 6.0.B
+  - Interface de jeu complète : Phase 6.1 (page `/matches/[id]`)
+  - Tests E2E exhaustifs : Phase 6.2 (11/11 tests PASS - 100%)
 
 ---
 
@@ -742,9 +747,23 @@ Liste les matches d'un tournoi (alternative à `/tournaments/:id/matches`).
 
 ---
 
-## 🔄 Prochaines Étapes (Phase 6+)
+## ✅ Évolutions Complétées (Phase 6.0 - 6.2)
 
-- [ ] **Intégrer un moteur d'échecs** (chess.js ou équivalent) pour permettre de jouer réellement
+- [x] **Moteur d'échecs intégré** ✅ Phase 6.0.B (tag: `phase6-0c-20251215`)  
+  Service `ChessEngineService` basé sur chess.js, validation de coups, détection de fin de partie
+  
+- [x] **Gameplay backend complet** ✅ Phase 6.0.C (tag: `phase6-0c-20251215`)  
+  Endpoints REST : `/matches/:id/join`, `/matches/:id/state`, `/matches/:id/move`, `/matches/:id/resign`
+  
+- [x] **Interface de jeu frontend** ✅ Phase 6.1 (tag: `phase6-1-20251216`)  
+  Page `/matches/[id]` avec échiquier interactif, polling 2s, gameplay complet
+  
+- [x] **Tests E2E exhaustifs** ✅ Phase 6.2 (tag: `phase6-2-20251216`)  
+  Validation de tous les types de mouvements (promotions, roques, en passant, résignation) - 11/11 tests PASS (100%)
+
+## 🔄 Prochaines Étapes Possibles
+
+- [ ] **WebSocket temps réel** : Remplacer le polling HTTP par WebSocket pour mises à jour instantanées
 - [ ] **Créer une interface de plateau d'échecs** interactive
 - [ ] **Gérer les coups et la validation** des mouvements
 - [ ] **Intégrer la gestion du temps** (clock) pour les matches

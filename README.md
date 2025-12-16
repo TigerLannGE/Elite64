@@ -57,38 +57,59 @@ npm run dev
 
 ## État actuel
 
-Le projet est actuellement à la **Phase 6.0.C** côté backend (orchestration gameplay HTTP), avec :
+### Phases Complétées
 
-- **Phase 6.0.A terminée** ✅ (Prisma uniquement)  
+#### **Phase 6.0.C** ✅ - Backend Gameplay Orchestration (tag: `phase6-0c-20251215`)
+
+- **Phase 6.0.A** ✅ - Extension Prisma
   - Extension du modèle `Match` avec champs gameplay (FEN, temps, no-show, tie-break, rating)
   - Création du modèle `MatchMove` pour stocker l'historique des coups
   - Création de l'enum `MatchColor` (WHITE, BLACK)
   - Migration Prisma appliquée : `20251214165847_phase6_0a_add_match_gameplay_fields`
 
-- **Phase 6.0.B terminée** ✅ (Moteur d'échecs backend)  
+- **Phase 6.0.B** ✅ - Moteur d'échecs backend
   - Service `ChessEngineService` pur et déterministe basé sur `chess.js`
-  - Validation de coups, calcul de SAN, détection des fins de partie (checkmate, stalemate, 50 coups, insuffisance de matériel, répétition)
+  - Validation de coups, calcul de SAN, détection des fins de partie
   - Couverture de tests dédiée
 
-- **Phase 6.0.C terminée** ✅ (Backend Gameplay Orchestration)  
-  - Endpoints HTTP protégés :  
-    - `POST /matches/:id/join`  
-    - `GET /matches/:id/state`  
-    - `POST /matches/:id/move`  
-    - `POST /matches/:id/resign`  
-  - DTO canonique `MatchStateViewDto` comme source de vérité pour l'état d'un match
-  - Persistance des coups dans `MatchMove` (1 ligne par coup) avec FEN avant/après, SAN et temps restants
+- **Phase 6.0.C** ✅ - Orchestration gameplay HTTP
+  - Endpoints HTTP protégés : `POST /matches/:id/join`, `GET /matches/:id/state`, `POST /matches/:id/move`, `POST /matches/:id/resign`
+  - DTO canonique `MatchStateViewDto` comme source de vérité
+  - Persistance des coups dans `MatchMove` (1 ligne par coup)
   - Gestion des fins de partie : checkmate, stalemate, insufficient material, fifty-move rule, threefold, timeout, résignation
-  - Logique de no-show **lazy** avant premier coup (`JOIN_WINDOW_SECONDS = 30`, `NO_SHOW_GRACE_SECONDS = 60`, résolution automatique après `readyAt + 90s`)
-  - Intégration avec la Phase 5 via `generateNextRoundIfNeeded()` sans modifier `finalizeTournamentAndPayouts()`
+  - Logique de no-show **lazy** avant premier coup (90s)
+  - Intégration avec la Phase 5 via `generateNextRoundIfNeeded()`
+
+#### **Phase 6.1** ✅ - Frontend Gameplay MVP (tag: `phase6-1-20251216`)
+
+- Page `/matches/[id]` avec échiquier interactif (`react-chessboard` 4.7.2, licence MIT)
+- Gameplay complet : jouer des coups, promotion des pions, résignation
+- Polling automatique (2 secondes) pour mises à jour temps réel
+- Navigation depuis page tournoi vers match jouable
+- **Note** : MVP strict (pas de chronomètre visuel, pas de WebSocket, pas d'historique des coups)
+
+#### **Phase 6.2** ✅ - Tests E2E Gameplay Complets (tag: `phase6-2-20251216`)
+
+- Scripts E2E exhaustifs : `frontend/scripts/e2e-gameplay.ts` (5/6 tests PASS), `frontend/scripts/e2e-gameplay-comprehensive.ts` (11/11 tests PASS - 100%)
+- Validation de tous les types de mouvements aux échecs (promotions, roques, en passant, résignation)
+- Logging automatique dans `test-results/`
+- Documentation complète des tests et résultats
 
 **Garanties globales** :
-- Phase 5 inchangée : aucun champ Phase 5 modifié ou supprimé, logique de brackets/payouts préservée.
-- Base de données : source de vérité synchronisée.
-- UTC : toutes les dates en UTC (timestamps générés côté serveur).
+- Phase 5 inchangée : aucun champ Phase 5 modifié ou supprimé, logique de brackets/payouts préservée
+- Base de données : source de vérité synchronisée
+- UTC : toutes les dates en UTC (timestamps générés côté serveur)
 
 ### Phase 5 (figée)
 
 La **Phase 5** est figée et taggée `baseline-phase5-202512`.
 
 Pour plus de détails sur l'état exact de la Phase 5, consultez [Baseline Phase 5](./docs/phase-05_matches-et-brackets/cross/phase-05_baseline-reference_cross.md).
+
+### Tags Git Disponibles
+
+- `baseline-phase5-202512` : Phase 5 complète (brackets, matches, standings, frontend)
+- `phase6-0c-20251215` : Backend gameplay HTTP (orchestration complète)
+- `phase6-1-20251216` : Frontend gameplay MVP (échiquier interactif)
+- `phase6-2-20251216` : Tests E2E gameplay (validation complète)
+- `maintenance-structure-20251216` : Nettoyage structure projet

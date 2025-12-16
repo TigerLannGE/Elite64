@@ -171,7 +171,7 @@ export default function TournamentsList() {
                             <div className="flex flex-wrap gap-2 text-sm text-gray-300 mb-2">
                               <span>⏱️ {tournament.timeControl}</span>
                               <span>•</span>
-                              <span>💰 Droit d'entrée : {formatCents(tournament.buyInCents, tournament.currency)}</span>
+                              <span>💰 Droit d&apos;entrée : {formatCents(tournament.buyInCents, tournament.currency)}</span>
                               <span>•</span>
                               <span>👥 {tournament.currentPlayers} / {tournament.maxPlayers}</span>
                               {tournament.startsAt && (
@@ -253,7 +253,7 @@ export default function TournamentsList() {
           {/* Mention légale */}
           <div className="mt-8 pt-6 border-t border-white/10">
             <p className="text-xs text-gray-500 text-center italic">
-              Service réservé aux joueurs majeurs, participation interdite dans les juridictions où ce type de compétition n'est pas autorisé.
+              Service réservé aux joueurs majeurs, participation interdite dans les juridictions où ce type de compétition n&apos;est pas autorisé.
             </p>
           </div>
         </div>

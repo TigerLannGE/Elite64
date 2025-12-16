@@ -143,27 +143,37 @@ export class TournamentsService {
   async listPublicTournaments(): Promise<TournamentPublicView[]> {
     const now = new Date();
 
-    // Filtrer par statut (SCHEDULED, READY, RUNNING)
-    // Filtrer par dates (startsAt >= now - marge, ou registrationClosesAt >= now)
+    // Filtrer par statut (SCHEDULED, READY, RUNNING, FINISHED)
+    // Pour les tournois actifs : filtrer par dates futures
+    // Pour les tournois FINISHED : retourner tous (sans filtre de date)
     const tournaments = await this.prisma.tournament.findMany({
       where: {
-        status: {
-          in: [
-            TournamentStatus.SCHEDULED,
-            TournamentStatus.READY,
-            TournamentStatus.RUNNING,
-          ],
-        },
         OR: [
+          // Tournois actifs avec filtres de date
           {
-            registrationClosesAt: {
-              gte: now,
+            status: {
+              in: [
+                TournamentStatus.SCHEDULED,
+                TournamentStatus.READY,
+                TournamentStatus.RUNNING,
+              ],
             },
+            OR: [
+              {
+                registrationClosesAt: {
+                  gte: now,
+                },
+              },
+              {
+                startsAt: {
+                  gte: now,
+                },
+              },
+            ],
           },
+          // Tournois terminés (sans filtre de date)
           {
-            startsAt: {
-              gte: now,
-            },
+            status: TournamentStatus.FINISHED,
           },
         ],
       },

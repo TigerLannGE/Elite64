@@ -16,9 +16,9 @@ export default function Privacy() {
                 ChessBet collecte les données suivantes lors de votre inscription :
               </p>
               <ul className="list-disc list-inside mt-2 ml-4 space-y-1">
-                <li>Nom d'utilisateur</li>
+                <li>Nom d&apos;utilisateur</li>
                 <li>Adresse e-mail</li>
-                <li>Date de naissance (pour vérification de l'âge)</li>
+                <li>Date de naissance (pour vérification de l&apos;âge)</li>
                 <li>Code pays</li>
               </ul>
             </section>
@@ -63,11 +63,11 @@ export default function Privacy() {
                 Conformément à la réglementation applicable (RGPD, etc.), vous disposez des droits suivants :
               </p>
               <ul className="list-disc list-inside mt-2 ml-4 space-y-1">
-                <li>Droit d'accès à vos données</li>
+                <li>Droit d&apos;accès à vos données</li>
                 <li>Droit de rectification</li>
-                <li>Droit à l'effacement</li>
+                <li>Droit à l&apos;effacement</li>
                 <li>Droit à la portabilité</li>
-                <li>Droit d'opposition</li>
+                <li>Droit d&apos;opposition</li>
               </ul>
             </section>
 

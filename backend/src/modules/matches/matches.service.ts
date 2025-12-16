@@ -862,7 +862,11 @@ export class MatchesService {
   ): Promise<MatchStateViewDto> {
     // Sécurité : tenter de résoudre un éventuel no-show avant d'autoriser un coup
     await this.maybeResolveNoShow(matchId);
-    return await this.prisma.$transaction(async (tx) => {
+    
+    let wasMatchFinished = false;
+    let tournamentId: string;
+    
+    const stateView = await this.prisma.$transaction(async (tx) => {
       // 1. Charger le match avec verrouillage (pour éviter les conditions de course)
       const match = await tx.match.findUnique({
         where: { id: matchId },
@@ -1028,15 +1032,9 @@ export class MatchesService {
           },
         });
 
-        // Appeler generateNextRoundIfNeeded après la transaction
-        setImmediate(() => {
-          this.generateNextRoundIfNeeded(match.tournamentId).catch((err) => {
-            console.error(
-              'Erreur lors de la génération de la ronde suivante:',
-              err,
-            );
-          });
-        });
+        // Stocker les infos pour appel après la transaction
+        wasMatchFinished = true;
+        tournamentId = match.tournamentId;
 
         return this.buildMatchStateViewDto(finishedMatch);
       }
@@ -1172,21 +1170,28 @@ export class MatchesService {
         },
       });
 
-      // 14. Si la partie est terminée, appeler generateNextRoundIfNeeded après la transaction
-      if (updateData.status === MatchStatus.FINISHED) {
-        setImmediate(() => {
-          this.generateNextRoundIfNeeded(match.tournamentId).catch((err) => {
-            console.error(
-              'Erreur lors de la génération de la ronde suivante:',
-              err,
-            );
-          });
-        });
-      }
-
+      // 14. Stocker les infos pour usage après la transaction
+      wasMatchFinished = updateData.status === MatchStatus.FINISHED;
+      tournamentId = match.tournamentId;
+      
       // 15. Retourner l'état du match
       return this.buildMatchStateViewDto(updatedMatch);
     });
+
+    // 16. Si la partie est terminée, appeler generateNextRoundIfNeeded APRÈS la transaction (de manière synchrone)
+    if (wasMatchFinished) {
+      try {
+        await this.generateNextRoundIfNeeded(tournamentId);
+      } catch (err) {
+            console.error(
+          '[playMove] Erreur lors de la génération de la ronde suivante:',
+              err,
+            );
+        // On ne propage pas l'erreur pour ne pas faire échouer le coup qui a été joué avec succès
+      }
+      }
+
+    return stateView;
   }
 
   /**
@@ -1307,17 +1312,16 @@ export class MatchesService {
       return updated as any;
     });
 
-    // 6. Après commit : déclencher la logique de tournoi (Phase 5)
-    setImmediate(() => {
-      this.generateNextRoundIfNeeded(finishedMatch.tournamentId).catch(
-        (err) => {
+    // 6. Après commit : déclencher la logique de tournoi (Phase 5) - SYNCHRONE
+    try {
+      await this.generateNextRoundIfNeeded(finishedMatch.tournamentId);
+    } catch (err) {
           console.error(
-            'Erreur lors de la génération de la ronde suivante après résignation:',
+        '[resignMatch] Erreur lors de la génération de la ronde suivante:',
             err,
           );
-        },
-      );
-    });
+      // On ne propage pas l'erreur pour ne pas faire échouer la résignation qui a réussi
+    }
 
     // 7. Retourner l'état canonique du match
     return this.buildMatchStateViewDto(finishedMatch);

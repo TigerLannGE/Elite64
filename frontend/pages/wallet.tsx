@@ -79,7 +79,7 @@ export default function WalletPage() {
     }
 
     loadWallet()
-  }, [isAuthenticated, authLoading, router])
+  }, [isAuthenticated, authLoading, router, logout])
 
   const handleTestCredit = async () => {
     if (testCreditLoading) return

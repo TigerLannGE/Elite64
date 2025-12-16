@@ -194,6 +194,25 @@ export type MatchStatus = 'PENDING' | 'RUNNING' | 'FINISHED' | 'CANCELED'
 
 export type MatchResult = 'WHITE_WIN' | 'BLACK_WIN' | 'DRAW' | 'BYE'
 
+export type MatchColor = 'WHITE' | 'BLACK'
+
+export interface MatchStateViewDto {
+  matchId: string
+  tournamentId: string
+  status: MatchStatus
+  result?: MatchResult | null
+  resultReason?: string | null
+  whitePlayerId: string
+  blackPlayerId: string
+  fen: string
+  moveNumber: number
+  turn: MatchColor
+  whiteTimeMsRemaining: number
+  blackTimeMsRemaining: number
+  lastMove?: { san: string; from: string; to: string; promotion?: string | null } | null
+  serverTimeUtc: string
+}
+
 export interface TournamentMatch {
   id: string
   tournamentId: string
@@ -359,6 +378,26 @@ export const api = {
 
   getTournamentStandings: (id: string) =>
     apiRequest<TournamentStanding[]>(`/tournaments/${id}/standings`),
+
+  // Matches gameplay
+  joinMatch: (matchId: string) =>
+    apiRequest<MatchStateViewDto>(`/matches/${matchId}/join`, {
+      method: 'POST',
+    }),
+
+  getMatchState: (matchId: string) =>
+    apiRequest<MatchStateViewDto>(`/matches/${matchId}/state`),
+
+  playMove: (matchId: string, move: { from: string; to: string; promotion?: 'q' | 'r' | 'b' | 'n' }) =>
+    apiRequest<MatchStateViewDto>(`/matches/${matchId}/move`, {
+      method: 'POST',
+      body: JSON.stringify(move),
+    }),
+
+  resignMatch: (matchId: string) =>
+    apiRequest<MatchStateViewDto>(`/matches/${matchId}/resign`, {
+      method: 'POST',
+    }),
 
   // Admin - Players
   getAdminPlayers: (skip?: number, take?: number, search?: string) => {

@@ -369,3 +369,22 @@ curl -X POST http://localhost:4000/matches/$MATCH_ID/move \
 ---
 
 Ce document résume **ce qui est réellement implémenté en Phase 6.0.C**, ce qui est **structurellement prêt** (no-show, tie-break), et ce qui est **reporté** aux phases suivantes.
+
+---
+
+## 📚 Références
+
+### Documentation Connexe
+
+- [Phase 6.0.A - Extension Schéma Prisma](./phase-06.0.A_schema-extension_cross.md)
+- [Phase 6.0.B - Moteur d'échecs backend](../backend/phase-06.0.B_chess-engine_backend.md)
+- [Phase 6.1 - Frontend Gameplay MVP](../frontend/phase-06.1_frontend-gameplay_frontend.md)
+
+### Tests et Validation
+
+- [Phase 6.2 - Tests E2E Gameplay Complets](./phase-06.2_e2e-gameplay-tests_cross.md)  
+  Suite complète de tests End-to-End validant tous les types de mouvements aux échecs via l'API REST. **Résultat : 11/11 PASS (100%)**
+
+---
+
+**Statut final** : ✅ **Phase 6.0.C complétée et validée**

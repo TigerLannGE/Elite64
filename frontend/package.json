@@ -6,11 +6,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "e2e:gameplay": "tsx scripts/e2e-gameplay.ts",
+    "e2e:gameplay:slow": "tsx scripts/e2e-gameplay.ts --slow",
+    "e2e:gameplay:verbose": "tsx scripts/e2e-gameplay.ts --verbose",
+    "e2e:comprehensive": "tsx scripts/e2e-gameplay-comprehensive.ts",
+    "e2e:comprehensive:verbose": "tsx scripts/e2e-gameplay-comprehensive.ts --verbose"
   },
   "dependencies": {
-    "next": "14.0.0",
+    "next": "^14.2.35",
     "react": "^18.2.0",
+    "react-chessboard": "^4.7.2",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
@@ -18,15 +24,12 @@
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "autoprefixer": "^10.4.14",
+    "chess.js": "^1.4.0",
     "eslint": "^8.42.0",
     "eslint-config-next": "14.0.0",
     "postcss": "^8.4.24",
     "tailwindcss": "^3.3.2",
+    "tsx": "^4.7.0",
     "typescript": "^5.1.3"
   }
 }
-
-
-
-
-

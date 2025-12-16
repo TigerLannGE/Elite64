@@ -298,9 +298,14 @@ Le projet suit une architecture modulaire claire :
 
 La branche `main` contient le code figé de la Phase 5. Cette branche :
 
-- Ne doit pas être modifiée directement pour des évolutions Phase 6+
+- Ne doit pas être modifiée directement pour des évolutions futures
 - Sert de référence stable pour la baseline Phase 5
 - Peut recevoir des corrections de bugs critiques uniquement (avec documentation)
+
+**Note** : Les Phases 6.0.C, 6.1 et 6.2 ont été complétées sur la branche `feature/phase6` avec les tags suivants :
+- `phase6-0c-20251215` : Backend gameplay HTTP complet
+- `phase6-1-20251216` : Frontend gameplay MVP (échiquier interactif)
+- `phase6-2-20251216` : Tests E2E gameplay exhaustifs (11/11 tests PASS)
 
 ### 5.2 Tag Git
 
@@ -310,11 +315,15 @@ Le tag `baseline-phase5-202512` marque précisément l'état du code à la fin d
 - Sert de point de référence pour les comparaisons
 - Doit être préservé et ne jamais être déplacé ou supprimé
 
-### 5.3 Évolutions futures
+### 5.3 Évolutions complétées et futures
 
-Toute évolution future (Phase 6+) doit se faire sur des branches dédiées :
+**Évolutions complétées** (branche `feature/phase6`) :
+- ✅ **Phase 6.0.C** : Backend gameplay HTTP (tag: `phase6-0c-20251215`)
+- ✅ **Phase 6.1** : Frontend gameplay MVP (tag: `phase6-1-20251216`)
+- ✅ **Phase 6.2** : Tests E2E gameplay (tag: `phase6-2-20251216`)
 
-- **Branches de fonctionnalités** : `feature/phase6-*`, `feature/phase6.1-*`, etc.
+**Évolutions futures** :
+- Toute évolution future doit se faire sur des branches dédiées (ex: `feature/phase7-*`)
 - **Branches de développement** : `dev/phase6-*`
 - **Branches de correction** : `hotfix/phase5-*` (uniquement pour bugs critiques)
 
@@ -389,14 +398,14 @@ Ce README sert de **référence contractuelle** pour l'état du projet à la fin
 ### 7.2 Servir de référence en cas de rollback
 
 - Permettre de revenir à la baseline Phase 5 en cas de problème
-- Faciliter la comparaison entre Phase 5 et Phase 6+
+- Faciliter la comparaison entre Phase 5 et Phase 6.0-6.2 (branches distinctes)
 - Identifier rapidement les régressions
 
 ### 7.3 Éviter toute confusion entre Phase 5 et Phase 6
 
 - Clarifier explicitement ce qui est inclus et ce qui ne l'est pas
 - Éviter les attentes erronées sur les fonctionnalités disponibles
-- Guider les développeurs sur ce qui doit être implémenté en Phase 6+
+- Guider les développeurs sur ce qui a été implémenté (Phases 6.0.C, 6.1, 6.2) vs ce qui reste à faire
 
 ### 7.4 Documentation technique
 
@@ -424,7 +433,7 @@ La Phase 5 a été conçue avec des compromis volontaires et temporaires pour é
 - **Hypothèse** : Un match nul (`DRAW`) fait avancer les deux joueurs dans le bracket
 - **Raison** : Simplification du système de brackets pour la Phase 5
 - **Conséquence** : Peut créer un nombre impair de joueurs pour la ronde suivante (géré par BYE automatique)
-- **Note** : Ce comportement peut être modifié en Phase 6+ selon les règles de tournoi souhaitées
+- **Note** : Ce comportement est conservé dans les Phases 6.0-6.2 et peut être modifié dans une phase ultérieure selon les règles de tournoi souhaitées
 
 ### 8.3 Pas de gestion des litiges
 

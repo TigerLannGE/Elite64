@@ -699,11 +699,23 @@ Le frontend sera accessible sur `http://localhost:3000`
 - [x] Actions admin pour démarrer un tournoi (Phase 5)
 - [x] Navigation améliorée (lien "Tournois" dans Layout et lobby)
 
-### ⚠️ Limitations Actuelles (Phase 5)
+### ⚠️ Limitations Phase 5 (Historique)
 
-- **Pas de plateau d'échecs intégré** : À ce stade, il n'y a pas encore d'interface de jeu interactive. Les joueurs ne peuvent pas jouer directement depuis le site.
-- **Enregistrement des résultats** : Actuellement, les résultats des matches doivent être enregistrés via l'API (console navigateur ou Postman). Une interface admin pour enregistrer les résultats directement depuis la page du tournoi est prévue pour une phase ultérieure.
-- **Workflow actuel** : Les admins peuvent créer des tournois, inscrire des joueurs, générer des brackets, mais doivent utiliser l'API pour enregistrer les résultats des matches.
+**Note** : Ces limitations concernaient la Phase 5 figée (tag: `baseline-phase5-202512`). Elles ont été levées par les phases suivantes :
+
+- **Plateau d'échecs intégré** : ✅ **Implémenté en Phase 6.1** (tag: `phase6-1-20251216`)  
+  - Page `/matches/[id]` avec échiquier interactif (`react-chessboard`)
+  - Gameplay complet : coups, promotion, résignation
+  - Polling automatique (2s) pour mises à jour temps réel
+  
+- **Enregistrement des résultats** : ✅ **Automatisé en Phase 6.0.C** (tag: `phase6-0c-20251215`)
+  - Endpoints backend : `/matches/:id/move`, `/matches/:id/resign`
+  - Résultats enregistrés automatiquement après chaque coup ou résignation
+  - Finalisation automatique des tournois et distribution des gains
+  
+- **Tests E2E complets** : ✅ **Validés en Phase 6.2** (tag: `phase6-2-20251216`)
+  - Scripts E2E exhaustifs : 11/11 tests PASS (100%)
+  - Validation de tous les types de mouvements aux échecs
 
 ### 🔄 À Développer (Futur)
 

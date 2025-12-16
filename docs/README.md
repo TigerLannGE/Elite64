@@ -165,7 +165,6 @@ Chaque phase est subdivisée en :
 - Calcul des classements basés sur les résultats
 - Moteur d'échecs backend (ChessEngineService) - validation de coups, détection de fin de partie (Phase 6.0.B)
 - Endpoints gameplay REST complets : `/join`, `/state`, `/move`, `/resign` (Phase 6.0.C)
-- ✅ **Intégration frontend gameplay complète** (Phase 6.1 MVP)
 
 ### Frontend ✅
 - Landing page avec textes légaux
@@ -190,6 +189,15 @@ Chaque phase est subdivisée en :
 - Gameplay complet : jouer des coups, promotion des pions, résignation
 - Polling automatique (2s) pour mises à jour en temps réel
 - Navigation depuis tournoi vers match jouable
-- Tests E2E exhaustifs validés (Phase 6.2 - tag: `phase6-2-20251216` - 11/11 tests PASS 100%)
+- Validé par tests E2E exhaustifs (voir section Tests & Qualité)
 - ⚠️ **Note** : MVP strict (pas de chronomètre visuel, pas de WebSocket, pas d'historique des coups visibles)
+
+### Tests & Qualité ✅
+- Tests unitaires backend (ChessEngineService - 32 tests)
+- Tests E2E gameplay complets (Phase 6.2 - tag: `phase6-2-20251216`)
+  - Script `e2e-gameplay.ts` : 5/6 tests PASS
+  - Script `e2e-gameplay-comprehensive.ts` : **11/11 tests PASS (100%)**
+  - Validation exhaustive : 4 promotions, 4 roques, 2 en passant, résignation
+  - Logging automatique dans `test-results/`
+  - Documentation complète : [Phase 6.2 Tests E2E](./phase-06_gameplay-echecs/cross/phase-06.2_e2e-gameplay-tests_cross.md)
 

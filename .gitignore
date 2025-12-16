@@ -39,7 +39,9 @@ Thumbs.db
 *.seed
 *.pid.lock
 
-
-
-
-
+# E2E Test Logs
+e2e-*.txt
+e2e-*.log
+**/test-results/*.txt
+**/test-results/*.log
+!**/test-results/.gitkeep

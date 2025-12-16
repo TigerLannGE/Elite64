@@ -16,7 +16,7 @@ export default function Login() {
   // Vérifier si on arrive depuis une redirection suite à une suspension
   useEffect(() => {
     if (router.query.error === 'suspended') {
-      setError("Votre compte a été suspendu. Si vous pensez qu'il s'agit d'une erreur, contactez le support.")
+      setError("Votre compte a été suspendu. Si vous pensez qu&apos;il s&apos;agit d&apos;une erreur, contactez le support.")
       // Nettoyer l'URL
       router.replace('/login', undefined, { shallow: true })
     }
@@ -41,7 +41,7 @@ export default function Login() {
       // Gestion spéciale pour les comptes suspendus
       if (apiError.code === 'ACCOUNT_SUSPENDED') {
         setError(
-          "Votre compte a été suspendu. Si vous pensez qu'il s'agit d'une erreur, contactez le support."
+          "Votre compte a été suspendu. Si vous pensez qu&apos;il s&apos;agit d&apos;une erreur, contactez le support."
         )
       } else {
         setError(apiError.message || 'Impossible de vous connecter.')
@@ -124,7 +124,7 @@ export default function Login() {
           <p className="mt-6 text-center text-gray-300 text-sm">
             Pas encore de compte ?{' '}
             <Link href="/register" className="text-blue-400 hover:text-blue-300">
-              S'inscrire
+              S&apos;inscrire
             </Link>
           </p>
         </div>

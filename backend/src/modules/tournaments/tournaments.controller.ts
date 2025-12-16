@@ -160,8 +160,9 @@ export class TournamentsAdminController {
     return this.tournamentsService.deleteTournament(tournamentId);
   }
 
-  // @Post(':id/finish')
-  // async finishTournament(@Param('id', ParseUUIDPipe) tournamentId: string) {
-  //   // Terminer le tournoi (changer statut à FINISHED, distribuer les gains, etc.)
-  // }
+  @Post(':id/finalize')
+  async finalizeTournament(@Param('id') tournamentId: string) {
+    await this.tournamentsService.finalizeTournamentAndPayouts(tournamentId);
+    return { message: 'Tournoi finalisé et gains distribués avec succès' };
+  }
 }

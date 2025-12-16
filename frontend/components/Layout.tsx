@@ -110,10 +110,10 @@ export default function Layout({ children, title = 'ChessBet - Skill Tournaments
               <div>
                 <h3 className="text-white font-semibold mb-2">À propos</h3>
                 <p className="mb-2">
-                  Compétitions d'échecs basées sur la compétence, pas de jeux de hasard.
+                  Compétitions d&apos;échecs basées sur la compétence, pas de jeux de hasard.
                 </p>
                 <p>
-                  Pas de paris. Pas de hasard. Prize pools fixes déterminés à l'avance.
+                  Pas de paris. Pas de hasard. Prize pools fixes déterminés à l&apos;avance.
                 </p>
               </div>
               

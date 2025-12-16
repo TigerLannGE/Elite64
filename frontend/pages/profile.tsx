@@ -66,7 +66,7 @@ export default function Profile() {
 
               <div className="space-y-3">
                 <div>
-                  <label className="text-sm font-medium text-gray-400">Nom d'utilisateur</label>
+                  <label className="text-sm font-medium text-gray-400">Nom d&apos;utilisateur</label>
                   <div className="flex items-center gap-2 mt-1">
                     {player.role !== 'PLAYER' && (
                       <RoleIcon role={player.role} className="w-5 h-5" />
@@ -103,7 +103,7 @@ export default function Profile() {
                   <div>
                     <label className="text-sm font-medium text-gray-400">Statut</label>
                     <p className="text-sm text-gray-400 mt-1">
-                      Vous avez accès aux fonctionnalités d'administration.
+                      Vous avez accès aux fonctionnalités d&apos;administration.
                     </p>
                   </div>
                 ) : null}

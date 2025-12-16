@@ -177,7 +177,7 @@ export default function TournamentDetail() {
               Tournoi introuvable
             </h1>
             <p className="text-gray-300 mb-6">
-              Le tournoi que vous recherchez n'existe pas ou a été supprimé.
+              Le tournoi que vous recherchez n&apos;existe pas ou a été supprimé.
             </p>
             <div className="flex gap-4 justify-center">
               <Link
@@ -273,7 +273,7 @@ export default function TournamentDetail() {
                     </span>
                   </p>
                   <p>
-                    <span className="font-semibold text-white">Droit d'entrée :</span>{' '}
+                    <span className="font-semibold text-white">Droit d&apos;entrée :</span>{' '}
                     {formatCents(tournament.buyInCents, tournament.currency)}
                   </p>
                   <p>
@@ -376,7 +376,7 @@ export default function TournamentDetail() {
             {/* Rappel légal */}
             <div className="mt-6 pt-6 border-t border-white/10">
               <p className="text-sm text-gray-400 italic">
-                🎯 Compétition d'échecs basée sur la compétence. Aucune mécanique de
+                🎯 Compétition d&apos;échecs basée sur la compétence. Aucune mécanique de
                 pari ni de hasard.
               </p>
             </div>
@@ -456,6 +456,22 @@ export default function TournamentDetail() {
                                     </div>
                                   )}
                                 </div>
+
+                                {/* Bouton pour rejoindre/jouer le match */}
+                                {isPlayerMatch && (match.status === 'PENDING' || match.status === 'RUNNING') && (
+                                  <div className="ml-4">
+                                    <Link
+                                      href={`/matches/${match.id}`}
+                                      className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                                        match.status === 'RUNNING'
+                                          ? 'bg-green-600 hover:bg-green-700 text-white'
+                                          : 'bg-blue-600 hover:bg-blue-700 text-white'
+                                      }`}
+                                    >
+                                      {match.status === 'RUNNING' ? 'Jouer le match' : 'Rejoindre le match'}
+                                    </Link>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           )
@@ -562,7 +578,7 @@ export default function TournamentDetail() {
           {/* Mention légale */}
           <div className="mt-8 pt-6 border-t border-white/10">
             <p className="text-xs text-gray-500 text-center italic">
-              Service réservé aux joueurs majeurs, participation interdite dans les juridictions où ce type de compétition n'est pas autorisé.
+              Service réservé aux joueurs majeurs, participation interdite dans les juridictions où ce type de compétition n&apos;est pas autorisé.
             </p>
           </div>
         </div>

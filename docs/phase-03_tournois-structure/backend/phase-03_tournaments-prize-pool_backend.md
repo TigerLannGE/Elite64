@@ -3,6 +3,7 @@
 Ce document décrit l'implémentation complète du module `Tournaments` et `PrizePool` pour la plateforme ChessBet, permettant la création, l'inscription et la gestion des tournois d'échecs skill-based.
 
 **Date de création** : Décembre 2025  
+**Dernière mise à jour** : 15 décembre 2025  
 **Statut** : ✅ Complété (Phase 4)
 
 ---
@@ -17,6 +18,26 @@ Cette implémentation permet de :
 - ✅ Calculer et figer un prize pool si >= minPlayers
 - ✅ Exposer aux joueurs min / current / max prize pools pour l'affichage
 - ✅ Respecter le modèle skill game (pas de pari entre joueurs)
+- ✅ **Afficher l'historique des tournois terminés** (mise à jour 15/12/2025)
+
+---
+
+## 🔄 Changements Récents
+
+### 15 décembre 2025 - Ajout de l'historique des tournois
+
+**Modification** : `listPublicTournaments()` retourne maintenant aussi les tournois FINISHED
+
+**Contexte** : Le frontend dispose d'onglets "À venir / En cours" et "Terminés", mais l'API ne retournait que les tournois actifs, rendant l'onglet "Terminés" toujours vide.
+
+**Solution** :
+- Les tournois **actifs** (`SCHEDULED`, `READY`, `RUNNING`) sont filtrés par dates futures (comportement existant)
+- Les tournois **terminés** (`FINISHED`) sont tous retournés (sans filtre de date)
+- Le frontend effectue le filtrage par onglets côté client
+
+**Bénéfice** : Les joueurs peuvent consulter l'historique des tournois passés, voir les classements finaux et les gains distribués.
+
+**Fichier modifié** : `backend/src/modules/tournaments/tournaments.service.ts` (ligne 143+)
 
 ---
 
@@ -256,17 +277,39 @@ async createTournamentAsAdmin(
 
 ##### Méthode `listPublicTournaments()`
 
-Retourne les tournois visibles dans le lobby :
+Retourne les tournois visibles dans le lobby et l'historique :
 
 ```typescript
 async listPublicTournaments(): Promise<TournamentPublicView[]>
 ```
 
 **Filtres :**
-- Statut : `SCHEDULED`, `READY`, ou `RUNNING`
-- Dates : `registrationClosesAt >= now` ou `startsAt >= now`
+- **Tournois actifs** : Statut `SCHEDULED`, `READY`, ou `RUNNING` + filtres de dates (`registrationClosesAt >= now` ou `startsAt >= now`)
+- **Tournois terminés** : Statut `FINISHED` (tous retournés, sans filtre de date)
+
+**Logique de filtrage :**
+```typescript
+{
+  OR: [
+    // Tournois actifs avec filtres de date
+    {
+      status: { in: [SCHEDULED, READY, RUNNING] },
+      OR: [
+        { registrationClosesAt: { gte: now } },
+        { startsAt: { gte: now } }
+      ]
+    },
+    // Tournois terminés (sans filtre de date)
+    { status: FINISHED }
+  ]
+}
+```
 
 **Retour :** Liste avec `prizePools.min`, `prizePools.current`, `prizePools.max` calculés
+
+**Usage Frontend :**
+- L'onglet "À venir / En cours" du frontend filtre par statut `SCHEDULED | READY | RUNNING`
+- L'onglet "Terminés" filtre par statut `FINISHED`
 
 ##### Méthode `getTournamentPublicView()`
 
@@ -343,9 +386,10 @@ async updateTournamentAsAdmin(
 ##### Endpoints publics (joueurs)
 
 **GET `/tournaments`**
-- Liste des tournois visibles dans le lobby
+- Liste des tournois visibles dans le lobby et l'historique des tournois terminés
 - Public (pas de JWT requis)
-- Retourne : `TournamentPublicView[]`
+- Retourne : `TournamentPublicView[]` (tous les statuts actifs + terminés)
+- **Note** : Le frontend filtre par onglets (Actifs / Terminés)
 
 **GET `/tournaments/:id`**
 - Détail d'un tournoi pour la page de détail
@@ -686,14 +730,20 @@ Les opérations critiques utilisent `prisma.$transaction()` pour garantir l'int�
 
 ---
 
-## 📚 Prochaines étapes (Phase 5+)
+## 📚 Prochaines étapes et État
 
-- [ ] Implémenter le système de rôles et protection des endpoints admin
-- [ ] Créer les matches lors du démarrage du tournoi
-- [ ] Gérer la distribution des gains à la fin du tournoi
+### Complété
+
+- [x] **Afficher l'historique des tournois terminés** (15/12/2025)
+- [x] **Implémenter le système de rôles et protection des endpoints admin** (Phase 4)
+- [x] **Créer les matches lors du démarrage du tournoi** (Phase 5)
+- [x] **Gérer la distribution des gains à la fin du tournoi** (Phase 6)
+
+### À venir
+
 - [ ] Implémenter les notifications pour les joueurs
-- [ ] Ajouter un système de classement Elo
-- [ ] Créer un dashboard admin pour la gestion des tournois
+- [ ] Ajouter un système de classement Elo dynamique
+- [ ] Créer un dashboard admin avancé pour l'analyse des tournois
 
 ---
 
@@ -706,7 +756,8 @@ Les opérations critiques utilisent `prisma.$transaction()` pour garantir l'int�
 - ✅ DTOs avec validation
 - ✅ Intégration dans AppModule
 - ✅ Code compilé sans erreur
-- ⚠️ Protection des endpoints admin à implémenter
+- ✅ Protection des endpoints admin implémentée (Phase 4)
+- ✅ **Historique des tournois terminés accessible via API** (15/12/2025)
 
 ---
 

@@ -19,6 +19,12 @@ Ce dossier contient toute la documentation du projet ChessBet.
 - **[Restauration base de données PostgreSQL](./phase-00_fondations-techniques/cross/phase-00_postgresql-restore_cross.md)**  
   Guide complet pour restaurer une base de données PostgreSQL depuis un dump, avec script automatisé.
 
+- **[Gestion des vulnérabilités NPM](./phase-00_fondations-techniques/cross/phase-00_vulnerabilites-npm_cross.md)**  
+  Guide complet pour l'analyse, la correction et la documentation des vulnérabilités de sécurité NPM.
+
+- **[Troubleshooting Prisma - Guide de dépannage](./phase-00_fondations-techniques/cross/phase-00_troubleshooting-prisma_cross.md)**  
+  Guide complet pour diagnostiquer et résoudre les problèmes courants avec Prisma (migrations, synchronisation, connexion DB).
+
 ### Documentation Backend
 
 **Phase 00 - Fondations Techniques**
@@ -66,6 +72,10 @@ Ce dossier contient toute la documentation du projet ChessBet.
   Spécification détaillée de l'orchestration gameplay côté backend : endpoints REST, DTO canonique, gestion du temps, résignation, no-show.
 - **[Phase 6.0.C - Audit Report](./phase-06_gameplay-echecs/cross/phase-06.0.C_audit-report_cross.md)**  
   Rapport d'audit strict de la Phase 6.0.C : vérification des invariants, transactions Prisma, détection de fin de partie.
+- **[Phase 6.1 - Frontend Gameplay MVP](./phase-06_gameplay-echecs/frontend/phase-06.1_frontend-gameplay_frontend.md)**  
+  Documentation complète du frontend gameplay : page de match, intégration react-chessboard, polling, gestion des coups, promotion, résignation, navigation depuis tournoi.
+- **[Phase 6.2 - Tests E2E Gameplay Complets](./phase-06_gameplay-echecs/cross/phase-06.2_e2e-gameplay-tests_cross.md)**  
+  Documentation complète des tests End-to-End API-only : validation de tous les types de mouvements aux échecs (promotions, roques, en passant, résignation). Résultat : 11/11 tests PASS (100%).
 
 ### Documentation Frontend
 
@@ -115,10 +125,14 @@ Chaque phase est subdivisée en :
 
 ---
 
-**Dernière mise à jour** : Décembre 2025
+**Dernière mise à jour** : 15 Décembre 2025
 
 **Changements récents** :
-- ✅ **Phase 6.0.C terminée** : Backend Gameplay Orchestration (endpoints `/matches/:id/join`, `/state`, `/move`, `/resign`, DTO `MatchStateViewDto`, résignation, no-show lazy à 90s, intégration avec Phase 5).
+- ✅ **Phase 6.1 - Frontend Gameplay MVP terminée** (15 Décembre 2025) : Implémentation complète de la page de match (`/matches/[id]`) avec intégration `react-chessboard@4.7.2`, polling 2s, gestion des coups, promotion, résignation, navigation depuis tournoi. Correction du bug de finalisation automatique des tournois (backend). Documentation complète créée.
+- ✅ **Historique des tournois terminés** (15 Décembre 2025) : Modification de `listPublicTournaments()` pour inclure les tournois FINISHED. Le frontend peut maintenant afficher l'onglet "Terminés" avec l'historique complet des tournois passés. Documentation mise à jour dans [Phase 03](./phase-03_tournois-structure/backend/phase-03_tournaments-prize-pool_backend.md).
+- ✅ **Guide de dépannage Prisma** (15 Décembre 2025) : Documentation complète des problèmes courants (migrations, colonnes manquantes, synchronisation DB), avec workflow de résolution et cas réel Phase 6.0.A.
+- ✅ **Correctif de sécurité critique** (15 Décembre 2025) : Next.js mis à jour de 14.0.0 → 14.2.35 (correction de 13 vulnérabilités dont 1 CRITICAL CVSS 9.1). Documentation complète ajoutée.
+- ✅ **Phase 6.0.C terminée** (14 Décembre 2025) : Backend Gameplay Orchestration (endpoints `/matches/:id/join`, `/state`, `/move`, `/resign`, DTO `MatchStateViewDto`, résignation, no-show lazy à 90s, intégration avec Phase 5).
 - ✅ **Phase 6.0.B terminée** : Moteur d'échecs backend (ChessEngineService), validation de coups, détection de fin de partie, 32 tests unitaires, service pur et déterministe.
 - ✅ **Phase 6.0.A terminée** (14 Décembre 2025) : Extension du modèle Match avec champs gameplay, création du modèle MatchMove, enum MatchColor, migration Prisma appliquée.
 - ✅ PostgreSQL mis à jour vers version 17 (compatibilité avec dumps récents)
@@ -138,7 +152,7 @@ Chaque phase est subdivisée en :
 - Vérification d'email
 - Module Transactions centralisé
 - Module Wallets avec gestion des portefeuilles
-- Module Tournaments (création, inscription, clôture)
+- Module Tournaments (création, inscription, clôture, historique des tournois terminés)
 - Module PrizePool (calcul min/current/max, figement)
 - Système de rôles (PLAYER, ADMIN, SUPER_ADMIN)
 - Protection des endpoints admin (RolesGuard)
@@ -147,10 +161,11 @@ Chaque phase est subdivisée en :
 - Suspension de comptes (isActive)
 - Module Matches (génération brackets, gestion matches, résultats)
 - Génération automatique des rondes suivantes
-- Finalisation automatique des tournois avec distribution des gains
+- Finalisation automatique des tournois avec distribution des gains (corrigé Phase 6.1)
 - Calcul des classements basés sur les résultats
 - Moteur d'échecs backend (ChessEngineService) - validation de coups, détection de fin de partie (Phase 6.0.B)
-- ⚠️ **Note** : Pas encore d'intégration complète avec le gameplay en direct (Phase 6.1+)
+- Endpoints gameplay REST complets : `/join`, `/state`, `/move`, `/resign` (Phase 6.0.C)
+- ✅ **Intégration frontend gameplay complète** (Phase 6.1 MVP)
 
 ### Frontend ✅
 - Landing page avec textes légaux
@@ -169,6 +184,11 @@ Chaque phase est subdivisée en :
 - Protection des pages admin (redirection si non admin)
 - UI admin pour restrictions ciblées (gestion tournois, dépôts, retraits)
 - Gestion des codes d'erreur spécifiques (TOURNAMENTS_BLOCKED, DEPOSITS_BLOCKED, WITHDRAWALS_BLOCKED)
-- Pages tournois (`/tournaments` et `/tournaments/[id]`) avec affichage des matches et classements (Phase 5)
-- ⚠️ **Note** : Pas encore de plateau d'échecs intégré pour jouer réellement (Phase 6+)
+- Pages tournois (`/tournaments` et `/tournaments/[id]`) avec onglets "À venir / En cours" et "Terminés", affichage des matches et classements (Phase 5)
+- Page de match (`/matches/[id]`) avec échiquier interactif (Phase 6.1)
+- Échiquier React avec `react-chessboard` (MIT license, non-GPL)
+- Gameplay complet : jouer des coups, promotion des pions, résignation
+- Polling automatique (2s) pour mises à jour en temps réel
+- Navigation depuis tournoi vers match jouable
+- ⚠️ **Note** : MVP strict (pas de chronomètre visuel, pas de WebSocket, pas d'historique des coups - Phase 6.2+)
 

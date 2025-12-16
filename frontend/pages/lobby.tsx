@@ -119,7 +119,7 @@ export default function Lobby() {
       }
       // Gestion pour les tournois bloqués (restriction ciblée)
       if (apiError.code === TOURNAMENTS_BLOCKED_CODE) {
-        setError("Votre compte ne peut actuellement pas participer aux tournois. Contactez le support pour plus d'informations.")
+        setError("Votre compte ne peut actuellement pas participer aux tournois. Contactez le support pour plus d&apos;informations.")
         return
       }
       // Autres erreurs
@@ -170,7 +170,7 @@ export default function Lobby() {
             <p className="text-gray-300 text-sm">
               Les prize pools indiqués dépendent du nombre de joueurs inscrits.
               <br />
-              Le tournoi est annulé et remboursé si moins de joueurs minimum s'inscrivent.
+              Le tournoi est annulé et remboursé si moins de joueurs minimum s&apos;inscrivent.
             </p>
           </div>
 

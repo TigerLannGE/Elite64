@@ -104,7 +104,7 @@ export default function Register() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="username" className="block text-gray-200 mb-2">
-                Nom d'utilisateur
+                Nom d&apos;utilisateur
               </label>
               <input
                 type="text"
@@ -203,7 +203,7 @@ export default function Register() {
                   className="mt-1"
                 />
                 <span className="text-sm text-gray-200">
-                  J'accepte les{' '}
+                  J&apos;accepte les{' '}
                   <Link href="/terms" className="text-blue-400 hover:text-blue-300 underline">
                     Conditions Générales
                   </Link>

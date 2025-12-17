@@ -72,6 +72,8 @@ Ce dossier contient toute la documentation du projet ChessBet.
   Spécification détaillée de l'orchestration gameplay côté backend : endpoints REST, DTO canonique, gestion du temps, résignation, no-show.
 - **[Phase 6.0.C - Audit Report](./phase-06_gameplay-echecs/cross/phase-06.0.C_audit-report_cross.md)**  
   Rapport d'audit strict de la Phase 6.0.C : vérification des invariants, transactions Prisma, détection de fin de partie.
+- **[Phase 6.0.D - Règles Avancées et Tie-Breaks](./phase-06_gameplay-echecs/backend/phase-06.0.D_advanced-rules-tiebreaks_backend.md)**  
+  Design de la Phase 6.0.D : configuration des règles de match nul (draw rules), politique de tie-break, création automatique de matchs de départage, intégration avec les brackets.
 - **[Phase 6.1 - Frontend Gameplay MVP](./phase-06_gameplay-echecs/frontend/phase-06.1_frontend-gameplay_frontend.md)**  
   Documentation complète du frontend gameplay : page de match, intégration react-chessboard, polling, gestion des coups, promotion, résignation, navigation depuis tournoi.
 - **[Phase 6.2 - Tests E2E Gameplay Complets](./phase-06_gameplay-echecs/cross/phase-06.2_e2e-gameplay-tests_cross.md)**  

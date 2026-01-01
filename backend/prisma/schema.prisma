@@ -71,6 +71,21 @@ enum MatchColor {
   BLACK
 }
 
+enum DrawRuleMode {
+  ALLOW_ALL // Tous les matchs nuls acceptés (comportement Phase 5)
+  NO_DRAW_OFFER // Pas d'offre de match nul (seulement automatiques)
+  NO_DRAW // Pas de match nul (tie-break obligatoire)
+}
+
+enum TieBreakPolicy {
+  NONE // Pas de tie-break (DRAW autorisé seulement si requiresDecisiveResult=false)
+  RAPID // 1 match rapide (time control réduit)
+  BLITZ // 1 match blitz (time control très réduit)
+  ARMAGEDDON // 1 match armageddon (noir gagne si nul)
+  BEST_OF_3 // Meilleur de 3 matchs (premier à 2 victoires)
+  BEST_OF_5 // Meilleur de 5 matchs (premier à 3 victoires)
+}
+
 // ============================================
 // MODELS
 // ============================================
@@ -164,6 +179,13 @@ model Tournament {
   registrationClosesAt DateTime? // Date/heure de clôture des inscriptions
   legalZoneCode        String // ex: "UK", "US-CA" pour Etat, "EU", etc.
 
+  // Phase 6.0.D - Règles avancées
+  drawRuleMode           DrawRuleMode   @default(ALLOW_ALL)
+  drawConfig             Json? // Règles riches optionnelles (minMove, maxOffers, etc.)
+  requiresDecisiveResult Boolean        @default(false) // Match doit être décisif
+  tieBreakPolicy         TieBreakPolicy @default(NONE)
+  tieBreakTimeControl    String? // Time control pour les tie-breaks (ex: "3+2")
+
   // Relations
   entries   TournamentEntry[]
   matches   Match[]
@@ -174,6 +196,9 @@ model Tournament {
   @@index([startsAt])
   @@index([endsAt])
   @@index([registrationClosesAt])
+  @@index([drawRuleMode])
+  @@index([tieBreakPolicy])
+  @@index([requiresDecisiveResult])
   @@map("tournaments")
 }
 
@@ -235,6 +260,9 @@ model Match {
   tieBreakIndex Int     @default(0)
   tieBreakType  String?
 
+  // Phase 6.0.D - Time control override pour tie-breaks
+  timeControlOverride String? // Time control réellement utilisé (pour tie-breaks)
+
   // Phase 6.0.A - Future preparation
   isRated     Boolean @default(false)
   ratingDelta Int?
@@ -247,25 +275,27 @@ model Match {
   parentMatch     Match?          @relation("MatchTieBreak", fields: [parentMatchId], references: [id])
   tieBreakMatches Match[]         @relation("MatchTieBreak")
 
+  @@unique([parentMatchId, tieBreakIndex], name: "unique_tiebreak_per_parent")
   @@index([tournamentId])
   @@index([roundNumber, tournamentId])
   @@index([parentMatchId])
+  @@index([isTieBreak])
   @@map("matches")
 }
 
 model PrizePool {
-  id                 String   @id @default(cuid())
-  tournamentId       String   @unique
-  totalEntriesCents  Int // Somme des buy-ins
-  commissionCents    Int      @default(0) // Commission plateforme (5% du total)
+  id                  String   @id @default(cuid())
+  tournamentId        String   @unique
+  totalEntriesCents   Int // Somme des buy-ins
+  commissionCents     Int      @default(0) // Commission plateforme (5% du total)
   tournamentFeesCents Int      @default(0) // Frais d'organisation de tournoi (4,75% du total)
-  operatorTotalCents Int      @default(0) // Total prélèvement opérateur (9,75% du total)
-  distributableCents Int // Montant total redistribuable aux joueurs
-  currency           String // Doit correspondre à Tournament.currency
-  distributionJson   Json? // Ex: {"1": 0.7, "2": 0.3}
-  lockedAt           DateTime // Quand le prize pool a été figé
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  operatorTotalCents  Int      @default(0) // Total prélèvement opérateur (9,75% du total)
+  distributableCents  Int // Montant total redistribuable aux joueurs
+  currency            String // Doit correspondre à Tournament.currency
+  distributionJson    Json? // Ex: {"1": 0.7, "2": 0.3}
+  lockedAt            DateTime // Quand le prize pool a été figé
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   // Relations
   tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)

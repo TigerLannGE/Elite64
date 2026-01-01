@@ -391,6 +391,15 @@ Authorization: Bearer <admin-token>
 - L'admin voit les tournois passés
 - L'admin a accès à `createdAt` et `updatedAt`
 
+**Note** : Pour les tournois avec prize pool figé (statut READY, RUNNING, FINISHED), l'admin peut accéder aux informations financières via le modèle `PrizePool` :
+- `totalEntriesCents` : Total des inscriptions
+- `commissionCents` : Commission plateforme (5% du total)
+- `distributableCents` : Prize pool redistribuable
+- **Frais de tournoi** : Calculable via `totalEntriesCents - commissionCents - distributableCents` (4.75% du total)
+- **Prélèvement total** : `commissionCents + (totalEntriesCents - commissionCents - distributableCents)` (9.75% du total)
+
+**Voir** : [Clarification structure des frais](../../governance/audits/clarification-structure-frais-2026-01-01.md) pour le détail complet.
+
 ## 🚀 Installation et configuration
 
 ### 1. Migration de la base de données

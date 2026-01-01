@@ -2,7 +2,7 @@ import Layout from '../components/Layout'
 
 export default function Privacy() {
   return (
-    <Layout title="Politique de Confidentialité - ChessBet">
+    <Layout title="Politique de Confidentialité - Elite64">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl font-bold text-white mb-8">
@@ -13,7 +13,7 @@ export default function Privacy() {
             <section>
               <h2 className="text-2xl font-semibold text-white mb-4">1. Collecte des données</h2>
               <p>
-                ChessBet collecte les données suivantes lors de votre inscription :
+                Elite64 collecte les données suivantes lors de votre inscription :
               </p>
               <ul className="list-disc list-inside mt-2 ml-4 space-y-1">
                 <li>Nom d&apos;utilisateur</li>

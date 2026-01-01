@@ -1,4 +1,4 @@
-# Démarrage Rapide du Projet ChessBet
+# Démarrage Rapide du Projet Elite64
 
 **Guide détaillé pour reprendre le travail après avoir éteint votre PC**
 
@@ -14,7 +14,7 @@
 
 ```powershell
 # Depuis la racine du projet
-cd C:\xampp\htdocs\ChessBet
+cd C:\xampp\htdocs\Elite64
 docker compose -f infra/docker-compose.yml up -d postgres
 ```
 
@@ -28,7 +28,7 @@ docker compose -f infra/docker-compose.yml ps
 
 **Configuration dans `backend/.env` :**
 ```env
-DATABASE_URL=postgresql://chessbet_user:Dark-Revan-GE-9418657@localhost:5433/chessbet_db?schema=public
+DATABASE_URL=postgresql://elite64_user:Dark-Revan-GE-9418657@localhost:5433/elite64_db?schema=public
 ```
 
 **Option B : PostgreSQL local (port 5432)**
@@ -42,11 +42,11 @@ net start postgresql-x64-17  # (nom du service peut varier, peut être postgresq
 
 **Configuration dans `backend/.env` :**
 ```env
-DATABASE_URL=postgresql://chessbet_user:Dark-Revan-GE-9418657@localhost:5432/chessbet_db?schema=public
+DATABASE_URL=postgresql://elite64_user:Dark-Revan-GE-9418657@localhost:5432/elite64_db?schema=public
 ```
 
 **⚠️ Important :** 
-- Si vous utilisez PostgreSQL local, assurez-vous que l'utilisateur `chessbet_user` et la base `chessbet_db` existent
+- Si vous utilisez PostgreSQL local, assurez-vous que l'utilisateur `elite64_user` et la base `elite64_db` existent
 - Voir la section "Accès à la base de données" ci-dessous pour créer l'utilisateur si nécessaire
 
 ---
@@ -56,7 +56,7 @@ DATABASE_URL=postgresql://chessbet_user:Dark-Revan-GE-9418657@localhost:5432/che
 **⚠️ Important :** Si c'est la première fois que vous démarrez le projet, vous devez appliquer les migrations Prisma :
 
 ```powershell
-cd C:\xampp\htdocs\ChessBet\backend
+cd C:\xampp\htdocs\Elite64\backend
 npx prisma migrate deploy
 ```
 
@@ -77,7 +77,7 @@ Vous devriez voir : `Database schema is up to date!`
 **Terminal 1 - Backend :**
 
 ```powershell
-cd C:\xampp\htdocs\ChessBet\backend
+cd C:\xampp\htdocs\Elite64\backend
 npm run start:dev
 ```
 
@@ -94,7 +94,7 @@ npm run start:dev
 **Terminal 2 - Frontend :**
 
 ```powershell
-cd C:\xampp\htdocs\ChessBet\frontend
+cd C:\xampp\htdocs\Elite64\frontend
 npm run dev
 ```
 
@@ -140,12 +140,12 @@ npm run dev
 
 **Si vous utilisez Docker (port 5433) :**
 ```env
-DATABASE_URL=postgresql://chessbet_user:Dark-Revan-GE-9418657@localhost:5433/chessbet_db?schema=public
+DATABASE_URL=postgresql://elite64_user:Dark-Revan-GE-9418657@localhost:5433/elite64_db?schema=public
 ```
 
 **Si vous utilisez PostgreSQL local (port 5432) :**
 ```env
-DATABASE_URL=postgresql://chessbet_user:Dark-Revan-GE-9418657@localhost:5432/chessbet_db?schema=public
+DATABASE_URL=postgresql://elite64_user:Dark-Revan-GE-9418657@localhost:5432/elite64_db?schema=public
 ```
 
 **Autres variables :**
@@ -156,10 +156,12 @@ FRONTEND_URL=http://localhost:3000
 JWT_SECRET=your-secret-key-change-in-production
 SMTP_HOST=mail.infomaniak.com
 SMTP_PORT=587
-SMTP_USER=contact@chessbet.ch
-SMTP_PASS=votre-mot-de-passe
-SMTP_FROM="ChessBet <no-reply@chessbet.ch>"
+SMTP_USER=contact@elite64.app
+SMTP_PASS=votre-mot-de-passe-d-application
+SMTP_FROM="Elite64 <no-reply@elite64.app>"
 ```
+
+**⚠️ Important pour SMTP :** Infomaniak utilise maintenant des **mots de passe d'application** (obligatoire depuis 2025). Vous devez créer un mot de passe d'application dans l'interface Infomaniak (Email → Appareils) et l'utiliser dans `SMTP_PASS`. Le mot de passe principal du compte ne fonctionnera plus. Consultez la [documentation SMTP Infomaniak](../../phase-00_fondations-techniques/backend/phase-00_smtp-configuration_infomaniak-backend.md) pour plus de détails.
 
 **2. `frontend/.env.local`** :
 ```env
@@ -183,10 +185,10 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
 **Exemple :**
 ```powershell
 # ❌ Peut ne pas fonctionner
-cd C:\xampp\htdocs\ChessBet; docker compose -f infra/docker-compose.yml up -d postgres
+cd C:\xampp\htdocs\Elite64; docker compose -f infra/docker-compose.yml up -d postgres
 
 # ✅ Fonctionne toujours
-cd C:\xampp\htdocs\ChessBet
+cd C:\xampp\htdocs\Elite64
 docker compose -f infra/docker-compose.yml up -d postgres
 ```
 
@@ -284,7 +286,7 @@ docker compose -f infra/docker-compose.yml logs postgres
 **Démarrer Prisma Studio :**
 
 ```powershell
-cd C:\xampp\htdocs\ChessBet\backend
+cd C:\xampp\htdocs\Elite64\backend
 npx prisma studio
 ```
 
@@ -311,12 +313,12 @@ npx prisma studio
 
 **Si vous utilisez Docker (port 5433) :**
 ```powershell
-psql -h localhost -p 5433 -U chessbet_user -d chessbet_db
+psql -h localhost -p 5433 -U elite64_user -d elite64_db
 ```
 
 **Si vous utilisez PostgreSQL local (port 5432) :**
 ```powershell
-psql -h localhost -p 5432 -U chessbet_user -d chessbet_db
+psql -h localhost -p 5432 -U elite64_user -d elite64_db
 ```
 
 **Mot de passe :** `Dark-Revan-GE-9418657`
@@ -357,19 +359,19 @@ UPDATE players SET "isEmailVerified" = true WHERE email = 'florian.lantigner@ik.
 
 ```sql
 -- Créer l'utilisateur
-CREATE USER chessbet_user WITH PASSWORD 'Dark-Revan-GE-9418657';
+CREATE USER elite64_user WITH PASSWORD 'Dark-Revan-GE-9418657';
 
 -- Créer la base de données
-CREATE DATABASE chessbet_db OWNER chessbet_user;
+CREATE DATABASE elite64_db OWNER elite64_user;
 
 -- Donner les permissions
-GRANT ALL PRIVILEGES ON DATABASE chessbet_db TO chessbet_user;
+GRANT ALL PRIVILEGES ON DATABASE elite64_db TO elite64_user;
 
 -- Se connecter à la nouvelle base
-\c chessbet_db
+\c elite64_db
 
 -- Donner les permissions sur le schéma public
-GRANT ALL ON SCHEMA public TO chessbet_user;
+GRANT ALL ON SCHEMA public TO elite64_user;
 ```
 
 ---
@@ -379,16 +381,16 @@ GRANT ALL ON SCHEMA public TO chessbet_user;
 1. **Au démarrage du PC :**
    ```powershell
    # 1. Démarrer PostgreSQL (Docker ou service local)
-   cd C:\xampp\htdocs\ChessBet
+   cd C:\xampp\htdocs\Elite64
    docker compose -f infra/docker-compose.yml up -d postgres
    # OU : Le service PostgreSQL local démarre automatiquement
    
    # 2. Démarrer le backend (Terminal 1)
-   cd C:\xampp\htdocs\ChessBet\backend
+   cd C:\xampp\htdocs\Elite64\backend
    npm run start:dev
    
    # 3. Démarrer le frontend (Terminal 2)
-   cd C:\xampp\htdocs\ChessBet\frontend
+   cd C:\xampp\htdocs\Elite64\frontend
    npm run dev
    ```
 
@@ -420,16 +422,16 @@ GRANT ALL ON SCHEMA public TO chessbet_user;
 
 ```powershell
 # Terminal 1 - PostgreSQL (si Docker)
-cd C:\xampp\htdocs\ChessBet
+cd C:\xampp\htdocs\Elite64
 docker compose -f infra/docker-compose.yml up -d postgres
 
 # Terminal 2 - Backend
-cd C:\xampp\htdocs\ChessBet\backend
+cd C:\xampp\htdocs\Elite64\backend
 npx prisma migrate deploy  # Première fois uniquement
 npm run start:dev
 
 # Terminal 3 - Frontend
-cd C:\xampp\htdocs\ChessBet\frontend
+cd C:\xampp\htdocs\Elite64\frontend
 npm run dev
 ```
 
@@ -437,11 +439,11 @@ npm run dev
 
 ```powershell
 # Terminal 1 - Backend
-cd C:\xampp\htdocs\ChessBet\backend
+cd C:\xampp\htdocs\Elite64\backend
 npm run start:dev
 
 # Terminal 2 - Frontend
-cd C:\xampp\htdocs\ChessBet\frontend
+cd C:\xampp\htdocs\Elite64\frontend
 npm run dev
 ```
 
@@ -449,7 +451,7 @@ npm run dev
 
 ```powershell
 # Prisma Studio (interface graphique)
-cd C:\xampp\htdocs\ChessBet\backend
+cd C:\xampp\htdocs\Elite64\backend
 npx prisma studio
 # Puis ouvrez http://localhost:5555
 ```

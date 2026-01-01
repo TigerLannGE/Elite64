@@ -8,7 +8,7 @@ param(
 # Note: Les colonnes camelCase doivent être entre guillemets doubles dans PostgreSQL
 $query = 'SELECT "emailVerificationToken" FROM players WHERE email = ''' + $Email + ''';'
 
-$result = docker compose -f ../infra/docker-compose.yml exec -T postgres psql -U chessbet_user -d chessbet_db -t -c $query
+$result = docker compose -f ../infra/docker-compose.yml exec -T postgres psql -U elite64_user -d elite64_db -t -c $query
 
 if ($result -and $result.Trim()) {
     $token = $result.Trim()

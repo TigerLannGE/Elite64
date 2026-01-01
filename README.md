@@ -1,21 +1,24 @@
-# ChessBet
+# Elite64
 
 Plateforme de tournois d'échecs en ligne basée sur le skill (compétition de compétence).
 
 ## Documentation
 
-- **[Baseline Phase 5](./docs/phase-05_matches-et-brackets/cross/phase-05_baseline-reference_cross.md)** : Documentation complète de l'état figé du projet à la fin de la Phase 5
 - **[Documentation complète](./docs/README.md)** : Index de toute la documentation technique du projet
+- **[Référentiel normatif](./docs/governance/REFERENTIEL_NORMATIF.md)** : Documents normatifs 01-08 (source de vérité stratégique, juridique, produit)
+- **[Amendement Finance - Prélèvement 9,75%](./docs/governance/AMENDEMENTS/AMENDEMENT_FINANCE_PRELEVEMENT_9_75_2026-01-01.md)** : Amendement normatif établissant le prélèvement opérateur explicite de 9,75% (01/01/2026)
+- **[Audit de convergence 2026-01-01](./docs/governance/audits/audit-convergence-2026-01-01.md)** : Audit complet de conformité avec les documents normatifs
+- **[Baseline Phase 5](./docs/phase-05_matches-et-brackets/cross/phase-05_baseline-reference_cross.md)** : Documentation complète de l'état figé du projet à la fin de la Phase 5
 - **[Démarrage rapide](./docs/phase-00_fondations-techniques/cross/phase-00_quickstart-condense_cross.md)** : Guide condensé pour lancer le projet en local
 
 ## Structure du projet
 
 ```
-ChessBet/
+Elite64/
 ├── backend/          # API NestJS + Prisma + PostgreSQL
 ├── frontend/         # Application Next.js (Pages Router)
 ├── infra/            # Configuration Docker, docker-compose
-└── docs/             # Documentation technique organisée par phases
+└── docs/             # Documentation complète du projet
     ├── phase-00_fondations-techniques/     # Infra, Prisma, SMTP
     ├── phase-01_auth-et-comptes-joueurs/   # Auth JWT, Players, Wallets
     ├── phase-02_wallets-et-transactions/   # Transactions centralisées
@@ -23,6 +26,12 @@ ChessBet/
     ├── phase-04_prize-pool-et-moderation/  # Rôles, admin, modération
     ├── phase-05_matches-et-brackets/       # Brackets, matches, frontend
     ├── phase-06_gameplay-echecs/           # Moteur échecs, gameplay
+    ├── governance/                        # Documents normatifs et audits
+    │   ├── REFERENTIEL_NORMATIF.md        # Référentiel documents 01-08
+    │   ├── AMENDEMENTS/                   # Amendements au référentiel normatif
+    │   │   └── AMENDEMENT_FINANCE_PRELEVEMENT_9_75_2026-01-01.md
+    │   ├── reference_01_08/               # PDFs normatifs (01 à 08)
+    │   └── audits/                       # Rapports d'audits de convergence
     └── _archives/                          # Documents obsolètes
 ```
 
@@ -99,6 +108,15 @@ npm run dev
 - Phase 5 inchangée : aucun champ Phase 5 modifié ou supprimé, logique de brackets/payouts préservée
 - Base de données : source de vérité synchronisée
 - UTC : toutes les dates en UTC (timestamps générés côté serveur)
+
+#### **Amendement Normatif - Prélèvement 9,75%** ✅ (01/01/2026)
+
+- **Amendement Finance** : Prélèvement opérateur explicite de 9,75% (commission plateforme 5% + frais d'organisation 4,75%)
+- Calcul canonique implémenté : `operatorTotalCents = commissionCents + tournamentFeesCents`
+- Stockage explicite en base : `tournamentFeesCents` et `operatorTotalCents` ajoutés au modèle `PrizePool`
+- Migration Prisma : `20260101185838_add_tournament_fees_explicit`
+- Script de validation : `backend/scripts/validate-prize-pool-invariants.ts` (tous les tests passent)
+- Documentation : [Amendement Finance - Prélèvement 9,75%](./docs/governance/AMENDEMENTS/AMENDEMENT_FINANCE_PRELEVEMENT_9_75_2026-01-01.md)
 
 ### Phase 5 (figée)
 

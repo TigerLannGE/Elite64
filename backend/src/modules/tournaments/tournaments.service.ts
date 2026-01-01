@@ -42,16 +42,22 @@ export interface TournamentPublicView {
     min: {
       totalEntriesCents: number;
       commissionCents: number;
+      tournamentFeesCents: number;
+      operatorTotalCents: number;
       distributableCents: number;
     };
     current: {
       totalEntriesCents: number;
       commissionCents: number;
+      tournamentFeesCents: number;
+      operatorTotalCents: number;
       distributableCents: number;
     };
     max: {
       totalEntriesCents: number;
       commissionCents: number;
+      tournamentFeesCents: number;
+      operatorTotalCents: number;
       distributableCents: number;
     };
   };

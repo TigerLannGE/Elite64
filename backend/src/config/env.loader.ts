@@ -2,25 +2,40 @@
 // pour charger les variables d'environnement avant l'instanciation des modules
 
 import * as dotenv from 'dotenv';
-import { resolve } from 'path';
+import { resolve, join } from 'path';
 
-// Charger le fichier .env depuis la racine du projet
-const envPath = resolve(__dirname, '../../.env');
-const result = dotenv.config({ path: envPath });
+// Déterminer le chemin du fichier .env
+// En mode compilé, __dirname pointe vers dist/config/, donc on remonte jusqu'à backend/
+// En mode dev (ts-node), __dirname pointe vers src/config/
+const isCompiled = __dirname.includes('dist');
+const backendRoot = isCompiled
+  ? resolve(__dirname, '../..') // dist/config -> backend/
+  : resolve(__dirname, '../..'); // src/config -> backend/
 
-if (result.error) {
-  console.warn('⚠️ Fichier .env non trouvé à:', envPath);
-  console.warn('   Tentative de chargement depuis le dossier backend...');
-  // Essayer aussi depuis le dossier backend
-  const backendEnvPath = resolve(__dirname, '../.env');
-  const backendResult = dotenv.config({ path: backendEnvPath });
-  if (backendResult.error) {
-    console.error('✗ Impossible de charger le fichier .env');
-  } else {
-    console.log('✓ Fichier .env chargé depuis:', backendEnvPath);
+// Essayer plusieurs emplacements possibles
+const envPaths = [
+  join(backendRoot, '.env'), // backend/.env (recommandé)
+  resolve(process.cwd(), '.env'), // Racine du workspace
+  resolve(process.cwd(), 'backend', '.env'), // workspace/backend/.env
+];
+
+let envLoaded = false;
+let loadedPath = '';
+
+for (const envPath of envPaths) {
+  const result = dotenv.config({ path: envPath });
+  if (!result.error) {
+    envLoaded = true;
+    loadedPath = envPath;
+    console.log('✓ Fichier .env chargé depuis:', envPath);
+    break;
   }
-} else {
-  console.log('✓ Fichier .env chargé depuis:', envPath);
+}
+
+if (!envLoaded) {
+  console.warn('⚠️ Fichier .env non trouvé dans les emplacements suivants:');
+  envPaths.forEach((path) => console.warn(`   - ${path}`));
+  console.warn('   Créez un fichier .env dans backend/.env ou copiez env.example');
 }
 
 // Afficher les variables SMTP chargées (sans le mot de passe) pour debug
@@ -40,6 +55,11 @@ if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) 
   console.warn('   SMTP_PORT=587');
   console.warn('   SMTP_USER=votre-email@votre-domaine.com');
   console.warn('   SMTP_PASS=votre-mot-de-passe');
-  console.warn(`   Fichier recherché: ${envPath}`);
+  if (loadedPath) {
+    console.warn(`   Fichier .env trouvé à: ${loadedPath}`);
+  } else {
+    console.warn('   Emplacements recherchés:');
+    envPaths.forEach((path) => console.warn(`     - ${path}`));
+  }
 }
 

@@ -1,6 +1,6 @@
-# Documentation ChessBet
+# Documentation Elite64
 
-Ce dossier contient toute la documentation du projet ChessBet.
+Ce dossier contient toute la documentation du projet Elite64.
 
 ## 📚 Structure
 
@@ -24,6 +24,23 @@ Ce dossier contient toute la documentation du projet ChessBet.
 
 - **[Troubleshooting Prisma - Guide de dépannage](./phase-00_fondations-techniques/cross/phase-00_troubleshooting-prisma_cross.md)**  
   Guide complet pour diagnostiquer et résoudre les problèmes courants avec Prisma (migrations, synchronisation, connexion DB).
+
+### Documentation Governance
+
+- **[Référentiel normatif](./governance/REFERENTIEL_NORMATIF.md)**  
+  Référentiel des documents normatifs 01 à 08 (Vision, Branding, Juridique, Finance, Produit, Technique, Opérations, Financement). Source de vérité pour toutes les décisions stratégiques, juridiques et produit.
+
+- **[Audit de convergence 2026-01-01](./governance/audits/audit-convergence-2026-01-01.md)**  
+  Audit complet de conformité du projet avec les documents normatifs. Vérification du renommage ChessBet → Elite64, conformité lexicale anti-gambling, et alignement avec les décisions FIGÉES.
+
+- **[Rapport de consolidation 2026-01-01](./governance/RAPPORT_CONSOLIDATION_2026-01-01.md)**  
+  Rapport détaillé de la consolidation et harmonisation de l'intégralité de la documentation suite à l'audit de convergence.
+
+- **[Vérification ciblée P1 2026-01-01](./governance/audits/verification-p1-2026-01-01.md)**  
+  Vérification non bloquante des points P1 restants : Finance (Document 04) et renommage interne DB/Docker. Tous les axes sont conformes au périmètre MVP ou documentés comme hors périmètre.
+
+- **[Documents normatifs PDF](./governance/reference_01_08/)**  
+  Les 8 documents PDF de référence (01 à 08) constituant la source de vérité normative du projet.
 
 ### Documentation Backend
 
@@ -127,9 +144,11 @@ Chaque phase est subdivisée en :
 
 ---
 
-**Dernière mise à jour** : 15 Décembre 2025
+**Dernière mise à jour** : 01 Janvier 2026
 
 **Changements récents** :
+- ✅ **Clarification structure des frais** (01 Janvier 2026) : Documentation complète de la distinction entre commission plateforme (5%) et frais de tournoi (4.75%), prélèvement total de 9.75%. Documentation de l'affichage financier dans l'espace admin pour les super-admins. Voir [Clarification structure des frais](./governance/audits/clarification-structure-frais-2026-01-01.md).
+- ✅ **Consolidation documentation et governance** (01 Janvier 2026) : Déplacement du dossier `governance/` vers `docs/governance/` pour centraliser toute la documentation. Mise à jour de toutes les références internes. Correction des occurrences restantes de ChessBet dans la documentation technique.
 - ✅ **Phase 6.1 - Frontend Gameplay MVP terminée** (15 Décembre 2025) : Implémentation complète de la page de match (`/matches/[id]`) avec intégration `react-chessboard@4.7.2`, polling 2s, gestion des coups, promotion, résignation, navigation depuis tournoi. Correction du bug de finalisation automatique des tournois (backend). Documentation complète créée.
 - ✅ **Historique des tournois terminés** (15 Décembre 2025) : Modification de `listPublicTournaments()` pour inclure les tournois FINISHED. Le frontend peut maintenant afficher l'onglet "Terminés" avec l'historique complet des tournois passés. Documentation mise à jour dans [Phase 03](./phase-03_tournois-structure/backend/phase-03_tournaments-prize-pool_backend.md).
 - ✅ **Guide de dépannage Prisma** (15 Décembre 2025) : Documentation complète des problèmes courants (migrations, colonnes manquantes, synchronisation DB), avec workflow de résolution et cas réel Phase 6.0.A.

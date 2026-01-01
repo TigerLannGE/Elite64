@@ -13,7 +13,7 @@
 
 ### Présentation du projet
 
-ChessBet est une plateforme de tournois d'échecs en ligne organisant des compétitions 1v1 (un contre un) basées sur le skill (compétence). La plateforme permet aux joueurs de s'inscrire à des tournois, de payer un buy-in, et de participer à des brackets éliminatoires jusqu'à la désignation d'un vainqueur.
+Elite64 est une plateforme de tournois d'échecs en ligne organisant des compétitions 1v1 (un contre un) basées sur le skill (compétence). La plateforme permet aux joueurs de s'inscrire à des tournois, de payer un buy-in, et de participer à des brackets éliminatoires jusqu'à la désignation d'un vainqueur.
 
 ### Positionnement légal
 
@@ -102,9 +102,15 @@ Système de rôles à trois niveaux :
 - Passage en statut `CANCELED`
 
 **Prize pools** :
-- Calcul automatique : `totalEntriesCents` (somme des buy-ins), `commissionCents` (optionnel), `distributableCents` (totalEntriesCents - commissionCents)
+- Calcul automatique canonique : `totalEntriesCents` (somme des buy-ins), `commissionCents` (5% du total), `tournamentFeesCents` (4,75% du total), `operatorTotalCents` (9,75% du total), `distributableCents` (montant redistribuable après prélèvements)
+- **Prélèvement opérateur total : 9,75%**
+  - Commission plateforme : 5,00% du total (rémunération du service)
+  - Frais d'organisation de tournoi : 4,75% du total (coûts opérationnels)
+- Stockage explicite : Tous les prélèvements sont stockés dans `PrizePool` pour traçabilité complète
 - Distribution JSON : `{"1": 0.7, "2": 0.3}` (exemple : 70% pour le 1er, 30% pour le 2ème)
 - Figement du prize pool lors de la clôture des inscriptions (`lockedAt`)
+- **Formulation canonique** : "Le buy-in inclut des frais opérateur totaux de 9,75 %, comprenant une commission plateforme (5 %) et des frais d'organisation de tournoi (4,75 %). Le solde est redistribué aux joueurs selon les règles du tournoi."
+- **Voir** : [Clarification structure des frais](../../governance/audits/clarification-structure-frais-2026-01-01.md) pour le détail complet
 
 ### 2.5 Matches Phase 5
 
@@ -463,7 +469,7 @@ La Phase 5 a été conçue avec des compromis volontaires et temporaires pour é
 
 ## 9. Conclusion
 
-La Phase 5 représente une **baseline fonctionnelle** de la plateforme ChessBet. Elle permet :
+La Phase 5 représente une **baseline fonctionnelle** de la plateforme Elite64. Elle permet :
 
 - L'inscription et l'authentification des joueurs
 - La création et la gestion de tournois

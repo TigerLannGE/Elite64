@@ -89,7 +89,7 @@ export default function TournamentsList() {
 
   if (loading || loadingTournaments) {
     return (
-      <Layout title="Tous les tournois - ChessBet">
+      <Layout title="Tous les tournois - Elite64">
         <div className="container mx-auto px-4 py-16 flex items-center justify-center">
           <div className="text-white text-center">
             <div className="text-4xl mb-4 animate-pulse">⏳</div>
@@ -105,7 +105,7 @@ export default function TournamentsList() {
   }
 
   return (
-    <Layout title="Tous les tournois - ChessBet">
+    <Layout title="Tous les tournois - Elite64">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-6xl mx-auto">
           <h1 className="text-4xl font-bold text-white mb-8">

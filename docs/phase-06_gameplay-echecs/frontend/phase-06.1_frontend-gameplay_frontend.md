@@ -8,7 +8,7 @@
 
 ## 📋 Vue d'ensemble
 
-La **Phase 6.1 Frontend Gameplay (MVP)** implémente l'interface utilisateur pour jouer des matches d'échecs en temps réel sur la plateforme ChessBet. Cette phase connecte le frontend au backend gameplay (Phase 6.0.C) et permet aux joueurs de :
+La **Phase 6.1 Frontend Gameplay (MVP)** implémente l'interface utilisateur pour jouer des matches d'échecs en temps réel sur la plateforme Elite64. Cette phase connecte le frontend au backend gameplay (Phase 6.0.C) et permet aux joueurs de :
 
 - ✅ Rejoindre un match depuis la page tournoi
 - ✅ Voir l'échiquier en temps réel avec les coups joués

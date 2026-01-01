@@ -8,7 +8,7 @@
 
 ## 📋 Vue d'ensemble
 
-Ce document fournit un guide complet pour la gestion des vulnérabilités NPM dans le projet ChessBet, incluant les procédures d'analyse, de correction et de documentation des failles de sécurité détectées.
+Ce document fournit un guide complet pour la gestion des vulnérabilités NPM dans le projet Elite64, incluant les procédures d'analyse, de correction et de documentation des failles de sécurité détectées.
 
 **⚠️ Important** : La sécurité des dépendances est critique pour un projet manipulant des transactions financières. Ce guide doit être consulté régulièrement lors de l'ajout ou de la mise à jour de dépendances.
 
@@ -80,7 +80,7 @@ Un rapport `npm audit` contient :
 | GHSA-qpjv-v59x-3qc4 | Race Condition to Cache Poisoning | LOW | 3.7 | CWE-362 |
 | GHSA-3h52-269p-cp9r | Info Exposure in Dev Server | LOW | 0 | CWE-1385 |
 
-#### Impact sur ChessBet
+#### Impact sur Elite64
 
 Les vulnérabilités critiques identifiées représentaient un risque élevé :
 
@@ -331,7 +331,7 @@ cd ..
 - [Node.js Security Best Practices](https://nodejs.org/en/docs/guides/security/)
 - [Next.js Security Headers](https://nextjs.org/docs/app/api-reference/next-config-js/headers)
 
-### Autres documentations ChessBet
+### Autres documentations Elite64
 - [Configuration SMTP](../backend/phase-00_smtp-configuration_generique-backend.md)
 - [Schéma Prisma](../backend/phase-00_prisma-schema_overview-backend.md)
 - [Démarrage rapide](./phase-00_quickstart-detaille_cross.md)

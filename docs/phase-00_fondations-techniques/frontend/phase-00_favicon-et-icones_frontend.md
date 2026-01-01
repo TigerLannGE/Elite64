@@ -6,7 +6,7 @@
 
 ## 📋 Vue d'ensemble
 
-Ce document décrit la configuration du favicon et des icônes pour la plateforme ChessBet. Le favicon est l'icône qui s'affiche dans l'onglet du navigateur et dans les favoris.
+Ce document décrit la configuration du favicon et des icônes pour la plateforme Elite64. Le favicon est l'icône qui s'affiche dans l'onglet du navigateur et dans les favoris.
 
 ---
 

@@ -4,7 +4,7 @@
 # Configuration
 $env:API_BASE_URL = "http://localhost:4000"
 $env:ADMIN_EMAIL = "florian.lantigner@ik.me"
-$env:ADMIN_PASSWORD = "Chessbet24!"
+$env:ADMIN_PASSWORD = "Elite64E2E24!"
 $env:P1_EMAIL = "player1test@example.com"
 $env:P1_PASSWORD = "TestPass1!"
 $env:P2_EMAIL = "player2test@example.com"

@@ -257,7 +257,9 @@ model PrizePool {
   id                 String   @id @default(cuid())
   tournamentId       String   @unique
   totalEntriesCents  Int // Somme des buy-ins
-  commissionCents    Int      @default(0) // Commission totale prélevée
+  commissionCents    Int      @default(0) // Commission plateforme (5% du total)
+  tournamentFeesCents Int      @default(0) // Frais d'organisation de tournoi (4,75% du total)
+  operatorTotalCents Int      @default(0) // Total prélèvement opérateur (9,75% du total)
   distributableCents Int // Montant total redistribuable aux joueurs
   currency           String // Doit correspondre à Tournament.currency
   distributionJson   Json? // Ex: {"1": 0.7, "2": 0.3}

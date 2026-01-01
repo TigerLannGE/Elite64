@@ -3,9 +3,9 @@
 
 $dbHost = "localhost"
 $dbPort = "5433"
-$dbUser = "chessbet_user"
+$dbUser = "elite64_user"
 $dbPassword = "Dark-Revan-GE-9418657"
-$shadowDbName = "chessbet_db_shadow"
+$shadowDbName = "elite64_shadow"
 
 Write-Host "Création de la shadow database: $shadowDbName" -ForegroundColor Cyan
 

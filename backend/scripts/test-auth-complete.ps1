@@ -8,7 +8,7 @@
 # ============================================
 
 Write-Host "`n========================================" -ForegroundColor Cyan
-Write-Host "  TESTS AUTHENTIFICATION CHESSBET" -ForegroundColor Cyan
+Write-Host "  TESTS AUTHENTIFICATION ELITE64" -ForegroundColor Cyan
 Write-Host "========================================`n" -ForegroundColor Cyan
 
 # ============================================

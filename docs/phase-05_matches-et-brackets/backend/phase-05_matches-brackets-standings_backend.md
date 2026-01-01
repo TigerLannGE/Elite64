@@ -1,6 +1,6 @@
 # Matches et Résultats de Tournoi - Documentation Complète
 
-Ce document décrit l'implémentation complète du module `Matches` pour la plateforme ChessBet, permettant la gestion des matches de tournoi, l'enregistrement des résultats, la génération automatique des rondes suivantes, et la distribution des gains.
+Ce document décrit l'implémentation complète du module `Matches` pour la plateforme Elite64, permettant la gestion des matches de tournoi, l'enregistrement des résultats, la génération automatique des rondes suivantes, et la distribution des gains.
 
 **Date de création** : Décembre 2025  
 **Statut** : ✅ Complété (Phase 5)  

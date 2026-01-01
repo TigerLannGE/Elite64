@@ -1,4 +1,4 @@
-# 🔧 Guide de Maintenance - Documentation ChessBet
+# 🔧 Guide de Maintenance - Documentation Elite64
 
 **Version** : 1.0  
 **Dernière mise à jour** : 15 décembre 2025

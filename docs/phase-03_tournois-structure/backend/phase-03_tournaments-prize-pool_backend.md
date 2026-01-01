@@ -1,6 +1,6 @@
 # Implémenter Module Tournois et Prize Pool - Documentation Complète
 
-Ce document décrit l'implémentation complète du module `Tournaments` et `PrizePool` pour la plateforme ChessBet, permettant la création, l'inscription et la gestion des tournois d'échecs skill-based.
+Ce document décrit l'implémentation complète du module `Tournaments` et `PrizePool` pour la plateforme Elite64, permettant la création, l'inscription et la gestion des tournois d'échecs skill-based.
 
 **Date de création** : Décembre 2025  
 **Dernière mise à jour** : 15 décembre 2025  
@@ -135,12 +135,17 @@ npx prisma migrate dev --name add_registration_closes_at_and_ready_status
 
 Service centralisé pour le calcul et la gestion des prize pools.
 
-##### Constantes
+##### Constantes canoniques
 
 ```typescript
-const COMMISSION_RATE = 0.05;      // 5% commission plateforme
-const REDISTRIBUTION_RATE = 0.95;  // 95% du montant après commission va aux joueurs
+const COMMISSION_RATE = 0.05;        // 5% commission plateforme
+const TOURNAMENT_FEES_RATE = 0.0475;  // 4,75% frais d'organisation de tournoi
+const OPERATOR_TOTAL_RATE = 0.0975;   // 9,75% total prélèvement opérateur
 ```
+
+**Prélèvement opérateur total : 9,75%**
+- Commission plateforme : 5,00% (rémunération du service)
+- Frais d'organisation de tournoi : 4,75% (coûts opérationnels)
 
 ##### Interface `PrizePoolComputationInput`
 
@@ -156,33 +161,59 @@ interface PrizePoolComputationInput {
 ```typescript
 interface PrizePoolComputationResult {
   totalEntriesCents: number;
-  commissionCents: number;
-  distributableCents: number;
+  commissionCents: number;           // 5% du total
+  tournamentFeesCents: number;         // 4,75% du total
+  operatorTotalCents: number;         // 9,75% du total
+  distributableCents: number;         // 90,25% du total
 }
 ```
 
-##### Méthode `computePrizePool()`
+##### Méthode `computePrizePool()` — Calcul canonique
 
-Calcule le prize pool basé sur le nombre de joueurs et le buy-in (ne persiste rien) :
+Calcule le prize pool basé sur le nombre de joueurs et le buy-in. Utilise le calcul canonique explicite (plus de logique implicite). Ne persiste rien en base de données.
 
 ```typescript
 computePrizePool(input: PrizePoolComputationInput): PrizePoolComputationResult {
-  // 1. totalEntriesCents = playersCount * buyInCents
+  // 1. Total des inscriptions
   const totalEntriesCents = input.playersCount * input.buyInCents;
   
-  // 2. commissionCents = floor(totalEntriesCents * COMMISSION_RATE)
+  // 2. Commission plateforme : 5% du total
   const commissionCents = Math.floor(totalEntriesCents * COMMISSION_RATE);
   
-  // 3. base = totalEntriesCents - commissionCents
-  const base = totalEntriesCents - commissionCents;
+  // 3. Frais d'organisation : 4,75% du total
+  const tournamentFeesCents = Math.floor(totalEntriesCents * TOURNAMENT_FEES_RATE);
   
-  // 4. distributableCents = floor(base * REDISTRIBUTION_RATE)
-  const distributableCents = Math.floor(base * REDISTRIBUTION_RATE);
+  // 4. Total prélèvement opérateur : 9,75% du total
+  const operatorTotalCents = commissionCents + tournamentFeesCents;
   
-  // 5. Retourner le résultat
-  return { totalEntriesCents, commissionCents, distributableCents };
+  // 5. Prize pool redistribuable : total - prélèvement opérateur
+  const distributableCents = totalEntriesCents - operatorTotalCents;
+  
+  return {
+    totalEntriesCents,
+    commissionCents,
+    tournamentFeesCents,
+    operatorTotalCents,
+    distributableCents,
+  };
 }
 ```
+
+**Décomposition explicite des prélèvements** :
+1. **Commission plateforme (5,00%)** : Rémunération du service, stockée dans `commissionCents`
+2. **Frais d'organisation de tournoi (4,75%)** : Coûts opérationnels (infra, arbitrage, anti-fraude, support), stockés dans `tournamentFeesCents`
+3. **Total prélèvement opérateur (9,75%)** : Stocké dans `operatorTotalCents` pour traçabilité complète
+
+**Exemple** : 2 joueurs × 10 CHF = 20 CHF
+- Total inscriptions : 20,00 CHF
+- Commission plateforme : 1,00 CHF (5,00%)
+- Frais d'organisation : 0,95 CHF (4,75%)
+- **Total prélèvement opérateur : 1,95 CHF (9,75%)**
+- Prize pool redistribuable : 18,05 CHF (90,25%)
+
+**Formulation canonique** : "Le buy-in inclut des frais opérateur totaux de 9,75 %, comprenant une commission plateforme (5 %) et des frais d'organisation de tournoi (4,75 %). Le solde est redistribué aux joueurs selon les règles du tournoi."
+
+**Voir** : [Clarification structure des frais](../../governance/audits/clarification-structure-frais-2026-01-01.md) pour le détail complet.
 
 ##### Méthode `computePrizePoolForMinCurrentMax()`
 

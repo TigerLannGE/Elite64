@@ -1,4 +1,4 @@
-# ChessBet - Plateforme de Tournois d'Échecs (Skill-Based)
+# Elite64 - Plateforme de Tournois d'Échecs (Skill-Based)
 
 Plateforme de tournois d'échecs avec prize pools fixes, conçue comme un **concours de compétence** (skill competition), légal dans les pays où les skill games sont autorisés.
 
@@ -12,7 +12,7 @@ Monorepo contenant :
 ## 📁 Structure du Projet
 
 ```
-ChessBet/
+Elite64/
 ├── backend/                    # API NestJS
 │   ├── src/
 │   │   ├── modules/

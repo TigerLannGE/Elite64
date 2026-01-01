@@ -3,29 +3,29 @@ version: '3.8'
 services:
   postgres:
     image: postgres:17-alpine
-    container_name: chessbet-postgres
+    container_name: elite64-postgres
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-chessbet_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-chessbet_password}
-      POSTGRES_DB: ${POSTGRES_DB:-chessbet_db}
+      POSTGRES_USER: ${POSTGRES_USER:-elite64_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-elite64_password}
+      POSTGRES_DB: ${POSTGRES_DB:-elite64_db}
     ports:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - chessbet-network
+      - elite64-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-chessbet_user}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-elite64_user}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   backend:
     image: node:18-alpine
-    container_name: chessbet-backend
+    container_name: elite64-backend
     working_dir: /app
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-chessbet_user}:${POSTGRES_PASSWORD:-chessbet_password}@postgres:5432/${POSTGRES_DB:-chessbet_db}?schema=public
+      DATABASE_URL: postgresql://${POSTGRES_USER:-elite64_user}:${POSTGRES_PASSWORD:-elite64_password}@postgres:5432/${POSTGRES_DB:-elite64_db}?schema=public
       PORT_BACKEND: 4000
       NODE_ENV: development
       FRONTEND_URL: http://localhost:3000
@@ -35,7 +35,7 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - chessbet-network
+      - elite64-network
     volumes:
       - ../backend:/app
       - /app/node_modules
@@ -43,7 +43,7 @@ services:
 
   frontend:
     image: node:18-alpine
-    container_name: chessbet-frontend
+    container_name: elite64-frontend
     working_dir: /app
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:4000
@@ -53,7 +53,7 @@ services:
     depends_on:
       - backend
     networks:
-      - chessbet-network
+      - elite64-network
     volumes:
       - ../frontend:/app
       - /app/node_modules
@@ -61,7 +61,7 @@ services:
     command: sh -c "npm install && npm run dev"
 
 networks:
-  chessbet-network:
+  elite64-network:
     driver: bridge
 
 volumes:

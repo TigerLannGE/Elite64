@@ -15,10 +15,10 @@ param(
     [string]$DbHost = "localhost",
     
     [Parameter(Mandatory=$false)]
-    [string]$User = "chessbet_user",
+    [string]$User = "elite64_user",
     
     [Parameter(Mandatory=$false)]
-    [string]$Database = "chessbet_db",
+    [string]$Database = "elite64_db",
     
     [Parameter(Mandatory=$false)]
     [string]$Password = "Dark-Revan-GE-9418657"
@@ -51,20 +51,20 @@ try {
 } catch {
     Write-Host "⚠️  psql non trouvé dans le PATH, utilisation de Docker..." -ForegroundColor Yellow
     $useDocker = $true
-    $psqlCmd = "docker exec -i chessbet-postgres psql"
-    $pgRestoreCmd = "docker exec -i chessbet-postgres pg_restore"
-    $pgDumpCmd = "docker exec -i chessbet-postgres pg_dump"
+    $psqlCmd = "docker exec -i elite64-postgres psql"
+    $pgRestoreCmd = "docker exec -i elite64-postgres pg_restore"
+    $pgDumpCmd = "docker exec -i elite64-postgres pg_dump"
     
     # Vérifier que Docker est disponible et que le conteneur existe
     try {
         $null = Get-Command docker -ErrorAction Stop
-        $containerStatus = docker ps -a --filter "name=chessbet-postgres" --format "{{.Status}}" 2>&1
+        $containerStatus = docker ps -a --filter "name=elite64-postgres" --format "{{.Status}}" 2>&1
         if ($LASTEXITCODE -ne 0 -or $containerStatus -notmatch "Up") {
-            Write-Host "❌ Erreur : Le conteneur Docker 'chessbet-postgres' n'est pas démarré !" -ForegroundColor Red
+            Write-Host "❌ Erreur : Le conteneur Docker 'elite64-postgres' n'est pas démarré !" -ForegroundColor Red
             Write-Host "   Démarrez-le avec : docker compose -f infra/docker-compose.yml up -d postgres" -ForegroundColor Yellow
             exit 1
         }
-        Write-Host "✅ Conteneur Docker 'chessbet-postgres' trouvé" -ForegroundColor Green
+        Write-Host "✅ Conteneur Docker 'elite64-postgres' trouvé" -ForegroundColor Green
     } catch {
         Write-Host "❌ Erreur : Docker n'est pas installé ou non disponible !" -ForegroundColor Red
         Write-Host "   Installez Docker Desktop ou ajoutez psql au PATH." -ForegroundColor Yellow
@@ -78,7 +78,7 @@ $env:PGPASSWORD = $Password
 
 if ($useDocker) {
     # Avec Docker, on n'a pas besoin de spécifier host/port
-    $testConnection = docker exec chessbet-postgres psql -U $User -d postgres -c "SELECT 1;" 2>&1
+    $testConnection = docker exec elite64-postgres psql -U $User -d postgres -c "SELECT 1;" 2>&1
     if ($LASTEXITCODE -ne 0) {
         Write-Host "❌ Erreur : Impossible de se connecter à PostgreSQL via Docker !" -ForegroundColor Red
         Write-Host "   Vérifiez que le conteneur est démarré : docker compose -f infra/docker-compose.yml up -d postgres" -ForegroundColor Yellow
@@ -106,7 +106,7 @@ if (-not $DropDatabase) {
     $backupPath = "backup_avant_import_$(Get-Date -Format 'yyyyMMdd_HHmmss').dump"
     
     if ($useDocker) {
-        docker exec chessbet-postgres pg_dump -U $User -d $Database -F c > $backupPath 2>&1
+        docker exec elite64-postgres pg_dump -U $User -d $Database -F c > $backupPath 2>&1
     } else {
         pg_dump -h $DbHost -p $Port -U $User -d $Database -F c -f $backupPath 2>&1 | Out-Null
     }
@@ -130,7 +130,7 @@ if ($DropDatabase) {
     
     Write-Host "🗑️  Suppression de la base..." -ForegroundColor Yellow
     if ($useDocker) {
-        docker exec chessbet-postgres psql -U $User -d postgres -c "DROP DATABASE IF EXISTS $Database;" 2>&1 | Out-Null
+        docker exec elite64-postgres psql -U $User -d postgres -c "DROP DATABASE IF EXISTS $Database;" 2>&1 | Out-Null
     } else {
         psql -h $DbHost -p $Port -U $User -d postgres -c "DROP DATABASE IF EXISTS $Database;" 2>&1 | Out-Null
     }
@@ -143,7 +143,7 @@ if ($DropDatabase) {
     
     Write-Host "🔨 Création de la nouvelle base..." -ForegroundColor Yellow
     if ($useDocker) {
-        docker exec chessbet-postgres psql -U $User -d postgres -c "CREATE DATABASE $Database;" 2>&1 | Out-Null
+        docker exec elite64-postgres psql -U $User -d postgres -c "CREATE DATABASE $Database;" 2>&1 | Out-Null
     } else {
         psql -h $DbHost -p $Port -U $User -d postgres -c "CREATE DATABASE $Database;" 2>&1 | Out-Null
     }
@@ -166,9 +166,9 @@ if ($fileExtension -eq ".sql") {
     if ($useDocker) {
         # Copier le fichier dans le conteneur puis l'importer
         $fileName = Split-Path $DumpPath -Leaf
-        docker cp $DumpPath chessbet-postgres:/tmp/$fileName
-        docker exec chessbet-postgres psql -U $User -d $Database -f /tmp/$fileName 2>&1
-        docker exec chessbet-postgres rm /tmp/$fileName
+        docker cp $DumpPath elite64-postgres:/tmp/$fileName
+        docker exec elite64-postgres psql -U $User -d $Database -f /tmp/$fileName 2>&1
+        docker exec elite64-postgres rm /tmp/$fileName
     } else {
         psql -h $DbHost -p $Port -U $User -d $Database -f $DumpPath 2>&1
     }
@@ -184,11 +184,11 @@ if ($fileExtension -eq ".sql") {
     if ($useDocker) {
         # Copier le fichier dans le conteneur puis l'importer
         $fileName = Split-Path $DumpPath -Leaf
-        docker cp $DumpPath chessbet-postgres:/tmp/$fileName
+        docker cp $DumpPath elite64-postgres:/tmp/$fileName
         
         # Essayer d'abord avec les options standard
         Write-Host "   Tentative d'import avec pg_restore..." -ForegroundColor Cyan
-        $restoreOutput = docker exec chessbet-postgres pg_restore -U $User -d $Database -v --no-owner --no-acl /tmp/$fileName 2>&1
+        $restoreOutput = docker exec elite64-postgres pg_restore -U $User -d $Database -v --no-owner --no-acl /tmp/$fileName 2>&1
         $restoreExitCode = $LASTEXITCODE
         
         if ($restoreExitCode -eq 0) {
@@ -206,15 +206,15 @@ if ($fileExtension -eq ".sql") {
                 Write-Host "   Tentative alternative : conversion en SQL..." -ForegroundColor Yellow
                 
                 # Essayer de convertir le dump en SQL (peut ne pas fonctionner si version incompatible)
-                $convertOutput = docker exec chessbet-postgres pg_restore -U $User -f /tmp/dump.sql /tmp/$fileName 2>&1
+                $convertOutput = docker exec elite64-postgres pg_restore -U $User -f /tmp/dump.sql /tmp/$fileName 2>&1
                 $convertExitCode = $LASTEXITCODE
                 
                 if ($convertExitCode -eq 0) {
                     Write-Host "   ✅ Conversion réussie, import du SQL..." -ForegroundColor Green
-                    $sqlOutput = docker exec chessbet-postgres psql -U $User -d $Database -f /tmp/dump.sql 2>&1
+                    $sqlOutput = docker exec elite64-postgres psql -U $User -d $Database -f /tmp/dump.sql 2>&1
                     $sqlExitCode = $LASTEXITCODE
                     Write-Host $sqlOutput
-                    docker exec chessbet-postgres rm /tmp/dump.sql
+                    docker exec elite64-postgres rm /tmp/dump.sql
                     
                     if ($sqlExitCode -eq 0) {
                         $importSuccess = $true
@@ -226,7 +226,7 @@ if ($fileExtension -eq ".sql") {
             }
         }
         
-        docker exec chessbet-postgres rm /tmp/$fileName
+        docker exec elite64-postgres rm /tmp/$fileName
     } else {
         $restoreOutput = pg_restore -h $DbHost -p $Port -U $User -d $Database -v --no-owner --no-acl $DumpPath 2>&1
         $restoreExitCode = $LASTEXITCODE
@@ -251,9 +251,9 @@ if ($fileExtension -eq ".sql") {
     Write-Host "⚠️  Format de fichier non reconnu. Tentative d'import SQL..." -ForegroundColor Yellow
     if ($useDocker) {
         $fileName = Split-Path $DumpPath -Leaf
-        docker cp $DumpPath chessbet-postgres:/tmp/$fileName
-        docker exec chessbet-postgres psql -U $User -d $Database -f /tmp/$fileName 2>&1
-        docker exec chessbet-postgres rm /tmp/$fileName
+        docker cp $DumpPath elite64-postgres:/tmp/$fileName
+        docker exec elite64-postgres psql -U $User -d $Database -f /tmp/$fileName 2>&1
+        docker exec elite64-postgres rm /tmp/$fileName
     } else {
         psql -h $DbHost -p $Port -U $User -d $Database -f $DumpPath 2>&1
     }
@@ -270,7 +270,7 @@ Write-Host ""
 # Vérifier les tables
 Write-Host "🔍 Vérification des tables..." -ForegroundColor Yellow
 if ($useDocker) {
-    $tables = docker exec chessbet-postgres psql -U $User -d $Database -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';" 2>&1
+    $tables = docker exec elite64-postgres psql -U $User -d $Database -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';" 2>&1
 } else {
     $tables = psql -h $DbHost -p $Port -U $User -d $Database -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';" 2>&1
 }

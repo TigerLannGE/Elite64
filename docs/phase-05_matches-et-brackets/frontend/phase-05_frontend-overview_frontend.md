@@ -6,7 +6,7 @@
 
 ## 📋 Vue d'ensemble
 
-Ce document décrit l'implémentation complète de la couche frontend pour la plateforme ChessBet, une application de tournois d'échecs basée sur la **compétence** (skill game), **PAS un site de paris**.
+Ce document décrit l'implémentation complète de la couche frontend pour la plateforme Elite64, une application de tournois d'échecs basée sur la **compétence** (skill game), **PAS un site de paris**.
 
 ### Technologies utilisées
 
@@ -457,7 +457,7 @@ Les types sont définis dans `lib/api.ts` :
 **Structure :**
 
 - **Header :**
-  - Logo "ChessBet" (lien vers `/`)
+  - Logo "Elite64" (lien vers `/`)
   - Navigation conditionnelle :
     - Si **non authentifié** : "Connexion" + "Inscription"
     - Si **authentifié** : "Lobby" + "Mon portefeuille" + "{username}" + "Déconnexion"

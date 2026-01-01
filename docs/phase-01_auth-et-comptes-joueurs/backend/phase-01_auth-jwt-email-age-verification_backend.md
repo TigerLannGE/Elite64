@@ -1,6 +1,6 @@
 # Renforcer l'Authentification et la Conformité Légale - Documentation Complète
 
-Ce document décrit l'implémentation complète du système d'authentification renforcé et des mesures de conformité légale pour la plateforme ChessBet.
+Ce document décrit l'implémentation complète du système d'authentification renforcé et des mesures de conformité légale pour la plateforme Elite64.
 
 **Date de création** : 5 décembre 2025  
 **Statut** : ✅ Complété et testé
@@ -102,7 +102,7 @@ SMTP_HOST=mail.infomaniak.com
 SMTP_PORT=587
 SMTP_USER=<votre-email@domaine.com>
 SMTP_PASS=<votre-mot-de-passe>
-SMTP_FROM="ChessBet <no-reply@domaine.com>"
+SMTP_FROM="Elite64 <no-reply@domaine.com>"
 ```
 
 ---
@@ -325,7 +325,7 @@ SMTP_HOST=mail.infomaniak.com
 SMTP_PORT=587
 SMTP_USER=<votre-email@domaine.com>
 SMTP_PASS=<votre-mot-de-passe>
-SMTP_FROM="ChessBet <no-reply@domaine.com>"
+SMTP_FROM="Elite64 <no-reply@domaine.com>"
 
 # Frontend URL (pour les liens dans les emails)
 FRONTEND_URL=http://localhost:3000

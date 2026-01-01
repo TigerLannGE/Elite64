@@ -2,7 +2,7 @@
 # Usage: .\reset-admin-password.ps1
 
 $email = "florian.lantigner@ik.me"
-$newPassword = "Chessbet24!"
+$newPassword = "Elite6424!"
 
 Write-Host "🔐 Réinitialisation du mot de passe admin..." -ForegroundColor Cyan
 Write-Host "Email: $email" -ForegroundColor Yellow
@@ -22,7 +22,7 @@ WHERE email = '$email';
 "@
 
 Write-Host "📊 Informations du compte:" -ForegroundColor Cyan
-psql -U postgres -d chessbet -c $query
+psql -U postgres -d elite64_db -c $query
 
 Write-Host ""
 Write-Host "⚠️  Pour réinitialiser le mot de passe, utilisez le script Node.js ci-dessous:" -ForegroundColor Yellow

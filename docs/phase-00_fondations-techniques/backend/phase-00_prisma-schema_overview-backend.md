@@ -1,6 +1,6 @@
-# Schéma Prisma - ChessBet - Documentation Complète
+# Schéma Prisma - Elite64 - Documentation Complète
 
-Ce document décrit le schéma de base de données Prisma pour la plateforme de tournois d'échecs ChessBet, ainsi que tout le processus de configuration et les difficultés rencontrées.
+Ce document décrit le schéma de base de données Prisma pour la plateforme de tournois d'échecs Elite64, ainsi que tout le processus de configuration et les difficultés rencontrées.
 
 ## 📋 Vue d'ensemble
 
@@ -269,7 +269,7 @@ Définit les services Docker :
 
 **Exemple de contenu pour `backend/.env`** :
 ```env
-DATABASE_URL=postgresql://chessbet_user:Dark-Revan-GE-9418657@localhost:5433/chessbet_db?schema=public
+DATABASE_URL=postgresql://elite64_user:Dark-Revan-GE-9418657@localhost:5433/elite64_db?schema=public
 ```
 
 **⚠️ CRITIQUE** : La ligne `DATABASE_URL` doit être sur **une seule ligne** sans saut de ligne, sinon Prisma ne peut pas la parser correctement.
@@ -352,8 +352,8 @@ Cela ouvre automatiquement `http://localhost:5555` dans votre navigateur.
 2. Créez une nouvelle connexion avec ces paramètres :
    - **Host** : `localhost`
    - **Port** : `5433`
-   - **Database** : `chessbet_db`
-   - **Username** : `chessbet_user`
+   - **Database** : `elite64_db`
+   - **Username** : `elite64_user`
    - **Password** : `Dark-Revan-GE-9418657`
 
 **Avantages** :
@@ -365,7 +365,7 @@ Cela ouvre automatiquement `http://localhost:5555` dans votre navigateur.
 
 ```powershell
 # Se connecter à la base de données via Docker
-docker compose -f infra/docker-compose.yml exec postgres psql -U chessbet_user -d chessbet_db
+docker compose -f infra/docker-compose.yml exec postgres psql -U elite64_user -d elite64_db
 
 # Commandes utiles dans psql :
 \dt                    # Liste toutes les tables
@@ -385,8 +385,8 @@ SELECT * FROM players; # Voir toutes les données de la table players
 Utilisez les mêmes paramètres que pgAdmin :
 - **Host** : `localhost`
 - **Port** : `5433`
-- **Database** : `chessbet_db`
-- **Username** : `chessbet_user`
+- **Database** : `elite64_db`
+- **Username** : `elite64_user`
 - **Password** : `Dark-Revan-GE-9418657`
 
 **Avantages** :
@@ -398,10 +398,10 @@ Utilisez les mêmes paramètres que pgAdmin :
 
 ```powershell
 # Lister toutes les tables
-docker compose -f infra/docker-compose.yml exec postgres psql -U chessbet_user -d chessbet_db -c "\dt"
+docker compose -f infra/docker-compose.yml exec postgres psql -U elite64_user -d elite64_db -c "\dt"
 
 # Voir le nombre de tables
-docker compose -f infra/docker-compose.yml exec postgres psql -U chessbet_user -d chessbet_db -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';"
+docker compose -f infra/docker-compose.yml exec postgres psql -U elite64_user -d elite64_db -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';"
 ```
 
 ## ⚠️ Difficultés Rencontrées et Solutions
@@ -424,7 +424,7 @@ docker compose -f infra/docker-compose.yml exec postgres psql -U chessbet_user -
 **Problème** : Docker Compose ne trouvait pas les variables d'environnement pour créer PostgreSQL avec le bon mot de passe.
 
 **Symptômes** :
-- Le conteneur PostgreSQL utilisait toujours le mot de passe par défaut (`chessbet_password`)
+- Le conteneur PostgreSQL utilisait toujours le mot de passe par défaut (`elite64_password`)
 - Erreurs d'authentification même avec le bon mot de passe dans `backend/.env`
 
 **Solution** :
@@ -432,9 +432,9 @@ docker compose -f infra/docker-compose.yml exec postgres psql -U chessbet_user -
 - Docker Compose lit automatiquement le fichier `.env` dans son répertoire de travail
 - Contenu du fichier `infra/.env` :
   ```env
-  POSTGRES_USER=chessbet_user
+  POSTGRES_USER=elite64_user
   POSTGRES_PASSWORD=Dark-Revan-GE-9418657
-  POSTGRES_DB=chessbet_db
+  POSTGRES_DB=elite64_db
   ```
 
 ### 3. Ligne DATABASE_URL Coupée dans le Fichier `.env`
@@ -518,7 +518,7 @@ npx prisma db push
 Test-NetConnection -ComputerName localhost -Port 5433
 
 # Tester la connexion depuis le conteneur
-docker compose -f infra/docker-compose.yml exec postgres psql -U chessbet_user -d chessbet_db -c "SELECT version();"
+docker compose -f infra/docker-compose.yml exec postgres psql -U elite64_user -d elite64_db -c "SELECT version();"
 ```
 
 ## 🔄 Évolutions Futures Possibles

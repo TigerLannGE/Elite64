@@ -1,8 +1,8 @@
-# Scripts E2E - ChessBet Frontend
+# Scripts E2E - Elite64 Frontend
 
 ## 📋 Vue d'ensemble
 
-Ce dossier contient les scripts de tests End-to-End (E2E) pour la plateforme ChessBet.
+Ce dossier contient les scripts de tests End-to-End (E2E) pour la plateforme Elite64.
 
 ### 📄 Logs Automatiques
 
@@ -375,6 +375,6 @@ Le script crée des données de test :
 
 ---
 
-**Maintenu par** : Équipe ChessBet  
+**Maintenu par** : Équipe Elite64  
 **Dernière mise à jour** : 15 décembre 2025
 

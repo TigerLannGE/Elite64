@@ -1,6 +1,6 @@
 # Mise en place Transactions et Gestion Portefeuilles - Documentation Complète
 
-Ce document décrit la création du module `Transactions` centralisé et l'extension du module `Wallets` pour gérer tous les mouvements financiers de la plateforme ChessBet.
+Ce document décrit la création du module `Transactions` centralisé et l'extension du module `Wallets` pour gérer tous les mouvements financiers de la plateforme Elite64.
 
 **Date de création** : Décembre 2025  
 **Statut** : ✅ Complété

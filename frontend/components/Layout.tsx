@@ -10,7 +10,7 @@ interface LayoutProps {
   description?: string
 }
 
-export default function Layout({ children, title = 'ChessBet - Skill Tournaments', description }: LayoutProps) {
+export default function Layout({ children, title = 'Elite64 - Skill Tournaments', description }: LayoutProps) {
   const { isAuthenticated, player, logout, isAdmin } = useAuth()
 
   return (
@@ -28,7 +28,7 @@ export default function Layout({ children, title = 'ChessBet - Skill Tournaments
           <div className="container mx-auto px-4 py-4">
             <div className="flex justify-between items-center">
               <Link href="/" className="text-2xl font-bold text-white">
-                ChessBet
+                Elite64
               </Link>
               
               <nav className="flex items-center gap-4">
@@ -148,7 +148,7 @@ export default function Layout({ children, title = 'ChessBet - Skill Tournaments
             </div>
             
             <div className="mt-8 pt-8 border-t border-white/10 text-center text-xs text-gray-500">
-              <p>© {new Date().getFullYear()} ChessBet. Tous droits réservés.</p>
+              <p>© {new Date().getFullYear()} Elite64. Tous droits réservés.</p>
             </div>
           </div>
         </footer>

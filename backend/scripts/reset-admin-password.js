@@ -10,7 +10,7 @@ const bcrypt = require('bcrypt');
 const prisma = new PrismaClient();
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'florian.lantigner@ik.me';
-const NEW_PASSWORD = process.env.NEW_PASSWORD || 'Chessbet24!';
+const NEW_PASSWORD = process.env.NEW_PASSWORD || 'Elite6424!';
 
 async function main() {
   console.log('🔐 Réinitialisation du mot de passe admin...\n');

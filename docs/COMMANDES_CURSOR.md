@@ -1,4 +1,4 @@
-# 🎯 Commandes Cursor - Documentation ChessBet
+# 🎯 Commandes Cursor - Documentation Elite64
 
 **Version** : 1.0  
 **Dernière mise à jour** : 15 décembre 2025

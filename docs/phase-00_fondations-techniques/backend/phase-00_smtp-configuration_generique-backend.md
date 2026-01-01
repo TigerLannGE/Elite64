@@ -13,7 +13,7 @@ SMTP_HOST=<adresse du serveur SMTP>
 SMTP_PORT=<port SMTP (587 ou 465)>
 SMTP_USER=<votre email ou nom d'utilisateur SMTP>
 SMTP_PASS=<votre mot de passe SMTP>
-SMTP_FROM="ChessBet <no-reply@votre-domaine.com>"
+SMTP_FROM="Elite64 <no-reply@votre-domaine.com>"
 FRONTEND_URL=http://localhost:3000
 ```
 
@@ -37,7 +37,7 @@ FRONTEND_URL=http://localhost:3000
    SMTP_PORT=587
    SMTP_USER=votre-email@gmail.com
    SMTP_PASS=votre-mot-de-passe-application
-   SMTP_FROM="ChessBet <votre-email@gmail.com>"
+   SMTP_FROM="Elite64 <votre-email@gmail.com>"
    FRONTEND_URL=http://localhost:3000
    ```
 
@@ -62,7 +62,7 @@ FRONTEND_URL=http://localhost:3000
    SMTP_PORT=2525
    SMTP_USER=<votre-username-mailtrap>
    SMTP_PASS=<votre-password-mailtrap>
-   SMTP_FROM="ChessBet <no-reply@chessbet.com>"
+   SMTP_FROM="Elite64 <no-reply@elite64.app>"
    FRONTEND_URL=http://localhost:3000
    ```
 
@@ -87,7 +87,7 @@ SMTP_HOST=mail.infomaniak.com
 SMTP_PORT=587
 SMTP_USER=<votre-email@votre-domaine.com>
 SMTP_PASS=<votre-mot-de-passe-email>
-SMTP_FROM="ChessBet <no-reply@votre-domaine.com>"
+SMTP_FROM="Elite64 <no-reply@votre-domaine.com>"
 FRONTEND_URL=http://localhost:3000
 ```
 
@@ -111,7 +111,7 @@ FRONTEND_URL=http://localhost:3000
    SMTP_PORT=587
    SMTP_USER=apikey
    SMTP_PASS=<votre-api-key-sendgrid>
-   SMTP_FROM="ChessBet <no-reply@votre-domaine.com>"
+   SMTP_FROM="Elite64 <no-reply@votre-domaine.com>"
    FRONTEND_URL=http://localhost:3000
    ```
 
@@ -180,7 +180,7 @@ npm run start:dev
 
 ```env
 # Database
-DATABASE_URL=postgresql://chessbet_user:password@localhost:5433/chessbet_db?schema=public
+DATABASE_URL=postgresql://elite64_user:password@localhost:5433/elite64_db?schema=public
 
 # Backend
 PORT_BACKEND=4000
@@ -195,7 +195,7 @@ SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=votre-email@gmail.com
 SMTP_PASS=votre-mot-de-passe-application-gmail
-SMTP_FROM="ChessBet <votre-email@gmail.com>"
+SMTP_FROM="Elite64 <votre-email@gmail.com>"
 ```
 
 ## ⚠️ Sécurité

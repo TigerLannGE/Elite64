@@ -1,4 +1,4 @@
-# 📚 RÈGLES DE DOCUMENTATION - ChessBet
+# 📚 RÈGLES DE DOCUMENTATION - Elite64
 
 ## Structure et Organisation
 
@@ -26,9 +26,39 @@ docs/
 ├── phase-04_prize-pool-et-moderation/
 ├── phase-05_matches-et-brackets/
 ├── phase-06_gameplay-echecs/
+├── governance/         # Documents normatifs et audits
+│   ├── REFERENTIEL_NORMATIF.md
+│   ├── reference_01_08/  # PDFs normatifs (01 à 08)
+│   └── audits/
 ├── _archives/          # Documents obsolètes (préfixe OBSOLETE_)
 └── README.md           # Index principal
 ```
+
+## Documents Normatifs (Source de Vérité)
+
+Les documents normatifs 01-08 constituent la **SOURCE DE VÉRITÉ** stratégique, juridique, produit, financière, technique et opérationnelle du projet Elite64.
+
+**Référentiel principal** : `docs/governance/REFERENTIEL_NORMATIF.md`
+
+**Documents PDF** : `docs/governance/reference_01_08/`
+- 01 — Vision et Stratégie Globale
+- 02 — Branding et Marketing
+- 03 — Structure juridique & conformité
+- 04 — Finance & paiements
+- 05 — Produit & expérience utilisateur
+- 06 — Technique
+- 07 — Exploitation & opérations
+- 08 — Financement & trajectoire capitalistique
+
+**Règles impératives** :
+- Les décisions FIGÉES dans les documents 01-08 sont **NON NÉGOCIABLES**
+- Toute divergence doit être listée comme ADAPTATION OBLIGATOIRE (P0) ou RECOMMANDÉE (P1)
+- Les documents 01-08 priment systématiquement sur l'existant du repository
+- Avant toute implémentation majeure, consulter les documents pertinents pour s'assurer de la conformité
+
+**Audits de convergence** : `docs/governance/audits/`
+
+**Note** : Cursor peut lire et citer directement les PDFs dans `reference_01_08/` pour les audits et vérifications de conformité.
 
 ## Commandes de Maintenance Documentation
 

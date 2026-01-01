@@ -11,10 +11,12 @@ Infomaniak est un hébergeur suisse qui fournit des services email professionnel
 ```env
 SMTP_HOST=mail.infomaniak.com
 SMTP_PORT=587
-SMTP_USER=contact@chessbet.ch
-SMTP_PASS=Dark-Revan-GE-9418657
-SMTP_FROM="ChessBet <no-reply@chessbet.ch>"
+SMTP_USER=contact@elite64.app
+SMTP_PASS=votre-mot-de-passe-d-application
+SMTP_FROM="Elite64 <no-reply@elite64.app>"
 ```
+
+**⚠️ IMPORTANT :** Infomaniak utilise maintenant des **mots de passe d'application** pour chaque appareil/service. Vous ne pouvez plus utiliser le mot de passe principal de votre compte email. Voir la section "Créer un mot de passe d'application" ci-dessous.
 
 ### Ports disponibles
 
@@ -24,21 +26,28 @@ SMTP_FROM="ChessBet <no-reply@chessbet.ch>"
 
 ## 📝 Étapes de configuration
 
-### 1. Récupérer vos identifiants SMTP Infomaniak
+### 1. Créer un mot de passe d'application Infomaniak
+
+**⚠️ IMPORTANT :** Infomaniak a changé sa politique de sécurité. Chaque appareil/service doit maintenant utiliser un **mot de passe d'application dédié** au lieu du mot de passe principal du compte email.
 
 1. **Connectez-vous à votre compte Infomaniak :**
-   - Allez sur https://login.infomaniak.com/
+   - Allez sur https://manager.infomaniak.com/
    - Connectez-vous avec vos identifiants
 
-2. **Accédez à la gestion des emails :**
+2. **Accédez à la gestion de votre boîte email :**
    - Dans le menu, allez dans "Email" ou "Messagerie"
-   - Sélectionnez votre domaine
+   - Sélectionnez votre domaine (ex: `elite64.app`)
+   - Sélectionnez votre boîte email (ex: `contact@elite64.app`)
 
-3. **Trouvez les paramètres SMTP :**
-   - Cherchez "Paramètres SMTP" ou "Configuration SMTP"
-   - Notez :
-     - Votre adresse email complète (ex: `no-reply@votre-domaine.com`)
-     - Votre mot de passe email (celui que vous utilisez pour vous connecter à votre boîte email)
+3. **Créez un mot de passe d'application :**
+   - Allez dans l'onglet "Appareils" ou "Gestion des mots de passe"
+   - Cliquez sur "Configurer un appareil" ou "Créer un mot de passe d'application"
+   - Donnez un nom à votre appareil (ex: "Elite64 Backend" ou "Elite64 Backend")
+   - Type : SMTP
+   - **Copiez le mot de passe généré** (il ne sera affiché qu'une seule fois !)
+   - Notez-le dans un endroit sûr
+
+**Note :** Le mot de passe d'application est différent du mot de passe principal de votre compte email. Il est généralement plus long et aléatoire (ex: `U8KjUBGKG6&H7H*V`).
 
 ### 2. Configurer le fichier .env
 
@@ -48,16 +57,18 @@ Dans votre fichier `.env` à la racine du projet (ou dans `backend/.env`), ajout
 # SMTP Infomaniak
 SMTP_HOST=mail.infomaniak.com
 SMTP_PORT=587
-SMTP_USER=no-reply@votre-domaine.com
-SMTP_PASS=votre-mot-de-passe-email
-SMTP_FROM="ChessBet <no-reply@votre-domaine.com>"
+SMTP_USER=contact@elite64.app
+SMTP_PASS=votre-mot-de-passe-d-application
+SMTP_FROM="Elite64 <no-reply@elite64.app>"
 FRONTEND_URL=http://localhost:3000
 ```
 
 **Important :**
-- Remplacez `no-reply@votre-domaine.com` par votre vraie adresse email Infomaniak
-- Remplacez `votre-mot-de-passe-email` par votre vrai mot de passe
-- Remplacez `votre-domaine.com` par votre domaine réel dans `SMTP_FROM`
+- `SMTP_USER` : Votre adresse email complète (ex: `contact@elite64.app`)
+- `SMTP_PASS` : Le **mot de passe d'application** que vous avez créé à l'étape 1 (pas le mot de passe principal !)
+- `SMTP_FROM` : L'adresse d'expéditeur (peut être différente de `SMTP_USER`)
+- **Pas de guillemets** autour de `SMTP_PASS` (sauf si votre shell l'exige)
+- **Pas d'espaces** avant ou après le `=`
 
 ### 3. Vérifier la configuration
 
@@ -77,17 +88,33 @@ Si vous voyez une erreur, consultez la section "Dépannage" ci-dessous.
 
 ## 🔍 Dépannage
 
-### Erreur "Invalid login" ou "Authentication failed"
+### Erreur "Invalid login" ou "Authentication failed" (535 5.7.0)
 
 **Causes possibles :**
-1. **Mauvais identifiants** : Vérifiez que `SMTP_USER` et `SMTP_PASS` sont corrects
-2. **Email non vérifié** : Assurez-vous que l'email Infomaniak est actif et vérifié
-3. **Espaces dans le .env** : Vérifiez qu'il n'y a pas d'espaces avant/après les valeurs
+1. **Utilisation du mauvais mot de passe** : Vous utilisez le mot de passe principal au lieu du mot de passe d'application
+2. **Mauvais identifiants** : Vérifiez que `SMTP_USER` et `SMTP_PASS` sont corrects
+3. **Email non vérifié** : Assurez-vous que l'email Infomaniak est actif et vérifié
+4. **Espaces dans le .env** : Vérifiez qu'il n'y a pas d'espaces avant/après les valeurs
+5. **Guillemets autour du mot de passe** : Le mot de passe ne doit pas être entre guillemets dans le `.env`
 
-**Solution :**
-- Vérifiez vos identifiants dans l'interface Infomaniak
-- Testez la connexion avec un client email (Thunderbird, Outlook) pour confirmer que les identifiants fonctionnent
-- Vérifiez le format du `.env` (pas d'espaces, pas de guillemets autour des valeurs sauf pour `SMTP_FROM`)
+**Solutions :**
+1. **Vérifiez que vous utilisez un mot de passe d'application** :
+   - Allez dans votre interface Infomaniak → Email → Appareils
+   - Vérifiez que vous avez bien créé un mot de passe d'application pour SMTP
+   - Si nécessaire, créez-en un nouveau et mettez à jour votre `.env`
+
+2. **Vérifiez le format du `.env`** :
+   ```env
+   # ✅ Correct
+   SMTP_PASS=U8KjUBGKG6&H7H*V
+   
+   # ❌ Incorrect (avec guillemets)
+   SMTP_PASS="U8KjUBGKG6&H7H*V"
+   ```
+
+3. **Testez la connexion** :
+   - Vérifiez vos identifiants dans l'interface Infomaniak
+   - Testez la connexion avec un client email (Thunderbird, Outlook) pour confirmer que les identifiants fonctionnent
 
 ### Erreur "Connection timeout" ou "ECONNREFUSED"
 
@@ -132,9 +159,9 @@ Si le port 587 ne fonctionne pas, essayez le port 465 :
 ```env
 SMTP_HOST=mail.infomaniak.com
 SMTP_PORT=465
-SMTP_USER=no-reply@votre-domaine.com
-SMTP_PASS=votre-mot-de-passe-email
-SMTP_FROM="ChessBet <no-reply@votre-domaine.com>"
+SMTP_USER=contact@elite64.app
+SMTP_PASS=votre-mot-de-passe-d-application
+SMTP_FROM="Elite64 <no-reply@elite64.app>"
 ```
 
 Le code détectera automatiquement que le port 465 nécessite SSL.
@@ -143,7 +170,7 @@ Le code détectera automatiquement que le port 465 nécessite SSL.
 
 ```env
 # Database
-DATABASE_URL=postgresql://chessbet_user:password@localhost:5433/chessbet_db?schema=public
+DATABASE_URL=postgresql://elite64_user:password@localhost:5433/elite64_db?schema=public
 
 # Backend
 PORT_BACKEND=4000
@@ -156,9 +183,9 @@ JWT_SECRET=your-secret-key-change-in-production
 # SMTP Infomaniak
 SMTP_HOST=mail.infomaniak.com
 SMTP_PORT=587
-SMTP_USER=no-reply@votre-domaine.com
-SMTP_PASS=votre-mot-de-passe-email
-SMTP_FROM="ChessBet <no-reply@votre-domaine.com>"
+SMTP_USER=contact@elite64.app
+SMTP_PASS=votre-mot-de-passe-d-application
+SMTP_FROM="Elite64 <no-reply@elite64.app>"
 ```
 
 ## ✅ Test de la configuration
@@ -173,9 +200,10 @@ SMTP_FROM="ChessBet <no-reply@votre-domaine.com>"
 ## 🔐 Sécurité
 
 - **Ne commitez JAMAIS** votre fichier `.env` dans Git
-- Utilisez des mots de passe forts pour votre compte email Infomaniak
+- **Utilisez des mots de passe d'application** au lieu du mot de passe principal (plus sécurisé)
 - En production, utilisez des variables d'environnement sécurisées
 - Limitez les permissions de l'utilisateur SMTP si possible
+- Si un mot de passe d'application est compromis, supprimez-le et créez-en un nouveau dans l'interface Infomaniak
 
 ## 📞 Support Infomaniak
 
@@ -185,5 +213,9 @@ Si vous avez des problèmes spécifiques à Infomaniak :
 
 ---
 
-**Dernière mise à jour :** 5 décembre 2025
+**Dernière mise à jour :** 15 janvier 2025
+
+**Changements récents :**
+- Mise à jour pour refléter l'utilisation des mots de passe d'application Infomaniak (obligatoire depuis 2025)
+- Domaine mis à jour vers `elite64.app`
 

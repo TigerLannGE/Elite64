@@ -24,25 +24,25 @@ docker compose -f infra/docker-compose.yml ps
 **2. Importer le dump SQL :**
 ```powershell
 # Depuis la racine du projet
-psql -h localhost -p 5433 -U chessbet_user -d chessbet_db -f chemin/vers/votre/dump.sql
+psql -h localhost -p 5433 -U elite64_user -d elite64_db -f chemin/vers/votre/dump.sql
 ```
 
 **Exemple avec mot de passe en ligne de commande :**
 ```powershell
 $env:PGPASSWORD="Dark-Revan-GE-9418657"
-psql -h localhost -p 5433 -U chessbet_user -d chessbet_db -f C:\chemin\vers\dump.sql
+psql -h localhost -p 5433 -U elite64_user -d elite64_db -f C:\chemin\vers\dump.sql
 ```
 
 **Ou via variable d'environnement PowerShell :**
 ```powershell
-$env:PGPASSWORD="Dark-Revan-GE-9418657"; psql -h localhost -p 5433 -U chessbet_user -d chessbet_db -f C:\chemin\vers\dump.sql
+$env:PGPASSWORD="Dark-Revan-GE-9418657"; psql -h localhost -p 5433 -U elite64_user -d elite64_db -f C:\chemin\vers\dump.sql
 ```
 
 ### Option B : PostgreSQL Local (port 5432)
 
 ```powershell
 $env:PGPASSWORD="Dark-Revan-GE-9418657"
-psql -h localhost -p 5432 -U chessbet_user -d chessbet_db -f C:\chemin\vers\dump.sql
+psql -h localhost -p 5432 -U elite64_user -d elite64_db -f C:\chemin\vers\dump.sql
 ```
 
 ---
@@ -54,25 +54,25 @@ psql -h localhost -p 5432 -U chessbet_user -d chessbet_db -f C:\chemin\vers\dump
 **1. Importer le dump :**
 ```powershell
 $env:PGPASSWORD="Dark-Revan-GE-9418657"
-pg_restore -h localhost -p 5433 -U chessbet_user -d chessbet_db -v C:\chemin\vers\dump.dump
+pg_restore -h localhost -p 5433 -U elite64_user -d elite64_db -v C:\chemin\vers\dump.dump
 ```
 
 **2. Si vous voulez recréer la base (supprime tout avant) :**
 ```powershell
 # D'abord, supprimer et recréer la base
-psql -h localhost -p 5433 -U chessbet_user -d postgres -c "DROP DATABASE IF EXISTS chessbet_db;"
-psql -h localhost -p 5433 -U chessbet_user -d postgres -c "CREATE DATABASE chessbet_db;"
+psql -h localhost -p 5433 -U elite64_user -d postgres -c "DROP DATABASE IF EXISTS elite64_db;"
+psql -h localhost -p 5433 -U elite64_user -d postgres -c "CREATE DATABASE elite64_db;"
 
 # Puis importer
 $env:PGPASSWORD="Dark-Revan-GE-9418657"
-pg_restore -h localhost -p 5433 -U chessbet_user -d chessbet_db -v C:\chemin\vers\dump.dump
+pg_restore -h localhost -p 5433 -U elite64_user -d elite64_db -v C:\chemin\vers\dump.dump
 ```
 
 ### Option B : PostgreSQL Local (port 5432)
 
 ```powershell
 $env:PGPASSWORD="Dark-Revan-GE-9418657"
-pg_restore -h localhost -p 5432 -U chessbet_user -d chessbet_db -v C:\chemin\vers\dump.dump
+pg_restore -h localhost -p 5432 -U elite64_user -d elite64_db -v C:\chemin\vers\dump.dump
 ```
 
 ---
@@ -103,13 +103,13 @@ Si votre fichier de dump est déjà dans le conteneur Docker :
 
 ```powershell
 # Copier le dump dans le conteneur
-docker cp C:\chemin\vers\dump.sql chessbet-postgres:/tmp/dump.sql
+docker cp C:\chemin\vers\dump.sql elite64-postgres:/tmp/dump.sql
 
 # Importer depuis le conteneur
-docker exec -i chessbet-postgres psql -U chessbet_user -d chessbet_db < C:\chemin\vers\dump.sql
+docker exec -i elite64-postgres psql -U elite64_user -d elite64_db < C:\chemin\vers\dump.sql
 
 # Ou via exec interactif
-docker exec -it chessbet-postgres psql -U chessbet_user -d chessbet_db
+docker exec -it elite64-postgres psql -U elite64_user -d elite64_db
 # Puis dans psql :
 \i /tmp/dump.sql
 ```
@@ -123,7 +123,7 @@ docker exec -it chessbet-postgres psql -U chessbet_user -d chessbet_db
 ```powershell
 # Créer un backup de la base actuelle
 $env:PGPASSWORD="Dark-Revan-GE-9418657"
-pg_dump -h localhost -p 5433 -U chessbet_user -d chessbet_db -F c -f backup_avant_import_$(Get-Date -Format 'yyyyMMdd_HHmmss').dump
+pg_dump -h localhost -p 5433 -U elite64_user -d elite64_db -F c -f backup_avant_import_$(Get-Date -Format 'yyyyMMdd_HHmmss').dump
 ```
 
 ### 2. Vider la base avant import (optionnel)
@@ -132,11 +132,11 @@ pg_dump -h localhost -p 5433 -U chessbet_user -d chessbet_db -F c -f backup_avan
 
 ```powershell
 # Se connecter à PostgreSQL
-psql -h localhost -p 5433 -U chessbet_user -d postgres
+psql -h localhost -p 5433 -U elite64_user -d postgres
 
 # Dans psql, exécuter :
-DROP DATABASE IF EXISTS chessbet_db;
-CREATE DATABASE chessbet_db;
+DROP DATABASE IF EXISTS elite64_db;
+CREATE DATABASE elite64_db;
 
 # Quitter
 \q
@@ -168,15 +168,15 @@ npx prisma migrate deploy
 ### 1. Vérifier les tables
 
 ```powershell
-psql -h localhost -p 5433 -U chessbet_user -d chessbet_db -c "\dt"
+psql -h localhost -p 5433 -U elite64_user -d elite64_db -c "\dt"
 ```
 
 ### 2. Vérifier les données
 
 ```powershell
-psql -h localhost -p 5433 -U chessbet_user -d chessbet_db -c "SELECT COUNT(*) FROM players;"
-psql -h localhost -p 5433 -U chessbet_user -d chessbet_db -c "SELECT COUNT(*) FROM tournaments;"
-psql -h localhost -p 5433 -U chessbet_user -d chessbet_db -c "SELECT COUNT(*) FROM matches;"
+psql -h localhost -p 5433 -U elite64_user -d elite64_db -c "SELECT COUNT(*) FROM players;"
+psql -h localhost -p 5433 -U elite64_user -d elite64_db -c "SELECT COUNT(*) FROM tournaments;"
+psql -h localhost -p 5433 -U elite64_user -d elite64_db -c "SELECT COUNT(*) FROM matches;"
 ```
 
 ### 3. Vérifier via Prisma Studio
@@ -194,21 +194,21 @@ Accès : `http://localhost:5555`
 
 ```powershell
 # 1. Aller dans le dossier du projet
-cd C:\xampp\htdocs\ChessBet
+cd C:\xampp\htdocs\Elite64
 
 # 2. Vérifier que PostgreSQL est démarré
 docker compose -f infra/docker-compose.yml ps
 
 # 3. Sauvegarder la base actuelle (sécurité)
 $env:PGPASSWORD="Dark-Revan-GE-9418657"
-pg_dump -h localhost -p 5433 -U chessbet_user -d chessbet_db -F c -f backup_avant_import_$(Get-Date -Format 'yyyyMMdd_HHmmss').dump
+pg_dump -h localhost -p 5433 -U elite64_user -d elite64_db -F c -f backup_avant_import_$(Get-Date -Format 'yyyyMMdd_HHmmss').dump
 
 # 4. Vider la base (OPTIONNEL - seulement si vous voulez tout remplacer)
-psql -h localhost -p 5433 -U chessbet_user -d postgres -c "DROP DATABASE IF EXISTS chessbet_db;"
-psql -h localhost -p 5433 -U chessbet_user -d postgres -c "CREATE DATABASE chessbet_db;"
+psql -h localhost -p 5433 -U elite64_user -d postgres -c "DROP DATABASE IF EXISTS elite64_db;"
+psql -h localhost -p 5433 -U elite64_user -d postgres -c "CREATE DATABASE elite64_db;"
 
 # 5. Importer le dump
-psql -h localhost -p 5433 -U chessbet_user -d chessbet_db -f C:\chemin\vers\votre_dump.sql
+psql -h localhost -p 5433 -U elite64_user -d elite64_db -f C:\chemin\vers\votre_dump.sql
 
 # 6. Vérifier les migrations Prisma
 cd backend
@@ -233,7 +233,7 @@ npx prisma studio
 
 **Solution** : Créer la base d'abord :
 ```powershell
-psql -h localhost -p 5433 -U chessbet_user -d postgres -c "CREATE DATABASE chessbet_db;"
+psql -h localhost -p 5433 -U elite64_user -d postgres -c "CREATE DATABASE elite64_db;"
 ```
 
 ### Erreur : "relation already exists"
@@ -242,9 +242,9 @@ psql -h localhost -p 5433 -U chessbet_user -d postgres -c "CREATE DATABASE chess
 
 ### Erreur : "permission denied"
 
-**Solution** : Vérifier que l'utilisateur `chessbet_user` a les droits nécessaires :
+**Solution** : Vérifier que l'utilisateur `elite64_user` a les droits nécessaires :
 ```powershell
-psql -h localhost -p 5433 -U chessbet_user -d postgres -c "GRANT ALL PRIVILEGES ON DATABASE chessbet_db TO chessbet_user;"
+psql -h localhost -p 5433 -U elite64_user -d postgres -c "GRANT ALL PRIVILEGES ON DATABASE elite64_db TO elite64_user;"
 ```
 
 ### Erreur : "connection refused"
@@ -261,25 +261,25 @@ docker compose -f infra/docker-compose.yml ps
 ### Lister les bases de données
 
 ```powershell
-psql -h localhost -p 5433 -U chessbet_user -d postgres -c "\l"
+psql -h localhost -p 5433 -U elite64_user -d postgres -c "\l"
 ```
 
 ### Lister les tables
 
 ```powershell
-psql -h localhost -p 5433 -U chessbet_user -d chessbet_db -c "\dt"
+psql -h localhost -p 5433 -U elite64_user -d elite64_db -c "\dt"
 ```
 
 ### Voir la taille de la base
 
 ```powershell
-psql -h localhost -p 5433 -U chessbet_user -d chessbet_db -c "SELECT pg_size_pretty(pg_database_size('chessbet_db'));"
+psql -h localhost -p 5433 -U elite64_user -d elite64_db -c "SELECT pg_size_pretty(pg_database_size('elite64_db'));"
 ```
 
 ### Se connecter interactivement
 
 ```powershell
-psql -h localhost -p 5433 -U chessbet_user -d chessbet_db
+psql -h localhost -p 5433 -U elite64_user -d elite64_db
 ```
 
 ---

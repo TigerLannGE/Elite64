@@ -191,7 +191,7 @@ La **base de données PostgreSQL n'est pas démarrée** ou n'écoute pas sur le 
 
 **Si Docker (port 5433)** :
 ```bash
-cd C:\xampp\htdocs\ChessBet
+cd C:\xampp\htdocs\Elite64
 docker compose -f infra/docker-compose.yml up -d postgres
 ```
 
@@ -211,31 +211,31 @@ net start postgresql-x64-17
 **Vérifier la connexion manuellement** :
 ```bash
 # Port 5433 (Docker)
-psql -h localhost -p 5433 -U chessbet_user -d chessbet_db
+psql -h localhost -p 5433 -U elite64_user -d elite64_db
 
 # Port 5432 (Local)
-psql -h localhost -p 5432 -U chessbet_user -d chessbet_db
+psql -h localhost -p 5432 -U elite64_user -d elite64_db
 ```
 
 **Vérifier le `.env`** :
 ```env
 # Docker (port 5433)
-DATABASE_URL=postgresql://chessbet_user:Dark-Revan-GE-9418657@localhost:5433/chessbet_db?schema=public
+DATABASE_URL=postgresql://elite64_user:Dark-Revan-GE-9418657@localhost:5433/elite64_db?schema=public
 
 # Local (port 5432)
-DATABASE_URL=postgresql://chessbet_user:Dark-Revan-GE-9418657@localhost:5432/chessbet_db?schema=public
+DATABASE_URL=postgresql://elite64_user:Dark-Revan-GE-9418657@localhost:5432/elite64_db?schema=public
 ```
 
 ---
 
-### ❌ Erreur : "Authentication failed for user `chessbet_user`"
+### ❌ Erreur : "Authentication failed for user `elite64_user`"
 
 #### Symptômes
 
 ```
 Error: P1001
 Authentication failed against database server at `localhost:5433`
-The provided database credentials for `chessbet_user` are not valid.
+The provided database credentials for `elite64_user` are not valid.
 ```
 
 #### Cause
@@ -246,7 +246,7 @@ Le **mot de passe dans `.env` ne correspond pas** au mot de passe configuré dan
 
 **Vérifier le `.env`** :
 ```env
-DATABASE_URL=postgresql://chessbet_user:Dark-Revan-GE-9418657@localhost:5433/chessbet_db?schema=public
+DATABASE_URL=postgresql://elite64_user:Dark-Revan-GE-9418657@localhost:5433/elite64_db?schema=public
                                       ^^^^^^^^^^^^^^^^^^^^
                                       Vérifier ce mot de passe
 ```
@@ -254,9 +254,9 @@ DATABASE_URL=postgresql://chessbet_user:Dark-Revan-GE-9418657@localhost:5433/che
 **Si Docker** : Le mot de passe est défini dans `infra/docker-compose.yml` :
 ```yaml
 environment:
-  POSTGRES_USER: chessbet_user
+  POSTGRES_USER: elite64_user
   POSTGRES_PASSWORD: Dark-Revan-GE-9418657
-  POSTGRES_DB: chessbet_db
+  POSTGRES_DB: elite64_db
 ```
 
 **Si PostgreSQL local** : Recréer l'utilisateur avec le bon mot de passe :
@@ -265,13 +265,13 @@ environment:
 psql -U postgres
 
 -- Supprimer l'ancien utilisateur (si existe)
-DROP USER IF EXISTS chessbet_user;
+DROP USER IF EXISTS elite64_user;
 
 -- Recréer avec le bon mot de passe
-CREATE USER chessbet_user WITH PASSWORD 'Dark-Revan-GE-9418657';
+CREATE USER elite64_user WITH PASSWORD 'Dark-Revan-GE-9418657';
 
 -- Donner les droits sur la DB
-GRANT ALL PRIVILEGES ON DATABASE chessbet_db TO chessbet_user;
+GRANT ALL PRIVILEGES ON DATABASE elite64_db TO elite64_user;
 ```
 
 ---
@@ -397,13 +397,13 @@ graph TD
 5. **Sauvegarder avant un reset**
    ```bash
    # Exporter les données avant reset
-   pg_dump -h localhost -p 5433 -U chessbet_user chessbet_db > backup.sql
+   pg_dump -h localhost -p 5433 -U elite64_user elite64_db > backup.sql
    
    # Reset
    npx prisma migrate reset --force
    
    # Restaurer si besoin
-   psql -h localhost -p 5433 -U chessbet_user chessbet_db < backup.sql
+   psql -h localhost -p 5433 -U elite64_user elite64_db < backup.sql
    ```
 
 ### ❌ À ÉVITER
@@ -437,7 +437,7 @@ graph TD
 - [Migration Troubleshooting](https://www.prisma.io/docs/guides/migrate/production-troubleshooting)
 - [Prisma Client](https://www.prisma.io/docs/concepts/components/prisma-client)
 
-### Autres documentations ChessBet
+### Autres documentations Elite64
 - [Schéma Prisma - Vue d'ensemble](../backend/phase-00_prisma-schema_overview-backend.md)
 - [Démarrage rapide](./phase-00_quickstart-detaille_cross.md)
 - [Restauration base de données](./phase-00_postgresql-restore_cross.md)
@@ -514,7 +514,7 @@ Quand le backend ne démarre pas à cause de Prisma :
 
 - [ ] La base de données est-elle accessible ?
   ```bash
-  psql -h localhost -p 5433 -U chessbet_user -d chessbet_db
+  psql -h localhost -p 5433 -U elite64_user -d elite64_db
   ```
 
 - [ ] Y a-t-il des erreurs dans les logs du backend ?

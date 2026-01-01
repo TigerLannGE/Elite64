@@ -1,6 +1,6 @@
 # Intégration Prisma et Modules Players/Wallets - Documentation Complète
 
-Ce document décrit l'intégration de Prisma dans NestJS et la création des modules `Players` et `Wallets` pour la plateforme ChessBet.
+Ce document décrit l'intégration de Prisma dans NestJS et la création des modules `Players` et `Wallets` pour la plateforme Elite64.
 
 **Date de création** : 5 décembre 2025  
 **Statut** : ✅ Complété et testé
@@ -362,11 +362,11 @@ npm install bcrypt @types/bcrypt class-validator class-transformer
 
 #### ⚠️ Important : Se placer dans le répertoire racine du projet
 
-Avant d'exécuter la commande, assurez-vous d'être dans le répertoire racine du projet `ChessBet` :
+Avant d'exécuter la commande, assurez-vous d'être dans le répertoire racine du projet `Elite64` :
 
 ```powershell
 # Se déplacer dans le répertoire du projet
-cd C:\xampp\htdocs\ChessBet
+cd C:\xampp\htdocs\Elite64
 
 # Vérifier que vous êtes au bon endroit (vous devriez voir les dossiers backend, frontend, infra)
 ls
@@ -380,7 +380,7 @@ docker compose -f infra/docker-compose.yml up -d postgres
 
 **Alternative** : Si vous préférez rester dans votre répertoire actuel, utilisez le chemin absolu :
 ```powershell
-docker compose -f C:\xampp\htdocs\ChessBet\infra\docker-compose.yml up -d postgres
+docker compose -f C:\xampp\htdocs\Elite64\infra\docker-compose.yml up -d postgres
 ```
 
 #### Explication :
@@ -394,9 +394,9 @@ docker compose -f C:\xampp\htdocs\ChessBet\infra\docker-compose.yml up -d postgr
 
 1. Docker vérifie si l'image PostgreSQL est déjà téléchargée
 2. Si non, il la télécharge automatiquement (`postgres:17-alpine`)
-3. Il crée un conteneur nommé `chessbet-postgres`
+3. Il crée un conteneur nommé `elite64-postgres`
 4. Il démarre PostgreSQL sur le port **5433** (mappé depuis le port 5432 du conteneur)
-5. Il crée la base de données `chessbet_db` avec l'utilisateur `chessbet_user`
+5. Il crée la base de données `elite64_db` avec l'utilisateur `elite64_user`
 
 #### Vérifier que ça fonctionne :
 
@@ -710,7 +710,7 @@ Si vous préférez une interface graphique plutôt que `curl` :
 1. Vérifiez que PostgreSQL est démarré : `docker compose -f infra/docker-compose.yml ps`
 2. Vérifiez le fichier `backend/.env` contient la bonne `DATABASE_URL` :
    ```
-   DATABASE_URL=postgresql://chessbet_user:Dark-Revan-GE-9418657@localhost:5433/chessbet_db?schema=public
+   DATABASE_URL=postgresql://elite64_user:Dark-Revan-GE-9418657@localhost:5433/elite64_db?schema=public
    ```
 3. Notez le port **5433** (pas 5432)
 
@@ -741,7 +741,7 @@ Si vous préférez une interface graphique plutôt que `curl` :
 
 ```powershell
 # 1. Démarrer PostgreSQL
-cd C:\xampp\htdocs\ChessBet
+cd C:\xampp\htdocs\Elite64
 docker compose -f infra/docker-compose.yml up -d postgres
 
 # 2. Générer Prisma Client

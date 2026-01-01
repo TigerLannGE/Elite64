@@ -1,4 +1,4 @@
-# 🚀 Démarrage Rapide - ChessBet
+# 🚀 Démarrage Rapide - Elite64
 
 **Guide condensé pour lancer le projet en local**
 
@@ -24,25 +24,25 @@
 
 **Terminal 1 - PostgreSQL :**
 ```powershell
-cd C:\xampp\htdocs\ChessBet
+cd C:\xampp\htdocs\Elite64
 docker compose -f infra/docker-compose.yml up -d postgres
 ```
 
 **Terminal 2 - Backend :**
 ```powershell
-cd C:\xampp\htdocs\ChessBet\backend
+cd C:\xampp\htdocs\Elite64\backend
 npm run start:dev
 ```
 
 **Terminal 3 - Frontend :**
 ```powershell
-cd C:\xampp\htdocs\ChessBet\frontend
+cd C:\xampp\htdocs\Elite64\frontend
 npm run dev
 ```
 
 **Configuration `backend/.env` :**
 ```env
-DATABASE_URL=postgresql://chessbet_user:Dark-Revan-GE-9418657@localhost:5433/chessbet_db?schema=public
+DATABASE_URL=postgresql://elite64_user:Dark-Revan-GE-9418657@localhost:5433/elite64_db?schema=public
 ```
 
 ---
@@ -51,22 +51,22 @@ DATABASE_URL=postgresql://chessbet_user:Dark-Revan-GE-9418657@localhost:5433/che
 
 **Terminal 1 - Backend :**
 ```powershell
-cd C:\xampp\htdocs\ChessBet\backend
+cd C:\xampp\htdocs\Elite64\backend
 npm run start:dev
 ```
 
 **Terminal 2 - Frontend :**
 ```powershell
-cd C:\xampp\htdocs\ChessBet\frontend
+cd C:\xampp\htdocs\Elite64\frontend
 npm run dev
 ```
 
 **Configuration `backend/.env` :**
 ```env
-DATABASE_URL=postgresql://chessbet_user:Dark-Revan-GE-9418657@localhost:5432/chessbet_db?schema=public
+DATABASE_URL=postgresql://elite64_user:Dark-Revan-GE-9418657@localhost:5432/elite64_db?schema=public
 ```
 
-**⚠️ Important :** Assurez-vous que l'utilisateur `chessbet_user` et la base `chessbet_db` existent (voir section "Accès à la base de données").
+**⚠️ Important :** Assurez-vous que l'utilisateur `elite64_user` et la base `elite64_db` existent (voir section "Accès à la base de données").
 
 ---
 
@@ -75,7 +75,7 @@ DATABASE_URL=postgresql://chessbet_user:Dark-Revan-GE-9418657@localhost:5432/che
 ### 1. Appliquer les migrations Prisma
 
 ```powershell
-cd C:\xampp\htdocs\ChessBet\backend
+cd C:\xampp\htdocs\Elite64\backend
 npx prisma migrate deploy
 ```
 
@@ -96,7 +96,7 @@ Vous devriez voir : `Database schema is up to date!`
 Si vous devez restaurer une base de données depuis un dump :
 
 ```powershell
-cd C:\xampp\htdocs\ChessBet\backend
+cd C:\xampp\htdocs\Elite64\backend
 .\import-database.ps1 -DumpPath "C:\chemin\vers\votre_dump.dump" -DropDatabase
 ```
 
@@ -105,7 +105,7 @@ cd C:\xampp\htdocs\ChessBet\backend
 ### Prisma Studio (Interface graphique - Recommandé)
 
 ```powershell
-cd C:\xampp\htdocs\ChessBet\backend
+cd C:\xampp\htdocs\Elite64\backend
 npx prisma studio
 ```
 
@@ -127,12 +127,12 @@ npx prisma studio
 
 **Docker (port 5433) :**
 ```powershell
-psql -h localhost -p 5433 -U chessbet_user -d chessbet_db
+psql -h localhost -p 5433 -U elite64_user -d elite64_db
 ```
 
 **PostgreSQL local (port 5432) :**
 ```powershell
-psql -h localhost -p 5432 -U chessbet_user -d chessbet_db
+psql -h localhost -p 5432 -U elite64_user -d elite64_db
 ```
 
 **Mot de passe :** `Dark-Revan-GE-9418657`
@@ -180,16 +180,16 @@ Prisma Migrate utilise une **shadow database** pour valider les migrations avant
 **Configuration requise** :
 1. Créer la shadow database manuellement :
    ```sql
-   CREATE DATABASE chessbet_shadow;
+   CREATE DATABASE elite64_shadow;
    ```
 
 2. Ajouter `SHADOW_DATABASE_URL` dans `backend/.env` :
    ```env
    # Docker (port 5433)
-   SHADOW_DATABASE_URL=postgresql://chessbet_user:Dark-Revan-GE-9418657@localhost:5433/chessbet_shadow?schema=public
+   SHADOW_DATABASE_URL=postgresql://elite64_user:Dark-Revan-GE-9418657@localhost:5433/elite64_shadow?schema=public
    
    # PostgreSQL local (port 5432)
-   SHADOW_DATABASE_URL=postgresql://chessbet_user:Dark-Revan-GE-9418657@localhost:5432/chessbet_shadow?schema=public
+   SHADOW_DATABASE_URL=postgresql://elite64_user:Dark-Revan-GE-9418657@localhost:5432/elite64_shadow?schema=public
    ```
 
 3. Vérifier que `schema.prisma` contient :

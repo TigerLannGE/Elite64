@@ -157,8 +157,10 @@ export type TournamentStatus =
 
 export interface PrizePoolView {
   totalEntriesCents: number
-  commissionCents: number
-  distributableCents: number
+  commissionCents: number           // 5% du total
+  tournamentFeesCents: number       // 4,75% du total
+  operatorTotalCents: number       // 9,75% du total
+  distributableCents: number         // 90,25% du total
 }
 
 export interface TournamentListItem {

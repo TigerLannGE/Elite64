@@ -2,7 +2,7 @@
 
 ## 📋 Vue d'ensemble
 
-Ce document décrit l'implémentation du système de rôles côté frontend et la création de l'espace d'administration v1 pour la plateforme ChessBet.
+Ce document décrit l'implémentation du système de rôles côté frontend et la création de l'espace d'administration v1 pour la plateforme Elite64.
 
 **Date de création** : Phase 4.5  
 **Statut** : ✅ Complété et testé
@@ -224,6 +224,31 @@ const isSuperAdmin = player?.role === 'SUPER_ADMIN'
 - `GET /admin/tournaments` - Liste des tournois
 - `POST /admin/tournaments/:id/close-registration` - Clôturer les inscriptions
 
+#### Affichage Financier pour Super-Admins
+
+**Exigence** : Pour le suivi financier, l'espace d'administration des super-admins doit afficher clairement, pour chaque tournoi avec prize pool figé :
+
+1. **Commission plateforme** : Montant et pourcentage (5% du total des inscriptions)
+2. **Frais de tournoi** : Montant et pourcentage (4.75% du total des inscriptions)
+3. **Total des prélèvements** : Somme des deux éléments (9.75% du total des inscriptions)
+
+**Calcul des frais de tournoi** :
+- Depuis le prize pool : `fraisTournoiCents = totalEntriesCents - commissionCents - distributableCents`
+- Ou depuis le total : `fraisTournoiCents = floor(totalEntriesCents × 0.0475)`
+
+**Affichage recommandé** :
+- Section dédiée "Suivi financier" dans la page de détail d'un tournoi (pour SUPER_ADMIN uniquement)
+- Tableau ou cartes affichant :
+  - Total des inscriptions : X CHF
+  - Commission plateforme : Y CHF (5%)
+  - Frais de tournoi : Z CHF (4.75%)
+  - **Total prélèvements** : Y + Z CHF (9.75%)
+  - Prize pool distributable : W CHF
+
+**Justification** : Transparence financière, suivi comptable, conformité réglementaire.
+
+**Voir** : [Clarification structure des frais](../../governance/audits/clarification-structure-frais-2026-01-01.md) pour le détail complet du calcul.
+
 ### 6. Protection des pages admin
 
 Toutes les pages `/admin/*` sont protégées :
@@ -426,6 +451,36 @@ Tous les textes respectent le positionnement légal :
 - **Important** : Le backend doit toujours vérifier les rôles côté serveur
 - La protection frontend est une **UX amélioration**, pas une sécurité réelle
 
+### Suivi Financier pour Super-Admins
+
+**Exigence** : Dans l'espace d'administration des super-admins, le frontend doit afficher clairement, pour le suivi financier de chaque tournoi avec prize pool figé :
+
+1. **Commission plateforme** : Montant et pourcentage (5% du total des inscriptions)
+2. **Frais de tournoi** : Montant et pourcentage (4.75% du total des inscriptions)
+3. **Total des prélèvements** : Somme des deux éléments (9.75% du total des inscriptions)
+
+**Calcul des frais de tournoi** :
+- Depuis le prize pool : `fraisTournoiCents = totalEntriesCents - commissionCents - distributableCents`
+- Ou depuis le total : `fraisTournoiCents = Math.floor(totalEntriesCents × 0.0475)`
+
+**Affichage recommandé** :
+- Section dédiée "Suivi financier" dans la page de détail d'un tournoi (pour SUPER_ADMIN uniquement)
+- Tableau ou cartes affichant :
+  - Total des inscriptions : X CHF
+  - Commission plateforme : Y CHF (5%)
+  - Frais de tournoi : Z CHF (4.75%)
+  - **Total prélèvements** : Y + Z CHF (9.75%)
+  - Prize pool distributable : W CHF
+
+**Données nécessaires** :
+- Pour les tournois avec prize pool figé (statut READY, RUNNING, FINISHED), récupérer le `PrizePool` via :
+  - `GET /tournaments/:id` (endpoint public qui retourne `prizePools` calculés)
+  - Ou extension de l'API admin pour inclure le `prizePool` dans `GET /admin/tournaments/:id`
+
+**Justification** : Transparence financière, suivi comptable, conformité réglementaire.
+
+**Voir** : [Clarification structure des frais](../../governance/audits/clarification-structure-frais-2026-01-01.md) pour le détail complet du calcul.
+
 ### Évolutions futures
 
 - Formulaire de création de tournois
@@ -433,6 +488,7 @@ Tous les textes respectent le positionnement légal :
 - Recherche et filtres avancés pour les joueurs
 - Statistiques et graphiques dans le dashboard
 - Export des données (CSV, etc.)
+- **Affichage financier détaillé** : Section "Suivi financier" pour SUPER_ADMIN avec distinction commission/frais
 
 ---
 

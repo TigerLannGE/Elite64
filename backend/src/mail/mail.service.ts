@@ -56,14 +56,14 @@ export class MailService {
   async sendEmailVerificationMail(playerEmail: string, token: string): Promise<void> {
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     const verificationUrl = `${frontendUrl}/verify-email?token=${token}`;
-    const fromEmail = process.env.SMTP_FROM || 'ChessBet <no-reply@chessbet.com>';
+    const fromEmail = process.env.SMTP_FROM || 'Elite64 <no-reply@elite64.app>';
 
     const mailOptions = {
       from: fromEmail,
       to: playerEmail,
-      subject: 'Vérifiez votre adresse e-mail - ChessBet',
+      subject: 'Vérifiez votre adresse e-mail - Elite64',
       html: `
-        <h1>Bienvenue sur ChessBet !</h1>
+        <h1>Bienvenue sur Elite64 !</h1>
         <p>Merci de vous être inscrit. Veuillez vérifier votre adresse e-mail en cliquant sur le lien ci-dessous :</p>
         <p><a href="${verificationUrl}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Vérifier mon e-mail</a></p>
         <p>Ou copiez ce lien dans votre navigateur :</p>
@@ -72,7 +72,7 @@ export class MailService {
         <p>Si vous n'avez pas créé de compte, ignorez cet e-mail.</p>
       `,
       text: `
-        Bienvenue sur ChessBet !
+        Bienvenue sur Elite64 !
         
         Merci de vous être inscrit. Veuillez vérifier votre adresse e-mail en visitant ce lien :
         ${verificationUrl}
@@ -103,12 +103,12 @@ export class MailService {
   async sendPasswordResetMail(playerEmail: string, token: string): Promise<void> {
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     const resetUrl = `${frontendUrl}/reset-password?token=${token}`;
-    const fromEmail = process.env.SMTP_FROM || 'ChessBet <no-reply@chessbet.com>';
+    const fromEmail = process.env.SMTP_FROM || 'Elite64 <no-reply@elite64.app>';
 
     const mailOptions = {
       from: fromEmail,
       to: playerEmail,
-      subject: 'Réinitialisation de votre mot de passe - ChessBet',
+      subject: 'Réinitialisation de votre mot de passe - Elite64',
       html: `
         <h1>Réinitialisation de mot de passe</h1>
         <p>Vous avez demandé à réinitialiser votre mot de passe. Cliquez sur le lien ci-dessous pour continuer :</p>

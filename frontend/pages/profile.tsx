@@ -11,7 +11,7 @@ export default function Profile() {
     return (
       <>
         <Head>
-          <title>Profil - ChessBet</title>
+          <title>Profil - Elite64</title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
         </Head>
         <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -27,7 +27,7 @@ export default function Profile() {
     return (
       <>
         <Head>
-          <title>Profil - ChessBet</title>
+          <title>Profil - Elite64</title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
         </Head>
         <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -42,7 +42,7 @@ export default function Profile() {
   return (
     <>
       <Head>
-        <title>Profil - ChessBet</title>
+        <title>Profil - Elite64</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 

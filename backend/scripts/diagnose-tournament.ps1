@@ -1,4 +1,4 @@
-# Script de diagnostic pour un tournoi ChessBet
+# Script de diagnostic pour un tournoi Elite64
 # Usage: .\diagnose-tournament.ps1 -TournamentId "cmj7jc9nj000xkpah5epqewer"
 
 param(
@@ -13,7 +13,7 @@ Write-Host ""
 # Fonction pour exécuter une requête SQL
 function Invoke-SqlQuery {
     param([string]$Query)
-    $Query | docker exec -i chessbet-postgres psql -U chessbet_user -d chessbet_db -t -A
+    $Query | docker exec -i elite64-postgres psql -U elite64_user -d elite64_db -t -A
 }
 
 # 1. Vérifier le statut du tournoi

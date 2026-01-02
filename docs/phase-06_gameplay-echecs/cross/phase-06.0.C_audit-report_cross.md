@@ -1,6 +1,8 @@
-# Rapport d'audit — Phase 6.0.C (Backend Gameplay Orchestration)
+# Phase 6.0.C - Rapport d'Audit - Documentation Transversale
 
-**Date d'audit** : 14 Décembre 2025  
+**Date de création** : 14 décembre 2025  
+**Dernière mise à jour** : 14 décembre 2025  
+**Statut** : ✅ Complété  
 **Périmètre** : Phase 6.0.C — Orchestration gameplay HTTP dans `MatchesService`  
 **Mode** : Lecture seule (aucune modification de code pendant l'audit)
 

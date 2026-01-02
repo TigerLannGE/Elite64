@@ -1,9 +1,14 @@
-# Développer les Restrictions Ciblées Joueurs - Frontend Phase 4.7
+# Restrictions Ciblées Joueurs - Documentation Frontend
+
+**Date de création** : 01 décembre 2025  
+**Dernière mise à jour** : 01 décembre 2025  
+**Statut** : ✅ Complété
+
+---
+
+## 📋 Vue d'ensemble
 
 Ce document décrit l'implémentation frontend du système de restrictions ciblées permettant aux administrateurs de modérer finement les joueurs sans suspendre complètement leur compte.
-
-**Date de création** : Phase 4.7  
-**Statut** : ✅ Complété et testé
 
 ---
 

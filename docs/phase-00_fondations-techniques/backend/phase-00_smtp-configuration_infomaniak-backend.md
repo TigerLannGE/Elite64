@@ -1,4 +1,12 @@
-# Configuration SMTP Infomaniak - Guide détaillé
+# Configuration SMTP Infomaniak - Documentation Backend
+
+**Date de création** : 15 janvier 2025  
+**Dernière mise à jour** : 15 janvier 2025  
+**Statut** : ✅ Complété
+
+---
+
+## 📋 Vue d'ensemble
 
 ## 📧 Configuration Infomaniak
 

@@ -1,6 +1,14 @@
-# Configuration SMTP pour l'envoi d'emails
+# Configuration SMTP - Documentation Backend
 
-## 📧 Vue d'ensemble
+**Date de création** : 01 décembre 2025  
+**Dernière mise à jour** : 01 décembre 2025  
+**Statut** : ✅ Complété
+
+---
+
+## 📋 Vue d'ensemble
+
+## 📧 Configuration SMTP
 
 Le backend utilise **nodemailer** pour envoyer des emails de vérification et de réinitialisation de mot de passe. Vous devez configurer les variables d'environnement SMTP dans votre fichier `.env` du backend.
 

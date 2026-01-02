@@ -1,6 +1,8 @@
-# Baseline Phase 5 — État du projet (figé)
+# Baseline Phase 5 - Référence - Documentation Transversale
 
-**Date de création** : Décembre 2025  
+**Date de création** : 15 décembre 2025  
+**Dernière mise à jour** : 15 décembre 2025  
+**Statut** : ✅ Complété  
 **Tag Git** : `baseline-phase5-202512`  
 **Branche** : `main`
 

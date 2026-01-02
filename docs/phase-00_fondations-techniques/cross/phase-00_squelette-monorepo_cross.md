@@ -1,4 +1,12 @@
-# Elite64 - Plateforme de Tournois d'Échecs (Skill-Based)
+# Squelette Monorepo - Documentation Transversale
+
+**Date de création** : 01 décembre 2025  
+**Dernière mise à jour** : 01 décembre 2025  
+**Statut** : ✅ Complété
+
+---
+
+## 📋 Vue d'ensemble
 
 Plateforme de tournois d'échecs avec prize pools fixes, conçue comme un **concours de compétence** (skill competition), légal dans les pays où les skill games sont autorisés.
 

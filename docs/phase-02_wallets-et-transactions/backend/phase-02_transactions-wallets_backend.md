@@ -1,9 +1,14 @@
-# Mise en place Transactions et Gestion Portefeuilles - Documentation Complète
+# Transactions et Gestion Portefeuilles - Documentation Backend
+
+**Date de création** : 01 décembre 2025  
+**Dernière mise à jour** : 01 décembre 2025  
+**Statut** : ✅ Complété
+
+---
+
+## 📋 Vue d'ensemble
 
 Ce document décrit la création du module `Transactions` centralisé et l'extension du module `Wallets` pour gérer tous les mouvements financiers de la plateforme Elite64.
-
-**Date de création** : Décembre 2025  
-**Statut** : ✅ Complété
 
 ---
 

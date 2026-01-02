@@ -1,3 +1,7 @@
+⚠️ **DOCUMENT OBSOLÈTE** - Ce document est archivé pour référence historique uniquement.
+
+---
+
 # 🧹 Rapport de Nettoyage de Structure - ChessBet
 
 **Date** : 16 décembre 2025  

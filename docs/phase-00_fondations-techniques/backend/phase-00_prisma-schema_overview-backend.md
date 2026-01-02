@@ -1,8 +1,14 @@
-# Schéma Prisma - Elite64 - Documentation Complète
+# Schéma Prisma - Documentation Backend
 
-Ce document décrit le schéma de base de données Prisma pour la plateforme de tournois d'échecs Elite64, ainsi que tout le processus de configuration et les difficultés rencontrées.
+**Date de création** : 01 décembre 2025  
+**Dernière mise à jour** : 01 décembre 2025  
+**Statut** : ✅ Complété
+
+---
 
 ## 📋 Vue d'ensemble
+
+Ce document décrit le schéma de base de données Prisma pour la plateforme de tournois d'échecs Elite64, ainsi que tout le processus de configuration et les difficultés rencontrées.
 
 Le schéma Prisma définit la structure complète de la base de données PostgreSQL pour une plateforme de **concours de compétence** (skill competition) en échecs. La plateforme est conçue pour être légale dans les juridictions où les skill games sont autorisés.
 

@@ -1,9 +1,14 @@
-# Bloquer la Connexion des Comptes Suspendus - Phase 4.6
+# Suspension de Comptes - Documentation Backend
+
+**Date de création** : 01 décembre 2025  
+**Dernière mise à jour** : 01 décembre 2025  
+**Statut** : ✅ Complété
+
+---
+
+## 📋 Vue d'ensemble
 
 Ce document décrit l'implémentation du système de modération permettant de suspendre des comptes joueurs et de bloquer leur accès à la plateforme.
-
-**Date de création** : Phase 4.6  
-**Statut** : ✅ Complété et testé
 
 ---
 

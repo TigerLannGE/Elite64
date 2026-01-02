@@ -1,10 +1,14 @@
-# Matches et Résultats de Tournoi - Documentation Complète
+# Matches et Résultats de Tournoi - Documentation Backend
+
+**Date de création** : 01 décembre 2025  
+**Dernière mise à jour** : 15 décembre 2025  
+**Statut** : ✅ Complété
+
+---
+
+## 📋 Vue d'ensemble
 
 Ce document décrit l'implémentation complète du module `Matches` pour la plateforme Elite64, permettant la gestion des matches de tournoi, l'enregistrement des résultats, la génération automatique des rondes suivantes, et la distribution des gains.
-
-**Date de création** : Décembre 2025  
-**Statut** : ✅ Complété (Phase 5)  
-**Dernière mise à jour** : Décembre 2025 (correction ParseUUIDPipe → CUID)
 
 ---
 

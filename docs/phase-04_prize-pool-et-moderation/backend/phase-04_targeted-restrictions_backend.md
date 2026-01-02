@@ -1,9 +1,14 @@
-# Restrictions Ciblées et Modération Avancée - Phase 4.7
+# Restrictions Ciblées et Modération Avancée - Documentation Backend
+
+**Date de création** : 01 décembre 2025  
+**Dernière mise à jour** : 01 décembre 2025  
+**Statut** : ✅ Complété
+
+---
+
+## 📋 Vue d'ensemble
 
 Ce document décrit l'implémentation du système de restrictions ciblées permettant aux administrateurs de modérer finement les joueurs sans suspendre complètement leur compte.
-
-**Date de création** : Phase 4.7  
-**Statut** : ✅ Complété et testé
 
 ---
 

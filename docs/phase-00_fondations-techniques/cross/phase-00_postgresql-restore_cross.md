@@ -1,8 +1,14 @@
-# 🔄 Restauration Base de Données PostgreSQL
+# Restauration Base de Données PostgreSQL - Documentation Transversale
 
-**Guide pour importer une base de données précédente après un rollback**
+**Date de création** : 01 décembre 2025  
+**Dernière mise à jour** : 01 décembre 2025  
+**Statut** : ✅ Complété
 
 ---
+
+## 📋 Vue d'ensemble
+
+**Guide pour importer une base de données précédente après un rollback**
 
 ## 📋 Prérequis
 

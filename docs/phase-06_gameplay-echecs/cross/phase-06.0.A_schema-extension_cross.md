@@ -1,8 +1,8 @@
-# Phase 6.0.A — Extension du Schéma Prisma pour le Gameplay
+# Phase 6.0.A - Extension du Schéma Prisma - Documentation Transversale
 
 **Date de création** : 14 décembre 2025  
-**Date de documentation** : 15 décembre 2025  
-**Statut** : ✅ Complété et appliqué  
+**Dernière mise à jour** : 15 décembre 2025  
+**Statut** : ✅ Complété  
 **Migration** : `20251214165847_phase6_0a_add_match_gameplay_fields`
 
 ---

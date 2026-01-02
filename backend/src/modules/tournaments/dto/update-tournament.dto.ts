@@ -5,8 +5,10 @@ import {
   IsDateString,
   Min,
   IsEnum,
+  IsBoolean,
+  IsObject,
 } from 'class-validator';
-import { TournamentStatus } from '@prisma/client';
+import { TournamentStatus, DrawRuleMode, TieBreakPolicy } from '@prisma/client';
 
 export class UpdateTournamentDto {
   @IsString()
@@ -65,5 +67,26 @@ export class UpdateTournamentDto {
   @IsEnum(TournamentStatus)
   @IsOptional()
   status?: TournamentStatus;
+
+  // Phase 6.0.D - Règles avancées
+  @IsOptional()
+  @IsEnum(DrawRuleMode)
+  drawRuleMode?: DrawRuleMode;
+
+  @IsOptional()
+  @IsObject()
+  drawConfig?: Record<string, unknown>; // JSON optionnel (non implémenté en 6.0.D, validation permissive)
+
+  @IsOptional()
+  @IsBoolean()
+  requiresDecisiveResult?: boolean;
+
+  @IsOptional()
+  @IsEnum(TieBreakPolicy)
+  tieBreakPolicy?: TieBreakPolicy;
+
+  @IsOptional()
+  @IsString()
+  tieBreakTimeControl?: string; // ex: "3+2", "10+5"
 }
 

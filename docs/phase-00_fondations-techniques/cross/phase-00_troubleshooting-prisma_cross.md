@@ -1,4 +1,4 @@
-# Troubleshooting Prisma - Guide de Dépannage
+# Troubleshooting Prisma - Documentation Transversale
 
 **Date de création** : 15 décembre 2025  
 **Dernière mise à jour** : 15 décembre 2025  

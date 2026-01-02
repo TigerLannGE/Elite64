@@ -80,6 +80,10 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
 
     // Variable pour stocker le mock transaction actuel
     let currentMockTransaction = createMockTransaction();
+    
+    // Mock pour getActivePlayableMatchId() - Phase 6.0.D.4
+    // Dans les tests gameplay, on mocke pour qu'il retourne simplement le matchId
+    // (ces tests ne testent pas la redirection tie-break)
 
     const mockPrismaService = {
       match: {
@@ -138,6 +142,12 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
     // Réinitialiser le mock transaction avant chaque test
     prismaService.resetTransactionMock();
     mockTransaction = prismaService.getTransactionMock();
+
+    // Phase 6.0.D.4 : ces tests ne testent pas la redirection tie-break
+    // On force la fonction à retourner l'id fourni
+    jest
+      .spyOn(service as any, 'getActivePlayableMatchId')
+      .mockImplementation(async (matchId: string) => matchId);
   });
 
   describe('joinMatch', () => {
@@ -438,6 +448,14 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
   });
 
   describe('resignMatch', () => {
+    beforeEach(() => {
+      // S'assurer que generateNextRoundIfNeeded ne casse pas les tests
+      // (ces tests ne visent pas la génération de ronde)
+      jest
+        .spyOn(service as any, 'generateNextRoundIfNeeded')
+        .mockResolvedValue(undefined);
+    });
+
     const runningMatch = {
       ...mockMatch,
       status: MatchStatus.RUNNING,

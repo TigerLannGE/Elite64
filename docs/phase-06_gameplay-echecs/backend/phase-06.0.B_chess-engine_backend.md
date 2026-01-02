@@ -1,7 +1,8 @@
-# Phase 6.0.B - Moteur d'échecs backend
+# Phase 6.0.B - Moteur d'échecs - Documentation Backend
 
-**Date de création** : Décembre 2025  
-**Statut** : ✅ Complété et testé
+**Date de création** : 01 décembre 2025  
+**Dernière mise à jour** : 01 décembre 2025  
+**Statut** : ✅ Complété
 
 ---
 

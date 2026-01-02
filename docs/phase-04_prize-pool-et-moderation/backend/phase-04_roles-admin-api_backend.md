@@ -1,11 +1,14 @@
-# Implémenter les rôles joueur et l'API admin - Backend
+# Rôles Joueur et API Admin - Documentation Backend
+
+**Date de création** : 01 décembre 2025  
+**Dernière mise à jour** : 01 décembre 2025  
+**Statut** : ✅ Complété
+
+---
 
 ## 📋 Vue d'ensemble
 
 Ce document décrit l'implémentation du système de rôles pour les joueurs et l'API admin v1 permettant de gérer les joueurs et les tournois.
-
-**Date de création** : Phase 4.5  
-**Statut** : ✅ Complété et testé
 
 ## 🎭 Système de rôles
 

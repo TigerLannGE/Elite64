@@ -1,6 +1,8 @@
-# Phase 6.0.C — Backend Gameplay Orchestration
+# Phase 6.0.C - Orchestration Gameplay - Documentation Transversale
 
-**Statut** : Implémentée (backend uniquement, HTTP)  
+**Date de création** : 14 décembre 2025  
+**Dernière mise à jour** : 14 décembre 2025  
+**Statut** : ✅ Complété  
 **Dépendances** : Phase 6.0.A (Prisma), Phase 6.0.B (ChessEngineService)  
 **Scope** : Parties jouables par HTTP via `MatchesService`, sans WebSockets.
 

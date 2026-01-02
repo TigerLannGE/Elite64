@@ -1,3 +1,8 @@
+⚠️ **DOCUMENT OBSOLÈTE** - Ce document est archivé pour référence historique uniquement.  
+**Raison** : Ce rapport précède l'implémentation des phases 6.0.B et 6.0.C. Les informations sur l'état des phases 6.0+ sont obsolètes.
+
+---
+
 # 📋 Rapport d'Audit Technique du Codebase - 14 Décembre 2025
 
 **Date de l'audit** : 14 Décembre 2025  

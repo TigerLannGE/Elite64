@@ -18,9 +18,13 @@ import {
   TransactionType,
   MatchResult,
   MatchStatus,
+  DrawRuleMode,
+  TieBreakPolicy,
+  Prisma,
 } from '@prisma/client';
 import { CreateTournamentDto } from './dto/create-tournament.dto';
 import { UpdateTournamentDto } from './dto/update-tournament.dto';
+import { TOURNAMENT_VALIDATION_ERRORS } from './tournament-validation.constants';
 
 export interface TournamentPublicView {
   id: string;
@@ -119,6 +123,26 @@ export class TournamentsService {
       }
     }
 
+    // Phase 6.0.D - Validation des configurations incompatibles
+    // Résoudre les valeurs finales (DTO + defaults DB)
+    const finalDrawRuleMode = dto.drawRuleMode ?? DrawRuleMode.ALLOW_ALL;
+    const finalTieBreakPolicy = dto.tieBreakPolicy ?? TieBreakPolicy.NONE;
+    const finalRequiresDecisiveResult = dto.requiresDecisiveResult ?? false;
+
+    // Validation A : requiresDecisiveResult = true nécessite un tieBreakPolicy != NONE
+    if (finalRequiresDecisiveResult === true && finalTieBreakPolicy === TieBreakPolicy.NONE) {
+      throw new BadRequestException(
+        TOURNAMENT_VALIDATION_ERRORS.REQUIRES_DECISIVE_RESULT_WITHOUT_TIEBREAK,
+      );
+    }
+
+    // Validation B : drawRuleMode = NO_DRAW nécessite un tieBreakPolicy != NONE
+    if (finalDrawRuleMode === DrawRuleMode.NO_DRAW && finalTieBreakPolicy === TieBreakPolicy.NONE) {
+      throw new BadRequestException(
+        TOURNAMENT_VALIDATION_ERRORS.NO_DRAW_WITHOUT_TIEBREAK,
+      );
+    }
+
     // Créer le tournoi
     const tournament = await this.prisma.tournament.create({
       data: {
@@ -137,6 +161,12 @@ export class TournamentsService {
           : null,
         legalZoneCode: dto.legalZoneCode,
         status: dto.status || TournamentStatus.DRAFT,
+        // Phase 6.0.D - Règles avancées
+        drawRuleMode: dto.drawRuleMode ?? DrawRuleMode.ALLOW_ALL,
+        drawConfig: (dto.drawConfig as Prisma.InputJsonValue) ?? null,
+        requiresDecisiveResult: dto.requiresDecisiveResult ?? false,
+        tieBreakPolicy: dto.tieBreakPolicy ?? TieBreakPolicy.NONE,
+        tieBreakTimeControl: dto.tieBreakTimeControl ?? null,
       },
     });
 
@@ -566,6 +596,26 @@ export class TournamentsService {
       }
     }
 
+    // Phase 6.0.D - Validation des configurations incompatibles (après merge)
+    // Construire l'état final après merge DTO + DB (respecter undefined vs null)
+    const finalDrawRuleMode = dto.drawRuleMode !== undefined ? dto.drawRuleMode : tournament.drawRuleMode;
+    const finalTieBreakPolicy = dto.tieBreakPolicy !== undefined ? dto.tieBreakPolicy : tournament.tieBreakPolicy;
+    const finalRequiresDecisiveResult = dto.requiresDecisiveResult !== undefined ? dto.requiresDecisiveResult : tournament.requiresDecisiveResult;
+
+    // Validation A : requiresDecisiveResult = true nécessite un tieBreakPolicy != NONE
+    if (finalRequiresDecisiveResult === true && finalTieBreakPolicy === TieBreakPolicy.NONE) {
+      throw new BadRequestException(
+        TOURNAMENT_VALIDATION_ERRORS.REQUIRES_DECISIVE_RESULT_WITHOUT_TIEBREAK,
+      );
+    }
+
+    // Validation B : drawRuleMode = NO_DRAW nécessite un tieBreakPolicy != NONE
+    if (finalDrawRuleMode === DrawRuleMode.NO_DRAW && finalTieBreakPolicy === TieBreakPolicy.NONE) {
+      throw new BadRequestException(
+        TOURNAMENT_VALIDATION_ERRORS.NO_DRAW_WITHOUT_TIEBREAK,
+      );
+    }
+
     // Préparer les données de mise à jour
     const updateData: any = {};
     if (dto.name !== undefined) updateData.name = dto.name;
@@ -587,6 +637,12 @@ export class TournamentsService {
     if (dto.legalZoneCode !== undefined)
       updateData.legalZoneCode = dto.legalZoneCode;
     if (dto.status !== undefined) updateData.status = dto.status;
+    // Phase 6.0.D - Règles avancées
+    if (dto.drawRuleMode !== undefined) updateData.drawRuleMode = dto.drawRuleMode;
+    if (dto.drawConfig !== undefined) updateData.drawConfig = dto.drawConfig as Prisma.InputJsonValue;
+    if (dto.requiresDecisiveResult !== undefined) updateData.requiresDecisiveResult = dto.requiresDecisiveResult;
+    if (dto.tieBreakPolicy !== undefined) updateData.tieBreakPolicy = dto.tieBreakPolicy;
+    if (dto.tieBreakTimeControl !== undefined) updateData.tieBreakTimeControl = dto.tieBreakTimeControl;
 
     // Validation : minPlayers <= maxPlayers si les deux sont modifiés
     const finalMinPlayers = updateData.minPlayers ?? tournament.minPlayers;

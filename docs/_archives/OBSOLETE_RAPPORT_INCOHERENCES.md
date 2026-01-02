@@ -1,3 +1,7 @@
+⚠️ **DOCUMENT OBSOLÈTE** - Ce document est archivé pour référence historique uniquement.
+
+---
+
 # Rapport d'Incohérences - Documentation ChessBet
 
 **Date** : 15 décembre 2025  

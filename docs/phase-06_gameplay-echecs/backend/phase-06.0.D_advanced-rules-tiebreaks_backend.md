@@ -1,6 +1,7 @@
-# Phase 6.0.D — Règles Avancées et Tie-Breaks
+# Phase 6.0.D - Règles Avancées et Tie-Breaks - Documentation Backend
 
 **Date de création** : 16 décembre 2025  
+**Dernière mise à jour** : 16 décembre 2025  
 **Statut** : 📋 Design (non implémenté)  
 **Dépendances** : Phase 6.0.A, 6.0.B, 6.0.C  
 **Scope** : Backend uniquement (paramètres tournoi, logique tie-break)

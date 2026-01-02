@@ -93,6 +93,12 @@ Ce dossier contient toute la documentation du projet Elite64.
   Design de la Phase 6.0.D : configuration des règles de match nul (draw rules), politique de tie-break, création automatique de matchs de départage, intégration avec les brackets.
 - **[Phase 6.0.D - Cadrage d'Exécution](./phase-06_gameplay-echecs/cross/phase-06.0.D_cadrage-execution_cross.md)**  
   Cadrage d'exécution de la Phase 6.0.D : périmètre fonctionnel, découpage technique, 6 décisions critiques figées, stratégie de tests, checklist d'implémentation. **Document de référence avant toute implémentation.**
+- **[Phase 6.0.D.2 - Extension DTOs et Validations](./phase-06_gameplay-echecs/backend/phase-06.0.D.2_dto-validation_backend.md)**  
+  Implémentation Phase 6.0.D.2 : extension des DTOs tournois avec 5 nouveaux champs (drawRuleMode, drawConfig, requiresDecisiveResult, tieBreakPolicy, tieBreakTimeControl), validations métier pour rejeter les configurations incompatibles, tests unitaires complets.
+- **[Phase 6.0.D.3 - Création Automatique de Tie-Breaks](./phase-06_gameplay-echecs/backend/phase-06.0.D.3_tiebreak-creation_backend.md)**  
+  Implémentation Phase 6.0.D.3 : création automatique de matchs tie-break après un DRAW (automatique ou manuel), séquence post-transaction respectée, idempotence via contrainte unique DB, gestion de toutes les politiques (RAPID, BLITZ, ARMAGEDDON, BEST_OF_3, BEST_OF_5), assignation déterministe des couleurs, tests unitaires complets (14 tests).
+- **[Phase 6.0.D.4 - Redirection Anti-Friction et Résolution Déterministe](./phase-06_gameplay-echecs/backend/phase-06.0.D.4_redirection-resolution_backend.md)**  
+  Implémentation Phase 6.0.D.4 : redirection sécurisée vers tie-break actif (`getActivePlayableMatchId()`), résolution déterministe des tie-breaks (`resolveTieBreak()`), modification de `generateNextRoundIfNeeded()` selon Décision B3, intégration dans `getMatchState()`, `joinMatch()`, `playMove()`, patch d'observabilité (logs améliorés), tests unitaires complets (12 tests Phase 6.0.D.4).
 - **[Phase 6.1 - Frontend Gameplay MVP](./phase-06_gameplay-echecs/frontend/phase-06.1_frontend-gameplay_frontend.md)**  
   Documentation complète du frontend gameplay : page de match, intégration react-chessboard, polling, gestion des coups, promotion, résignation, navigation depuis tournoi.
 - **[Phase 6.2 - Tests E2E Gameplay Complets](./phase-06_gameplay-echecs/cross/phase-06.2_e2e-gameplay-tests_cross.md)**  

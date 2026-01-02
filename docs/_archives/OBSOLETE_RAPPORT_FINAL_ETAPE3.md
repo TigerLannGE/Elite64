@@ -1,3 +1,7 @@
+⚠️ **DOCUMENT OBSOLÈTE** - Ce document est archivé pour référence historique uniquement.
+
+---
+
 # Rapport Final - Étape 3 : Correction des Incohérences
 
 **Date** : 15 décembre 2025  

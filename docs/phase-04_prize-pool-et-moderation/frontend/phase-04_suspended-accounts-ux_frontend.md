@@ -1,9 +1,14 @@
-# Gérer les Comptes Suspendus côté Frontend - Phase 4.6
+# Gestion des Comptes Suspendus - Documentation Frontend
+
+**Date de création** : 01 décembre 2025  
+**Dernière mise à jour** : 01 décembre 2025  
+**Statut** : ✅ Complété
+
+---
+
+## 📋 Vue d'ensemble
 
 Ce document décrit l'implémentation frontend de la gestion des comptes suspendus, permettant d'afficher des messages clairs et de gérer automatiquement la déconnexion des utilisateurs suspendus.
-
-**Date de création** : Phase 4.6  
-**Statut** : ✅ Complété et testé
 
 ---
 

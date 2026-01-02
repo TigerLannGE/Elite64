@@ -1,9 +1,14 @@
-# Intégration Prisma et Modules Players/Wallets - Documentation Complète
+# Intégration Prisma et Modules Players/Wallets - Documentation Backend
+
+**Date de création** : 05 décembre 2025  
+**Dernière mise à jour** : 05 décembre 2025  
+**Statut** : ✅ Complété
+
+---
+
+## 📋 Vue d'ensemble
 
 Ce document décrit l'intégration de Prisma dans NestJS et la création des modules `Players` et `Wallets` pour la plateforme Elite64.
-
-**Date de création** : 5 décembre 2025  
-**Statut** : ✅ Complété et testé
 
 ---
 

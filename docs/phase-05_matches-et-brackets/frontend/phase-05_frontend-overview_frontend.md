@@ -1,8 +1,8 @@
-# Développement Frontend - Plateforme de Tournois d'Échecs (Skill-Based)
+# Développement Frontend - Documentation Frontend
 
-**Date de création :** 5 décembre 2025  
-**Dernière mise à jour :** Décembre 2025 (Phase 5 - Pages tournois)  
-**Statut :** ✅ Complété et fonctionnel
+**Date de création** : 05 décembre 2025  
+**Dernière mise à jour** : 15 décembre 2025  
+**Statut** : ✅ Complété
 
 ## 📋 Vue d'ensemble
 

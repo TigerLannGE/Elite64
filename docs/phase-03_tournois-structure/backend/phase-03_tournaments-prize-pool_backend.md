@@ -1,10 +1,14 @@
-# Implémenter Module Tournois et Prize Pool - Documentation Complète
+# Module Tournois et Prize Pool - Documentation Backend
+
+**Date de création** : 01 décembre 2025  
+**Dernière mise à jour** : 15 décembre 2025  
+**Statut** : ✅ Complété
+
+---
+
+## 📋 Vue d'ensemble
 
 Ce document décrit l'implémentation complète du module `Tournaments` et `PrizePool` pour la plateforme Elite64, permettant la création, l'inscription et la gestion des tournois d'échecs skill-based.
-
-**Date de création** : Décembre 2025  
-**Dernière mise à jour** : 15 décembre 2025  
-**Statut** : ✅ Complété (Phase 4)
 
 ---
 

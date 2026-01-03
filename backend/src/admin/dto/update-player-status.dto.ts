@@ -4,4 +4,3 @@ export class UpdatePlayerStatusDto {
   @IsBoolean()
   isActive: boolean;
 }
-

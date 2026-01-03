@@ -12,4 +12,3 @@ import { ModerationModule } from '../moderation/moderation.module';
   exports: [WalletsService],
 })
 export class WalletsModule {}
-

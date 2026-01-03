@@ -22,7 +22,3 @@ import { MatchesModule } from '../matches/matches.module';
   exports: [TournamentsService],
 })
 export class TournamentsModule {}
-
-
-
-

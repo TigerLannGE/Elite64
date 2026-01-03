@@ -27,10 +27,7 @@ export class ChessEngineService {
    * @param moveInput - Coup à valider et appliquer
    * @returns Résultat avec FEN avant/après, SAN, et état de fin éventuelle
    */
-  validateAndApplyMove(
-    fen: string | null,
-    moveInput: ChessMoveInput,
-  ): ChessMoveResult {
+  validateAndApplyMove(fen: string | null, moveInput: ChessMoveInput): ChessMoveResult {
     // Initialiser la partie depuis FEN (ou position de départ par défaut)
     const chess = new Chess(fen || undefined);
 
@@ -138,7 +135,12 @@ export class ChessEngineService {
     // Vérifier isDraw() pour d'autres cas de nulle
     // Note: isDraw() peut retourner true pour plusieurs raisons déjà vérifiées ci-dessus
     // On l'utilise comme filet de sécurité
-    if (chess.isDraw() && !chess.isStalemate() && !chess.isInsufficientMaterial() && !chess.isThreefoldRepetition()) {
+    if (
+      chess.isDraw() &&
+      !chess.isStalemate() &&
+      !chess.isInsufficientMaterial() &&
+      !chess.isThreefoldRepetition()
+    ) {
       // Si on arrive ici, c'est un autre type de nulle non spécifique
       // On retourne null car tous les cas spécifiques ont été vérifiés
       // (isDraw() peut être vrai pour des raisons que nous ne gérons pas explicitement)

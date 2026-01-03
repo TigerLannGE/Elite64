@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Post,
-  Patch,
-  Param,
-  Body,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Post, Param, Body, UseGuards } from '@nestjs/common';
 import { MatchesService } from './matches.service';
 import { ReportMatchResultDto } from './dto/report-match-result.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
@@ -23,12 +16,8 @@ export class MatchesAdminController {
    * Génère les matches du premier tour pour un tournoi (admin-only)
    */
   @Post('tournament/:tournamentId/generate')
-  async generateInitialMatches(
-    @Param('tournamentId') tournamentId: string,
-  ) {
-    return this.matchesService.generateInitialMatchesForTournament(
-      tournamentId,
-    );
+  async generateInitialMatches(@Param('tournamentId') tournamentId: string) {
+    return this.matchesService.generateInitialMatchesForTournament(tournamentId);
   }
 
   /**
@@ -36,11 +25,7 @@ export class MatchesAdminController {
    * Enregistre le résultat d'un match (admin-only)
    */
   @Post(':id/result')
-  async reportResult(
-    @Param('id') matchId: string,
-    @Body() dto: ReportMatchResultDto,
-  ) {
+  async reportResult(@Param('id') matchId: string, @Body() dto: ReportMatchResultDto) {
     return this.matchesService.reportResult(matchId, dto);
   }
 }
-

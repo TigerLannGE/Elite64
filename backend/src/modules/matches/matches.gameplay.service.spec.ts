@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { MatchesService } from './matches.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TournamentsService } from '../tournaments/tournaments.service';
 import { ChessEngineService } from './chess-engine.service';
-import { MatchStatus, MatchResult, MatchColor } from '@prisma/client';
+import { MatchStatus, MatchResult, MatchColor, TieBreakPolicy, DrawRuleMode } from '@prisma/client';
+import { RESULT_REASON_TIEBREAK_PENDING } from './match.constants';
 
 describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
   let service: MatchesService;
   let prismaService: any;
-  let tournamentsService: any;
   let chessEngineService: ChessEngineService;
   let mockTransaction: any;
 
@@ -76,10 +76,17 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
         create: jest.fn(),
         findMany: jest.fn(),
       },
+      tournament: {
+        findUnique: jest.fn(),
+      },
     });
 
     // Variable pour stocker le mock transaction actuel
     let currentMockTransaction = createMockTransaction();
+
+    // Mock pour getActivePlayableMatchId() - Phase 6.0.D.4
+    // Dans les tests gameplay, on mocke pour qu'il retourne simplement le matchId
+    // (ces tests ne testent pas la redirection tie-break)
 
     const mockPrismaService = {
       match: {
@@ -125,13 +132,21 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
 
     service = module.get<MatchesService>(MatchesService);
     prismaService = mockPrismaService;
-    tournamentsService = mockTournamentsService;
     chessEngineService = module.get<ChessEngineService>(ChessEngineService);
 
     // Initialiser mockTransaction
     mockTransaction = prismaService.getTransactionMock();
 
+    // Nettoyer les mocks avant de définir les nôtres
     jest.clearAllMocks();
+
+    // Mock global pour getActivePlayableMatchId et maybeResolveNoShow (Phase 6.0.D.4/D.5)
+    // Ces méthodes privées sont appelées dans joinMatch, getMatchState, et playMove
+    // On les mocke pour qu'elles ne consomment pas les mocks de prisma.match.findUnique
+    jest
+      .spyOn(service as any, 'getActivePlayableMatchId')
+      .mockImplementation(async (matchId: string) => Promise.resolve(matchId));
+    jest.spyOn(service as any, 'maybeResolveNoShow').mockResolvedValue(undefined);
   });
 
   beforeEach(() => {
@@ -202,12 +217,12 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
       });
     });
 
-    it('devrait rejeter un joueur qui n\'est pas dans le match', async () => {
+    it("devrait rejeter un joueur qui n'est pas dans le match", async () => {
       prismaService.match.findUnique.mockResolvedValueOnce(mockMatch);
 
-      await expect(
-        service.joinMatch(mockMatchId, 'other-player-123'),
-      ).rejects.toThrow(ForbiddenException);
+      await expect(service.joinMatch(mockMatchId, 'other-player-123')).rejects.toThrow(
+        ForbiddenException,
+      );
     });
 
     it('devrait rejeter un match FINISHED ou CANCELED', async () => {
@@ -216,14 +231,14 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
         status: MatchStatus.FINISHED,
       });
 
-      await expect(
-        service.joinMatch(mockMatchId, mockWhitePlayerId),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.joinMatch(mockMatchId, mockWhitePlayerId)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
   describe('getMatchState', () => {
-    it('devrait retourner l\'état du match', async () => {
+    it("devrait retourner l'état du match", async () => {
       const matchWithState = {
         ...mockMatch,
         status: MatchStatus.RUNNING,
@@ -247,12 +262,12 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
       expect(result.serverTimeUtc).toBeDefined();
     });
 
-    it('devrait rejeter un joueur qui n\'est pas dans le match', async () => {
+    it("devrait rejeter un joueur qui n'est pas dans le match", async () => {
       prismaService.match.findUnique.mockResolvedValueOnce(mockMatch);
 
-      await expect(
-        service.getMatchState(mockMatchId, 'other-player-123'),
-      ).rejects.toThrow(ForbiddenException);
+      await expect(service.getMatchState(mockMatchId, 'other-player-123')).rejects.toThrow(
+        ForbiddenException,
+      );
     });
   });
 
@@ -269,18 +284,27 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
       moves: [],
     };
 
+    beforeEach(() => {
+      // Mock pour getActivePlayableMatchId (appel à prismaService.match.findUnique)
+      // Le mock global de getActivePlayableMatchId devrait empêcher cet appel,
+      // mais on mocke aussi prismaService.match.findUnique au cas où
+      prismaService.match.findUnique.mockResolvedValue({
+        ...runningMatch,
+        tournament: { tieBreakPolicy: TieBreakPolicy.NONE },
+        tieBreakMatches: [],
+      });
+    });
+
     it('devrait accepter e2-e4 depuis start position', async () => {
-      const moveResult = chessEngineService.validateAndApplyMove(
-        runningMatch.currentFen,
-        { from: 'e2', to: 'e4' },
-      );
+      const moveResult = chessEngineService.validateAndApplyMove(runningMatch.currentFen, {
+        from: 'e2',
+        to: 'e4',
+      });
 
       expect(moveResult.success).toBe(true);
 
-      // Mock pour la transaction (1er appel depuis maybeResolveNoShow, 2e depuis playMove)
-      mockTransaction.match.findUnique
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(runningMatch);
+      // Mock pour la transaction (maybeResolveNoShow est mocké globalement, donc seulement playMove)
+      mockTransaction.match.findUnique.mockResolvedValueOnce(runningMatch);
       mockTransaction.matchMove.create.mockResolvedValueOnce({
         id: 'move-123',
         matchId: mockMatchId,
@@ -325,10 +349,8 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
     });
 
     it('devrait rejeter un coup illégal', async () => {
-      // Mock pour la transaction (1er appel depuis maybeResolveNoShow, 2e depuis playMove)
-      mockTransaction.match.findUnique
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(runningMatch);
+      // Mock pour la transaction (maybeResolveNoShow est mocké globalement, donc seulement playMove)
+      mockTransaction.match.findUnique.mockResolvedValueOnce(runningMatch);
 
       await expect(
         service.playMove(mockMatchId, mockWhitePlayerId, {
@@ -345,10 +367,8 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
         currentFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1', // Après e4, c'est au noir
       };
 
-      // Mock pour la transaction (1er appel depuis maybeResolveNoShow, 2e depuis playMove)
-      mockTransaction.match.findUnique
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(matchAfterWhiteMove);
+      // Mock pour la transaction (maybeResolveNoShow est mocké globalement, donc seulement playMove)
+      mockTransaction.match.findUnique.mockResolvedValueOnce(matchAfterWhiteMove);
 
       await expect(
         service.playMove(mockMatchId, mockWhitePlayerId, {
@@ -359,15 +379,13 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
     });
 
     it('devrait persister MatchMove (count=1)', async () => {
-      const moveResult = chessEngineService.validateAndApplyMove(
-        runningMatch.currentFen,
-        { from: 'e2', to: 'e4' },
-      );
+      const moveResult = chessEngineService.validateAndApplyMove(runningMatch.currentFen, {
+        from: 'e2',
+        to: 'e4',
+      });
 
-      // Mock pour la transaction (1er appel depuis maybeResolveNoShow, 2e depuis playMove)
-      mockTransaction.match.findUnique
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(runningMatch);
+      // Mock pour la transaction (maybeResolveNoShow est mocké globalement, donc seulement playMove)
+      mockTransaction.match.findUnique.mockResolvedValueOnce(runningMatch);
       mockTransaction.matchMove.create.mockResolvedValueOnce({
         id: 'move-123',
         matchId: mockMatchId,
@@ -419,14 +437,12 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
       });
     });
 
-    it('devrait rejeter un match qui n\'est pas RUNNING', async () => {
-      // Mock pour la transaction (1er appel depuis maybeResolveNoShow, 2e depuis playMove)
-      mockTransaction.match.findUnique
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce({
-          ...mockMatch,
-          status: MatchStatus.PENDING,
-        });
+    it("devrait rejeter un match qui n'est pas RUNNING", async () => {
+      // Mock pour la transaction (maybeResolveNoShow est mocké globalement, donc seulement playMove)
+      mockTransaction.match.findUnique.mockResolvedValueOnce({
+        ...mockMatch,
+        status: MatchStatus.PENDING,
+      });
 
       await expect(
         service.playMove(mockMatchId, mockWhitePlayerId, {
@@ -437,7 +453,161 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
     });
   });
 
+  describe('Phase 6.0.D.5 - Validations DRAW automatiques', () => {
+    const drawMatch = {
+      ...mockMatch,
+      status: MatchStatus.RUNNING,
+      initialFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+      currentFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+      startedAt: new Date(),
+      lastMoveAt: new Date(),
+      whiteTimeMsRemaining: 600000,
+      blackTimeMsRemaining: 600000,
+      moves: [],
+    };
+
+    let loggerErrorSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      // Silencer logger.error pour ces tests (configurations invalides testées volontairement)
+      // Note: getActivePlayableMatchId et maybeResolveNoShow sont déjà mockés au niveau global
+      loggerErrorSpy = jest.spyOn((service as any).logger, 'error').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      loggerErrorSpy.mockRestore();
+    });
+
+    it("devrait throw BadRequestException si requiresDecisiveResult=true et tieBreakPolicy=NONE lors d'un DRAW automatique", async () => {
+      // Mock ChessEngineService pour retourner un DRAW automatique
+      chessEngineService.validateAndApplyMove = jest.fn().mockReturnValue({
+        success: true,
+        fenBefore: drawMatch.currentFen,
+        fenAfter: drawMatch.currentFen,
+        san: 'e4',
+        gameEnd: {
+          reason: 'STALEMATE', // DRAW automatique
+        },
+      });
+
+      // maybeResolveNoShow est mocké pour ne pas faire de transaction
+      // Donc on a seulement l'appel dans playMove
+      mockTransaction.match.findUnique.mockResolvedValueOnce(drawMatch);
+
+      mockTransaction.tournament.findUnique.mockResolvedValue({
+        tieBreakPolicy: TieBreakPolicy.NONE,
+        requiresDecisiveResult: true,
+        drawRuleMode: DrawRuleMode.ALLOW_ALL,
+      });
+
+      await expect(
+        service.playMove(mockMatchId, mockWhitePlayerId, {
+          from: 'e2',
+          to: 'e4',
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it("devrait throw BadRequestException si drawRuleMode=NO_DRAW et tieBreakPolicy=NONE lors d'un DRAW automatique", async () => {
+      chessEngineService.validateAndApplyMove = jest.fn().mockReturnValue({
+        success: true,
+        fenBefore: drawMatch.currentFen,
+        fenAfter: drawMatch.currentFen,
+        san: 'e4',
+        gameEnd: {
+          reason: 'FIFTY_MOVE_RULE', // DRAW automatique
+        },
+      });
+
+      mockTransaction.match.findUnique.mockResolvedValueOnce(drawMatch);
+
+      mockTransaction.tournament.findUnique.mockResolvedValue({
+        tieBreakPolicy: TieBreakPolicy.NONE,
+        requiresDecisiveResult: false,
+        drawRuleMode: DrawRuleMode.NO_DRAW,
+      });
+
+      await expect(
+        service.playMove(mockMatchId, mockWhitePlayerId, {
+          from: 'e2',
+          to: 'e4',
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it("devrait marquer resultReason=TIEBREAK_PENDING si requiresDecisiveResult=true et tieBreakPolicy=RAPID lors d'un DRAW automatique", async () => {
+      chessEngineService.validateAndApplyMove = jest.fn().mockReturnValue({
+        success: true,
+        fenBefore: drawMatch.currentFen,
+        fenAfter: drawMatch.currentFen,
+        san: 'e4',
+        gameEnd: {
+          reason: 'THREE_FOLD_REPETITION', // DRAW automatique
+        },
+      });
+
+      mockTransaction.match.findUnique.mockResolvedValueOnce(drawMatch);
+
+      mockTransaction.tournament.findUnique.mockResolvedValue({
+        tieBreakPolicy: TieBreakPolicy.RAPID,
+        requiresDecisiveResult: true,
+        drawRuleMode: DrawRuleMode.ALLOW_ALL,
+      });
+
+      mockTransaction.matchMove.create.mockResolvedValue({
+        id: 'move-123',
+        matchId: mockMatchId,
+        moveNumber: 1,
+        playerId: mockWhitePlayerId,
+        color: MatchColor.WHITE,
+        san: 'e4',
+        from: 'e2',
+        to: 'e4',
+        promotion: null,
+        fenBefore: drawMatch.currentFen,
+        fenAfter: drawMatch.currentFen,
+        whiteTimeMsRemaining: 600000,
+        blackTimeMsRemaining: 600000,
+        createdAt: new Date(),
+      });
+
+      const updatedMatch = {
+        ...drawMatch,
+        status: MatchStatus.FINISHED,
+        result: MatchResult.DRAW,
+        resultReason: RESULT_REASON_TIEBREAK_PENDING,
+        finishedAt: new Date(),
+      };
+
+      mockTransaction.match.update.mockResolvedValue(updatedMatch);
+
+      // Mock createTieBreakMatches et generateNextRoundIfNeeded pour éviter les appels post-transaction
+      jest.spyOn(service, 'createTieBreakMatches').mockResolvedValue(undefined);
+      jest.spyOn(service as any, 'generateNextRoundIfNeeded').mockResolvedValue(undefined);
+
+      await service.playMove(mockMatchId, mockWhitePlayerId, {
+        from: 'e2',
+        to: 'e4',
+      });
+
+      // Vérifier que resultReason est TIEBREAK_PENDING
+      expect(mockTransaction.match.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            resultReason: RESULT_REASON_TIEBREAK_PENDING,
+          }),
+        }),
+      );
+    });
+  });
+
   describe('resignMatch', () => {
+    beforeEach(() => {
+      // S'assurer que generateNextRoundIfNeeded ne casse pas les tests
+      // (ces tests ne visent pas la génération de ronde)
+      jest.spyOn(service as any, 'generateNextRoundIfNeeded').mockResolvedValue(undefined);
+    });
+
     const runningMatch = {
       ...mockMatch,
       status: MatchStatus.RUNNING,
@@ -469,42 +639,43 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
 
       mockTransaction.match.update.mockResolvedValueOnce(finishedMatch);
 
-      const result = await service.resignMatch(
-        mockMatchId,
-        mockWhitePlayerId,
-      );
+      const result = await service.resignMatch(mockMatchId, mockWhitePlayerId);
 
       expect(result.status).toBe(MatchStatus.FINISHED);
       expect(result.result).toBe(MatchResult.BLACK_WIN);
       expect(result.resultReason).toBe('RESIGNATION');
     });
 
-    it('devrait rejeter un joueur qui n\'est pas dans le match', async () => {
+    it("devrait rejeter un joueur qui n'est pas dans le match", async () => {
       mockTransaction.match.findUnique.mockResolvedValueOnce(runningMatch);
 
-      await expect(
-        service.resignMatch(mockMatchId, 'other-player-123'),
-      ).rejects.toThrow(ForbiddenException);
+      await expect(service.resignMatch(mockMatchId, 'other-player-123')).rejects.toThrow(
+        ForbiddenException,
+      );
     });
 
-    it('devrait rejeter un match qui n\'est pas RUNNING', async () => {
+    it("devrait rejeter un match qui n'est pas RUNNING", async () => {
       mockTransaction.match.findUnique.mockResolvedValueOnce({
         ...runningMatch,
         status: MatchStatus.FINISHED,
       });
 
-      await expect(
-        service.resignMatch(mockMatchId, mockWhitePlayerId),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.resignMatch(mockMatchId, mockWhitePlayerId)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
   describe('maybeResolveNoShow', () => {
     beforeEach(() => {
-      // S'assurer que generateNextRoundIfNeeded ne casse pas les tests
+      // Restaurer le comportement réel de maybeResolveNoShow pour ces tests
+      jest.restoreAllMocks();
+      // Redéfinir seulement les mocks nécessaires
       jest
-        .spyOn(service as any, 'generateNextRoundIfNeeded')
-        .mockResolvedValue(undefined);
+        .spyOn(service as any, 'getActivePlayableMatchId')
+        .mockImplementation(async (matchId: string) => Promise.resolve(matchId));
+      // S'assurer que generateNextRoundIfNeeded ne casse pas les tests
+      jest.spyOn(service as any, 'generateNextRoundIfNeeded').mockResolvedValue(undefined);
     });
     it('devrait résoudre DOUBLE_NO_SHOW quand aucun joueur ne rejoint après 90s', async () => {
       const pastReadyAt = new Date(Date.now() - 91 * 1000);

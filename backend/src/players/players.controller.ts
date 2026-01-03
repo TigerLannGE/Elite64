@@ -41,4 +41,3 @@ export class PlayersController {
     return this.playersService.findOne(id);
   }
 }
-

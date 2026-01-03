@@ -81,4 +81,3 @@ export class AdminPlayersController {
     return this.adminPlayersService.updateRestrictions(id, updateRestrictionsDto);
   }
 }
-

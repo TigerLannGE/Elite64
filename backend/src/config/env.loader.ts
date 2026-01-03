@@ -24,7 +24,7 @@ if (result.error) {
 }
 
 // Afficher les variables SMTP chargées (sans le mot de passe) pour debug
-console.log('\n📋 Variables d\'environnement chargées:');
+console.log("\n📋 Variables d'environnement chargées:");
 console.log(`  SMTP_HOST: ${process.env.SMTP_HOST || 'NON DÉFINI'}`);
 console.log(`  SMTP_PORT: ${process.env.SMTP_PORT || 'NON DÉFINI'}`);
 console.log(`  SMTP_USER: ${process.env.SMTP_USER || 'NON DÉFINI'}`);
@@ -42,4 +42,3 @@ if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) 
   console.warn('   SMTP_PASS=votre-mot-de-passe');
   console.warn(`   Fichier recherché: ${envPath}`);
 }
-

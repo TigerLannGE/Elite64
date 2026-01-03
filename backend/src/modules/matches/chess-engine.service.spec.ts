@@ -43,7 +43,7 @@ describe('ChessEngineService', () => {
         expect(result.error).toBeDefined();
       });
 
-      it('devrait rejeter un coup avec case d\'arrivée invalide', () => {
+      it("devrait rejeter un coup avec case d'arrivée invalide", () => {
         const result = service.validateAndApplyMove(null, {
           from: 'e2',
           to: 'z9', // Case invalide
@@ -94,7 +94,6 @@ describe('ChessEngineService', () => {
 
       it('devrait rejeter un roque invalide (case attaquée)', () => {
         // Position où le roque traverse une case attaquée
-        const fen = 'rnbqkb1r/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq - 0 1';
         // On met une pièce qui attaque f1
         const fenWithAttack = 'rnbqkb1r/pppppppp/8/8/8/5n2/PPPPPPPP/RNBQK2R w KQkq - 0 1';
         const result = service.validateAndApplyMove(fenWithAttack, {
@@ -214,7 +213,6 @@ describe('ChessEngineService', () => {
 
       it('devrait détecter un échec et mat pour les noirs', () => {
         // Position où les noirs peuvent mater
-        const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1';
         // On crée une position de mat pour les blancs
         const matePosition = 'rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR b KQkq - 1 3';
         const result = service.validateAndApplyMove(matePosition, {
@@ -239,12 +237,12 @@ describe('ChessEngineService', () => {
         // Les blancs ne sont pas en échec mais n'ont aucun coup légal
         const patFen = '8/8/8/8/8/5k2/6r1/7K w - - 0 1';
         const chess = service.initializeGame(patFen);
-        
+
         // Vérifions que c'est bien un pat
         const moves = chess.moves();
         const isCheck = chess.isCheck();
         const isStalemate = chess.isStalemate();
-        
+
         // Si c'est un pat (pas de coups légaux et pas en échec)
         if ((moves.length === 0 && !isCheck) || isStalemate) {
           const gameEnd = service.detectGameEnd(chess);
@@ -266,7 +264,6 @@ describe('ChessEngineService', () => {
 
     describe('Triple répétition', () => {
       it('devrait détecter une triple répétition', () => {
-        const chess = service.initializeGame();
         const moves = [
           { from: 'g1', to: 'f3' }, // Nf3
           { from: 'g8', to: 'f6' }, // Nf6
@@ -304,7 +301,6 @@ describe('ChessEngineService', () => {
     describe('Règle des 50 coups', () => {
       it('devrait détecter la règle des 50 coups', () => {
         // Position simple pour tester
-        const chess = service.initializeGame();
         let currentFen = null;
 
         // Simuler 50 coups sans capture ni mouvement de pion
@@ -406,53 +402,53 @@ describe('ChessEngineService', () => {
     });
   });
 
-    describe('detectGameEnd', () => {
-      it('devrait retourner null pour une partie en cours', () => {
-        const chess = service.initializeGame();
-        const gameEnd = service.detectGameEnd(chess);
+  describe('detectGameEnd', () => {
+    it('devrait retourner null pour une partie en cours', () => {
+      const chess = service.initializeGame();
+      const gameEnd = service.detectGameEnd(chess);
 
-        expect(gameEnd).toBeNull();
-      });
-
-      it('devrait détecter un échec et mat', () => {
-        // Position de mat connue (Scholar's mate)
-        const fen = 'r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4';
-        const chess = service.initializeGame(fen);
-        const gameEnd = service.detectGameEnd(chess);
-
-        expect(chess.isCheckmate()).toBe(true);
-        expect(gameEnd).toBeDefined();
-        expect(gameEnd?.reason).toBe(GameEndReason.CHECKMATE);
-        expect(gameEnd?.winner).toBe('white');
-      });
-
-      it('devrait détecter un pat', () => {
-        // Position de pat connue : roi blanc en h1, roi noir en f3, tour noire en g2
-        // Les blancs ne sont pas en échec mais n'ont aucun coup légal
-        const patFen = '8/8/8/8/8/5k2/6r1/7K w - - 0 1';
-        const chess = service.initializeGame(patFen);
-        
-        // Vérifions que c'est bien un pat
-        const isStalemate = chess.isStalemate();
-        const moves = chess.moves();
-        const isCheck = chess.isCheck();
-        
-        // Si c'est un pat (pas de coups légaux et pas en échec) OU si chess.js le détecte comme pat
-        if (isStalemate || (moves.length === 0 && !isCheck)) {
-          const gameEnd = service.detectGameEnd(chess);
-          expect(gameEnd).toBeDefined();
-          expect(gameEnd?.reason).toBe(GameEndReason.STALEMATE);
-        } else {
-          // Si cette position n'est pas un pat, testons avec une autre position connue
-          const altPatFen = 'k7/1r6/1K6/8/8/8/8/8 w - - 0 1';
-          const chess2 = service.initializeGame(altPatFen);
-          if (chess2.isStalemate()) {
-            const gameEnd = service.detectGameEnd(chess2);
-            expect(gameEnd?.reason).toBe(GameEndReason.STALEMATE);
-          }
-        }
-      });
+      expect(gameEnd).toBeNull();
     });
+
+    it('devrait détecter un échec et mat', () => {
+      // Position de mat connue (Scholar's mate)
+      const fen = 'r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4';
+      const chess = service.initializeGame(fen);
+      const gameEnd = service.detectGameEnd(chess);
+
+      expect(chess.isCheckmate()).toBe(true);
+      expect(gameEnd).toBeDefined();
+      expect(gameEnd?.reason).toBe(GameEndReason.CHECKMATE);
+      expect(gameEnd?.winner).toBe('white');
+    });
+
+    it('devrait détecter un pat', () => {
+      // Position de pat connue : roi blanc en h1, roi noir en f3, tour noire en g2
+      // Les blancs ne sont pas en échec mais n'ont aucun coup légal
+      const patFen = '8/8/8/8/8/5k2/6r1/7K w - - 0 1';
+      const chess = service.initializeGame(patFen);
+
+      // Vérifions que c'est bien un pat
+      const isStalemate = chess.isStalemate();
+      const moves = chess.moves();
+      const isCheck = chess.isCheck();
+
+      // Si c'est un pat (pas de coups légaux et pas en échec) OU si chess.js le détecte comme pat
+      if (isStalemate || (moves.length === 0 && !isCheck)) {
+        const gameEnd = service.detectGameEnd(chess);
+        expect(gameEnd).toBeDefined();
+        expect(gameEnd?.reason).toBe(GameEndReason.STALEMATE);
+      } else {
+        // Si cette position n'est pas un pat, testons avec une autre position connue
+        const altPatFen = 'k7/1r6/1K6/8/8/8/8/8 w - - 0 1';
+        const chess2 = service.initializeGame(altPatFen);
+        if (chess2.isStalemate()) {
+          const gameEnd = service.detectGameEnd(chess2);
+          expect(gameEnd?.reason).toBe(GameEndReason.STALEMATE);
+        }
+      }
+    });
+  });
 
   describe('isLegalMove', () => {
     it('devrait retourner true pour un coup légal', () => {

@@ -16,6 +16,7 @@ import {
   TournamentStatus,
   TournamentEntryStatus,
   TieBreakPolicy,
+  DrawRuleMode,
   Prisma,
 } from '@prisma/client';
 import { Chess } from 'chess.js';
@@ -25,11 +26,7 @@ import { MatchStateViewDto } from './dto/match-state-view.dto';
 import { TournamentsService } from '../tournaments/tournaments.service';
 import { ChessEngineService } from './chess-engine.service';
 import { GameEndReason } from './types/chess-engine.types';
-import {
-  JOIN_WINDOW_SECONDS,
-  NO_SHOW_GRACE_SECONDS,
-  TOTAL_NO_SHOW_MS,
-} from './match.config';
+import { JOIN_WINDOW_SECONDS, NO_SHOW_GRACE_SECONDS, TOTAL_NO_SHOW_MS } from './match.config';
 import { RESULT_REASON_TIEBREAK_PENDING } from './match.constants';
 
 @Injectable()
@@ -46,9 +43,7 @@ export class MatchesService {
   /**
    * Génère les matches du premier tour pour un tournoi donné
    */
-  async generateInitialMatchesForTournament(
-    tournamentId: string,
-  ): Promise<Match[]> {
+  async generateInitialMatchesForTournament(tournamentId: string): Promise<Match[]> {
     // 1. Charger le tournoi + vérifier que status = READY
     const tournament = await this.prisma.tournament.findUnique({
       where: { id: tournamentId },
@@ -72,9 +67,7 @@ export class MatchesService {
     });
 
     if (!tournament) {
-      throw new NotFoundException(
-        `Tournoi avec l'ID "${tournamentId}" introuvable`,
-      );
+      throw new NotFoundException(`Tournoi avec l'ID "${tournamentId}" introuvable`);
     }
 
     if (tournament.status !== TournamentStatus.READY) {
@@ -89,21 +82,16 @@ export class MatchesService {
     });
 
     if (existingMatches) {
-      throw new BadRequestException(
-        'Des matches ont déjà été générés pour ce tournoi',
-      );
+      throw new BadRequestException('Des matches ont déjà été générés pour ce tournoi');
     }
 
     // 2. Filtrer les entrées actives (pas suspendus / pas restreints tournois)
     const activeEntries = tournament.entries.filter(
-      (entry) =>
-        entry.player.isActive && !entry.player.blockTournaments,
+      (entry) => entry.player.isActive && !entry.player.blockTournaments,
     );
 
     if (activeEntries.length < 2) {
-      throw new BadRequestException(
-        'Il faut au moins 2 joueurs actifs pour générer des matches',
-      );
+      throw new BadRequestException('Il faut au moins 2 joueurs actifs pour générer des matches');
     }
 
     // 3. Ordonner les entrées (par ELO si disponible, sinon par createdAt)
@@ -125,9 +113,7 @@ export class MatchesService {
     const isOdd = sortedEntries.length % 2 === 1;
 
     // Si nombre impair, la dernière entrée aura un BYE
-    const entriesToPair = isOdd
-      ? sortedEntries.slice(0, -1)
-      : sortedEntries;
+    const entriesToPair = isOdd ? sortedEntries.slice(0, -1) : sortedEntries;
 
     let boardNumber = 1;
 
@@ -154,7 +140,7 @@ export class MatchesService {
     // Si nombre impair, créer un match BYE pour la dernière entrée
     if (isOdd) {
       const byeEntry = sortedEntries[sortedEntries.length - 1];
-      
+
       const byeMatch = await this.prisma.match.create({
         data: {
           tournamentId,
@@ -227,7 +213,7 @@ export class MatchesService {
         return { resolved: false, tournamentId: null as string | null };
       }
 
-      let data: any = {
+      const data: any = {
         status: MatchStatus.FINISHED,
         noShowResolvedAt: now,
         finishedAt: now,
@@ -240,9 +226,7 @@ export class MatchesService {
       } else {
         // Un seul joueur présent → victoire par no-show
         const winnerIsWhite = whiteJoined && !blackJoined;
-        data.result = winnerIsWhite
-          ? MatchResult.WHITE_WIN
-          : MatchResult.BLACK_WIN;
+        data.result = winnerIsWhite ? MatchResult.WHITE_WIN : MatchResult.BLACK_WIN;
         data.resultReason = 'NO_SHOW';
       }
 
@@ -265,19 +249,14 @@ export class MatchesService {
   /**
    * Liste les matches d'un tournoi (option pour filtrer par joueur)
    */
-  async listMatchesForTournament(
-    tournamentId: string,
-    playerId?: string,
-  ): Promise<Match[]> {
+  async listMatchesForTournament(tournamentId: string, playerId?: string): Promise<Match[]> {
     // Vérifier que le tournoi existe
     const tournament = await this.prisma.tournament.findUnique({
       where: { id: tournamentId },
     });
 
     if (!tournament) {
-      throw new NotFoundException(
-        `Tournoi avec l'ID "${tournamentId}" introuvable`,
-      );
+      throw new NotFoundException(`Tournoi avec l'ID "${tournamentId}" introuvable`);
     }
 
     // Si playerId fourni : ne retourner que les matches où l'entrée correspond au joueur
@@ -329,10 +308,7 @@ export class MatchesService {
             },
           },
         },
-        orderBy: [
-          { roundNumber: 'asc' },
-          { boardNumber: 'asc' },
-        ],
+        orderBy: [{ roundNumber: 'asc' }, { boardNumber: 'asc' }],
       });
     }
 
@@ -370,10 +346,7 @@ export class MatchesService {
           },
         },
       },
-      orderBy: [
-        { roundNumber: 'asc' },
-        { boardNumber: 'asc' },
-      ],
+      orderBy: [{ roundNumber: 'asc' }, { boardNumber: 'asc' }],
     });
   }
 
@@ -418,9 +391,7 @@ export class MatchesService {
     });
 
     if (!match) {
-      throw new NotFoundException(
-        `Match avec l'ID "${matchId}" introuvable`,
-      );
+      throw new NotFoundException(`Match avec l'ID "${matchId}" introuvable`);
     }
 
     return match as any; // Type assertion pour inclure les relations
@@ -429,10 +400,7 @@ export class MatchesService {
   /**
    * Enregistrer le résultat d'un match (admin-only pour l'instant)
    */
-  async reportResult(
-    matchId: string,
-    dto: ReportMatchResultDto,
-  ): Promise<Match> {
+  async reportResult(matchId: string, dto: ReportMatchResultDto): Promise<Match> {
     // 1. Vérifier que le match existe
     const match = await this.prisma.match.findUnique({
       where: { id: matchId },
@@ -444,9 +412,7 @@ export class MatchesService {
     });
 
     if (!match) {
-      throw new NotFoundException(
-        `Match avec l'ID "${matchId}" introuvable`,
-      );
+      throw new NotFoundException(`Match avec l'ID "${matchId}" introuvable`);
     }
 
     // Vérifier que le match n'est pas déjà FINISHED / CANCELED
@@ -545,9 +511,8 @@ export class MatchesService {
     // 5. Phase 6.0.D.3 - Si DRAW avec tie-break pending, créer les tie-breaks APRÈS commit (post-transaction)
     // ⚠️ Utiliser matchId (parent) et non activeMatchId (peut être un tie-break)
     const isDrawWithTieBreak =
-      dto.result === MatchResult.DRAW &&
-      resultReason === RESULT_REASON_TIEBREAK_PENDING;
-    
+      dto.result === MatchResult.DRAW && resultReason === RESULT_REASON_TIEBREAK_PENDING;
+
     if (isDrawWithTieBreak) {
       try {
         await this.createTieBreakMatches(matchId);
@@ -595,8 +560,8 @@ export class MatchesService {
       where: { tournamentId },
       include: {
         tournament: {
-          select: { tieBreakPolicy: true }
-        }
+          select: { tieBreakPolicy: true },
+        },
       },
       orderBy: { roundNumber: 'desc' },
     });
@@ -609,13 +574,11 @@ export class MatchesService {
 
     // 2. Filtrer les matchs tie-break (ils ne comptent pas pour la progression)
     const currentRoundMatches = allMatches.filter(
-      (m) => m.roundNumber === maxRoundNumber && !m.isTieBreak
+      (m) => m.roundNumber === maxRoundNumber && !m.isTieBreak,
     );
 
     // 3. Vérifier si tous les matches de cette ronde sont FINISHED
-    const allFinished = currentRoundMatches.every(
-      (m) => m.status === MatchStatus.FINISHED,
-    );
+    const allFinished = currentRoundMatches.every((m) => m.status === MatchStatus.FINISHED);
 
     if (!allFinished) {
       return; // Pas tous terminés, on attend
@@ -654,7 +617,7 @@ export class MatchesService {
           // Ne pas ajouter de winner (déjà géré par le return plus haut)
           continue;
         }
-        
+
         // DRAW sans tie-break : comportement Phase 5 (les deux avancent)
         winners.push(match.whiteEntryId);
         winners.push(match.blackEntryId);
@@ -705,9 +668,7 @@ export class MatchesService {
     } else if (winners.length === 1) {
       // 7. Si la liste des winners n'a qu'un seul joueur: c'est le vainqueur du tournoi
       //    → appeler la finalisation du tournoi
-      await this.tournamentsService.finalizeTournamentAndPayouts(
-        tournamentId,
-      );
+      await this.tournamentsService.finalizeTournamentAndPayouts(tournamentId);
     }
   }
 
@@ -715,16 +676,13 @@ export class MatchesService {
    * Phase 6.0.C - Rejoindre un match
    * Marque la présence et initialise la partie quand les deux joueurs ont rejoint
    */
-  async joinMatch(
-    matchId: string,
-    playerId: string,
-  ): Promise<MatchStateViewDto> {
+  async joinMatch(matchId: string, playerId: string): Promise<MatchStateViewDto> {
     // Phase 6.0.D.4 - Redirection vers tie-break actif si nécessaire
     const activeMatchId = await this.getActivePlayableMatchId(matchId, playerId);
 
     // Résoudre éventuellement un no-show avant toute autre logique
     await this.maybeResolveNoShow(activeMatchId);
-    
+
     // 1. Charger le match avec les entrées (utiliser activeMatchId)
     const match = await this.prisma.match.findUnique({
       where: { id: activeMatchId },
@@ -757,9 +715,7 @@ export class MatchesService {
     });
 
     if (!match) {
-      throw new NotFoundException(
-        `Match avec l'ID "${matchId}" introuvable`,
-      );
+      throw new NotFoundException(`Match avec l'ID "${matchId}" introuvable`);
     }
 
     // 2. Vérifier que le joueur est dans le match
@@ -769,15 +725,12 @@ export class MatchesService {
     if (playerId !== whitePlayerId && playerId !== blackPlayerId) {
       throw new ForbiddenException({
         code: 'PLAYER_NOT_IN_MATCH',
-        message: 'Vous n\'êtes pas un participant de ce match',
+        message: "Vous n'êtes pas un participant de ce match",
       });
     }
 
     // 3. Vérifier que le match peut être rejoint
-    if (
-      match.status === MatchStatus.FINISHED ||
-      match.status === MatchStatus.CANCELED
-    ) {
+    if (match.status === MatchStatus.FINISHED || match.status === MatchStatus.CANCELED) {
       throw new BadRequestException({
         code: 'MATCH_NOT_JOINABLE',
         message: 'Ce match ne peut plus être rejoint',
@@ -810,9 +763,7 @@ export class MatchesService {
       const startFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
       // Parser timeControl (ex: "10+0" => baseMinutes=10, incrementSeconds=0)
-      const timeControlMatch = match.tournament.timeControl.match(
-        /^(\d+)\+(\d+)$/,
-      );
+      const timeControlMatch = match.tournament.timeControl.match(/^(\d+)\+(\d+)$/);
       if (!timeControlMatch) {
         throw new BadRequestException(
           `Format de time control invalide: ${match.tournament.timeControl}`,
@@ -876,16 +827,13 @@ export class MatchesService {
   /**
    * Phase 6.0.C - Récupérer l'état d'un match
    */
-  async getMatchState(
-    matchId: string,
-    playerId: string,
-  ): Promise<MatchStateViewDto> {
+  async getMatchState(matchId: string, playerId: string): Promise<MatchStateViewDto> {
     // Phase 6.0.D.4 - Redirection vers tie-break actif si nécessaire
     const activeMatchId = await this.getActivePlayableMatchId(matchId, playerId);
 
     // Résoudre éventuellement un no-show avant de retourner l'état
     await this.maybeResolveNoShow(activeMatchId);
-    
+
     // 1. Charger le match (utiliser activeMatchId)
     const match = await this.prisma.match.findUnique({
       where: { id: activeMatchId },
@@ -924,9 +872,7 @@ export class MatchesService {
     });
 
     if (!match) {
-      throw new NotFoundException(
-        `Match avec l'ID "${matchId}" introuvable`,
-      );
+      throw new NotFoundException(`Match avec l'ID "${matchId}" introuvable`);
     }
 
     // 2. Vérifier que le joueur est dans le match
@@ -936,7 +882,7 @@ export class MatchesService {
     if (playerId !== whitePlayerId && playerId !== blackPlayerId) {
       throw new ForbiddenException({
         code: 'PLAYER_NOT_IN_MATCH',
-        message: 'Vous n\'êtes pas un participant de ce match',
+        message: "Vous n'êtes pas un participant de ce match",
       });
     }
 
@@ -948,22 +894,18 @@ export class MatchesService {
    * Phase 6.0.C - Jouer un coup
    * Transaction atomique pour valider, appliquer et persister le coup
    */
-  async playMove(
-    matchId: string,
-    playerId: string,
-    dto: PlayMoveDto,
-  ): Promise<MatchStateViewDto> {
+  async playMove(matchId: string, playerId: string, dto: PlayMoveDto): Promise<MatchStateViewDto> {
     // Phase 6.0.D.4 - Redirection vers tie-break actif si nécessaire (avant la transaction)
     const activeMatchId = await this.getActivePlayableMatchId(matchId, playerId);
 
     // Sécurité : tenter de résoudre un éventuel no-show avant d'autoriser un coup
     await this.maybeResolveNoShow(activeMatchId);
-    
+
     let wasMatchFinished = false;
     let tournamentId: string;
     let originalMatchIdForTieBreak: string | null = null; // ID du parent si DRAW avec tie-break ou tie-break terminé
     let isDrawWithTieBreak = false;
-    
+
     const stateView = await this.prisma.$transaction(async (tx) => {
       // 1. Charger le match avec verrouillage (utiliser activeMatchId)
       const match = await tx.match.findUnique({
@@ -1007,9 +949,7 @@ export class MatchesService {
       });
 
       if (!match) {
-        throw new NotFoundException(
-          `Match avec l'ID "${matchId}" introuvable`,
-        );
+        throw new NotFoundException(`Match avec l'ID "${matchId}" introuvable`);
       }
 
       // 2. Vérifier que le joueur est dans le match
@@ -1019,7 +959,7 @@ export class MatchesService {
       if (playerId !== whitePlayerId && playerId !== blackPlayerId) {
         throw new ForbiddenException({
           code: 'PLAYER_NOT_IN_MATCH',
-          message: 'Vous n\'êtes pas un participant de ce match',
+          message: "Vous n'êtes pas un participant de ce match",
         });
       }
 
@@ -1027,20 +967,17 @@ export class MatchesService {
       if (match.status !== MatchStatus.RUNNING) {
         throw new BadRequestException({
           code: 'MATCH_NOT_RUNNING',
-          message: 'Ce match n\'est pas en cours',
+          message: "Ce match n'est pas en cours",
         });
       }
 
       // 4. Déterminer la couleur du joueur
-      const playerColor =
-        playerId === whitePlayerId ? MatchColor.WHITE : MatchColor.BLACK;
+      const playerColor = playerId === whitePlayerId ? MatchColor.WHITE : MatchColor.BLACK;
 
       // 5. Déterminer le trait actuel
       const currentFen = match.currentFen || match.initialFen;
       if (!currentFen) {
-        throw new BadRequestException(
-          'Position FEN introuvable pour ce match',
-        );
+        throw new BadRequestException('Position FEN introuvable pour ce match');
       }
 
       const chess = this.chessEngineService.initializeGame(currentFen);
@@ -1050,7 +987,7 @@ export class MatchesService {
       if (currentTurn !== playerColor) {
         throw new BadRequestException({
           code: 'NOT_YOUR_TURN',
-          message: 'Ce n\'est pas votre tour de jouer',
+          message: "Ce n'est pas votre tour de jouer",
         });
       }
 
@@ -1075,16 +1012,11 @@ export class MatchesService {
         (playerColor === MatchColor.BLACK && blackTimeMs <= 0)
       ) {
         // Timeout : terminer le match
-        const winnerColor =
-          playerColor === MatchColor.WHITE ? MatchColor.BLACK : MatchColor.WHITE;
+        const winnerColor = playerColor === MatchColor.WHITE ? MatchColor.BLACK : MatchColor.WHITE;
         const winnerEntryId =
-          winnerColor === MatchColor.WHITE
-            ? match.whiteEntryId
-            : match.blackEntryId;
+          winnerColor === MatchColor.WHITE ? match.whiteEntryId : match.blackEntryId;
         const result =
-          winnerColor === MatchColor.WHITE
-            ? MatchResult.WHITE_WIN
-            : MatchResult.BLACK_WIN;
+          winnerColor === MatchColor.WHITE ? MatchResult.WHITE_WIN : MatchResult.BLACK_WIN;
 
         const finishedMatch = await tx.match.update({
           where: { id: matchId },
@@ -1138,14 +1070,11 @@ export class MatchesService {
       }
 
       // 9. Valider et appliquer le coup via ChessEngineService
-      const moveResult = this.chessEngineService.validateAndApplyMove(
-        currentFen,
-        {
-          from: dto.from,
-          to: dto.to,
-          promotion: dto.promotion,
-        },
-      );
+      const moveResult = this.chessEngineService.validateAndApplyMove(currentFen, {
+        from: dto.from,
+        to: dto.to,
+        promotion: dto.promotion,
+      });
 
       if (!moveResult.success) {
         throw new BadRequestException({
@@ -1157,8 +1086,7 @@ export class MatchesService {
       // 10. Déterminer le prochain numéro de coup
       // Comme nous ne chargeons que le dernier coup (take: 1, orderBy desc),
       // `match.moves[0].moveNumber` reflète le nombre TOTAL de coups joués.
-      const lastRecordedMove =
-        match.moves && match.moves.length > 0 ? match.moves[0] : null;
+      const lastRecordedMove = match.moves && match.moves.length > 0 ? match.moves[0] : null;
       const lastMoveNumber =
         lastRecordedMove && typeof lastRecordedMove.moveNumber === 'number'
           ? lastRecordedMove.moveNumber
@@ -1168,7 +1096,7 @@ export class MatchesService {
       // 11. Créer le MatchMove
       await tx.matchMove.create({
         data: {
-          matchId,
+          matchId: activeMatchId,
           moveNumber: nextMoveNumber,
           playerId,
           color: playerColor,
@@ -1184,7 +1112,7 @@ export class MatchesService {
       });
 
       // 12. Vérifier si la partie est terminée
-      let updateData: any = {
+      const updateData: any = {
         currentFen: moveResult.fenAfter,
         lastMoveAt: now,
         whiteTimeMsRemaining: whiteTimeMs,
@@ -1199,9 +1127,7 @@ export class MatchesService {
         switch (moveResult.gameEnd.reason) {
           case GameEndReason.CHECKMATE:
             result =
-              moveResult.gameEnd.winner === 'white'
-                ? MatchResult.WHITE_WIN
-                : MatchResult.BLACK_WIN;
+              moveResult.gameEnd.winner === 'white' ? MatchResult.WHITE_WIN : MatchResult.BLACK_WIN;
             resultReason = 'CHECKMATE';
             break;
           case GameEndReason.STALEMATE:
@@ -1228,17 +1154,57 @@ export class MatchesService {
           updateData.finishedAt = now;
 
           // Phase 6.0.D.3 - Si DRAW, vérifier si tie-break nécessaire
+          // Phase 6.0.D.5 - Ajouter garde-fous pour requiresDecisiveResult et drawRuleMode
           if (result === MatchResult.DRAW) {
             const tournament = await tx.tournament.findUnique({
               where: { id: match.tournamentId },
-              select: { tieBreakPolicy: true },
+              select: {
+                tieBreakPolicy: true,
+                requiresDecisiveResult: true,
+                drawRuleMode: true,
+              },
             });
 
-            if (tournament && tournament.tieBreakPolicy !== TieBreakPolicy.NONE) {
+            if (!tournament) {
+              throw new NotFoundException(`Tournoi avec l'ID "${match.tournamentId}" introuvable`);
+            }
+
+            // Phase 6.0.D.5 - Garde-fou 1 : requiresDecisiveResult = true nécessite un tie-break
+            if (
+              tournament.requiresDecisiveResult &&
+              tournament.tieBreakPolicy === TieBreakPolicy.NONE
+            ) {
+              this.logger.error(
+                `[playMove] Configuration invalide détectée - matchId=${activeMatchId}, tournamentId=${match.tournamentId}, requiresDecisiveResult=true, tieBreakPolicy=NONE`,
+              );
+              throw new BadRequestException({
+                code: 'DRAW_NOT_ALLOWED',
+                message:
+                  "DRAW non autorisé : le tournoi exige un résultat décisif mais n'a pas de politique de tie-break. Cette configuration devrait être rejetée à la création du tournoi.",
+              });
+            }
+
+            // Phase 6.0.D.5 - Garde-fou 2 : drawRuleMode = NO_DRAW nécessite un tie-break
+            if (
+              tournament.drawRuleMode === DrawRuleMode.NO_DRAW &&
+              tournament.tieBreakPolicy === TieBreakPolicy.NONE
+            ) {
+              this.logger.error(
+                `[playMove] Configuration invalide détectée - matchId=${activeMatchId}, tournamentId=${match.tournamentId}, drawRuleMode=NO_DRAW, tieBreakPolicy=NONE`,
+              );
+              throw new BadRequestException({
+                code: 'DRAW_NOT_ALLOWED',
+                message:
+                  "DRAW non autorisé : le tournoi interdit les matchs nuls mais n'a pas de politique de tie-break. Cette configuration devrait être rejetée à la création du tournoi.",
+              });
+            }
+
+            // Phase 6.0.D.3 - Comportement conservé : si tieBreakPolicy != NONE, marquer TIEBREAK_PENDING
+            if (tournament.tieBreakPolicy !== TieBreakPolicy.NONE) {
               // Marquage explicite : DRAW avec tie-break pending
               updateData.resultReason = RESULT_REASON_TIEBREAK_PENDING;
             } else {
-              // DRAW sans tie-break : utiliser la raison normale
+              // DRAW sans tie-break : utiliser la raison normale (comportement Phase 5)
               updateData.resultReason = resultReason;
             }
           } else {
@@ -1250,7 +1216,7 @@ export class MatchesService {
 
       // 13. Mettre à jour le match
       const updatedMatch = await tx.match.update({
-        where: { id: matchId },
+        where: { id: activeMatchId },
         data: updateData,
         include: {
           whiteEntry: {
@@ -1289,7 +1255,7 @@ export class MatchesService {
       // 14. Stocker les infos pour usage après la transaction
       wasMatchFinished = updateData.status === MatchStatus.FINISHED;
       tournamentId = match.tournamentId;
-      
+
       // Phase 6.0.D.4 - Si le match actif est un tie-break terminé, résoudre le tie-break
       // Sinon, si c'est un parent DRAW avec tie-break pending, stocker l'ID du parent pour créer les tie-breaks
       if (wasMatchFinished) {
@@ -1305,7 +1271,7 @@ export class MatchesService {
           isDrawWithTieBreak = true;
         }
       }
-      
+
       // 15. Retourner l'état du match
       return this.buildMatchStateViewDto(updatedMatch);
     });
@@ -1348,7 +1314,7 @@ export class MatchesService {
         );
         // On ne propage pas l'erreur pour ne pas faire échouer le coup qui a été joué avec succès
       }
-      }
+    }
 
     return stateView;
   }
@@ -1361,10 +1327,7 @@ export class MatchesService {
    * - match doit être RUNNING
    * - termine le match par RESIGNATION et déclenche la logique de tournoi
    */
-  async resignMatch(
-    matchId: string,
-    playerId: string,
-  ): Promise<MatchStateViewDto> {
+  async resignMatch(matchId: string, playerId: string): Promise<MatchStateViewDto> {
     const finishedMatch = await this.prisma.$transaction(async (tx) => {
       // 1. Charger le match avec les entrées et le tournoi
       const match = await tx.match.findUnique({
@@ -1388,9 +1351,7 @@ export class MatchesService {
       });
 
       if (!match) {
-        throw new NotFoundException(
-          `Match avec l'ID "${matchId}" introuvable`,
-        );
+        throw new NotFoundException(`Match avec l'ID "${matchId}" introuvable`);
       }
 
       const whitePlayerId = match.whiteEntry.playerId;
@@ -1400,7 +1361,7 @@ export class MatchesService {
       if (playerId !== whitePlayerId && playerId !== blackPlayerId) {
         throw new ForbiddenException({
           code: 'PLAYER_NOT_IN_MATCH',
-          message: 'Vous n\'êtes pas un participant de ce match',
+          message: "Vous n'êtes pas un participant de ce match",
         });
       }
 
@@ -1408,20 +1369,16 @@ export class MatchesService {
       if (match.status !== MatchStatus.RUNNING) {
         throw new BadRequestException({
           code: 'MATCH_NOT_RUNNING',
-          message: 'Ce match n\'est pas en cours',
+          message: "Ce match n'est pas en cours",
         });
       }
 
       // 4. Déterminer la couleur du joueur qui abandonne et le gagnant
-      const resigningColor =
-        playerId === whitePlayerId ? MatchColor.WHITE : MatchColor.BLACK;
-      const winnerColor =
-        resigningColor === MatchColor.WHITE ? MatchColor.BLACK : MatchColor.WHITE;
+      const resigningColor = playerId === whitePlayerId ? MatchColor.WHITE : MatchColor.BLACK;
+      const winnerColor = resigningColor === MatchColor.WHITE ? MatchColor.BLACK : MatchColor.WHITE;
 
       const result =
-        winnerColor === MatchColor.WHITE
-          ? MatchResult.WHITE_WIN
-          : MatchResult.BLACK_WIN;
+        winnerColor === MatchColor.WHITE ? MatchResult.WHITE_WIN : MatchResult.BLACK_WIN;
 
       const now = new Date();
 
@@ -1475,10 +1432,10 @@ export class MatchesService {
     try {
       await this.generateNextRoundIfNeeded(finishedMatch.tournamentId);
     } catch (err) {
-          console.error(
-        '[resignMatch] Erreur lors de la génération de la ronde suivante:',
-            err,
-          );
+      this.logger.error(
+        `[resignMatch] Erreur lors de la génération de la ronde suivante - tournamentId=${finishedMatch.tournamentId}`,
+        err instanceof Error ? err.stack : String(err),
+      );
       // On ne propage pas l'erreur pour ne pas faire échouer la résignation qui a réussi
     }
 
@@ -1494,7 +1451,10 @@ export class MatchesService {
     const blackPlayerId = match.blackEntry.playerId;
 
     // Déterminer le FEN actuel
-    const fen = match.currentFen || match.initialFen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+    const fen =
+      match.currentFen ||
+      match.initialFen ||
+      'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
     // Compter les coups
     // IMPORTANT :
@@ -1515,14 +1475,15 @@ export class MatchesService {
     const turn = chess.turn() === 'w' ? MatchColor.WHITE : MatchColor.BLACK;
 
     // Dernier coup
-    const lastMove = match.moves && match.moves.length > 0
-      ? {
-          san: match.moves[0].san,
-          from: match.moves[0].from,
-          to: match.moves[0].to,
-          promotion: match.moves[0].promotion || null,
-        }
-      : null;
+    const lastMove =
+      match.moves && match.moves.length > 0
+        ? {
+            san: match.moves[0].san,
+            from: match.moves[0].from,
+            to: match.moves[0].to,
+            promotion: match.moves[0].promotion || null,
+          }
+        : null;
 
     return {
       matchId: match.id,
@@ -1544,10 +1505,10 @@ export class MatchesService {
 
   /**
    * Phase 6.0.D.3 - Crée automatiquement les matchs tie-break pour un match parent terminé en DRAW
-   * 
+   *
    * Cette méthode est idempotente : si les tie-breaks existent déjà (contrainte unique DB),
    * elle ne crée pas de doublons (gestion P2002).
-   * 
+   *
    * @param parentMatchId - ID du match parent terminé en DRAW
    * @throws NotFoundException si le match parent n'existe pas
    * @throws BadRequestException si le match n'est pas un parent DRAW ou si tieBreakPolicy = NONE
@@ -1581,9 +1542,7 @@ export class MatchesService {
     });
 
     if (!parentMatch) {
-      throw new NotFoundException(
-        `Match parent avec l'ID "${parentMatchId}" introuvable`,
-      );
+      throw new NotFoundException(`Match parent avec l'ID "${parentMatchId}" introuvable`);
     }
 
     // 2. Vérifier que c'est un match parent (pas un tie-break)
@@ -1593,10 +1552,7 @@ export class MatchesService {
     }
 
     // 3. Vérifier que le match est terminé en DRAW
-    if (
-      parentMatch.status !== MatchStatus.FINISHED ||
-      parentMatch.result !== MatchResult.DRAW
-    ) {
+    if (parentMatch.status !== MatchStatus.FINISHED || parentMatch.result !== MatchResult.DRAW) {
       // No-op : pas de tie-break si pas DRAW
       return;
     }
@@ -1624,15 +1580,12 @@ export class MatchesService {
         tieBreakCount = 5;
         break;
       default:
-        throw new BadRequestException(
-          `Politique de tie-break non supportée: ${tieBreakPolicy}`,
-        );
+        throw new BadRequestException(`Politique de tie-break non supportée: ${tieBreakPolicy}`);
     }
 
     // 6. Déterminer le time control pour les tie-breaks
     const tieBreakTimeControl =
-      parentMatch.tournament.tieBreakTimeControl ??
-      parentMatch.tournament.timeControl;
+      parentMatch.tournament.tieBreakTimeControl ?? parentMatch.tournament.timeControl;
 
     // 7. Créer chaque tie-break avec idempotence
     for (let tieBreakIndex = 1; tieBreakIndex <= tieBreakCount; tieBreakIndex++) {
@@ -1657,7 +1610,7 @@ export class MatchesService {
 
   /**
    * Phase 6.0.D.3 - Crée un seul match tie-break
-   * 
+   *
    * @param parentMatch - Match parent terminé en DRAW
    * @param tieBreakIndex - Index du tie-break (1..N)
    * @param timeControl - Time control à utiliser pour ce tie-break
@@ -1737,34 +1690,31 @@ export class MatchesService {
    * Phase 6.0.D.4 - Retourne l'ID du match jouable actif à partir d'un matchId.
    * Si le match est un parent avec tie-break pending, retourne le tie-break actif (tieBreakIndex minimal non terminé).
    * Sinon, retourne le matchId original.
-   * 
+   *
    * ⚠️ SÉCURITÉ : Vérifie que le joueur a le droit d'accéder au match (mêmes entryIds).
-   * 
+   *
    * @param matchId - ID du match (parent ou tie-break)
    * @param playerId - ID du joueur (pour vérification d'autorisation) - OBLIGATOIRE
    * @returns ID du match jouable actif
    * @throws NotFoundException si le match n'existe pas
    * @throws ForbiddenException si le joueur n'est pas autorisé (code: PLAYER_NOT_IN_MATCH)
    */
-  private async getActivePlayableMatchId(
-    matchId: string, 
-    playerId: string
-  ): Promise<string> {
+  private async getActivePlayableMatchId(matchId: string, playerId: string): Promise<string> {
     const match = await this.prisma.match.findUnique({
       where: { id: matchId },
       include: {
         tournament: {
-          select: { tieBreakPolicy: true }
+          select: { tieBreakPolicy: true },
         },
         whiteEntry: {
-          include: { player: { select: { id: true } } }
+          include: { player: { select: { id: true } } },
         },
         blackEntry: {
-          include: { player: { select: { id: true } } }
+          include: { player: { select: { id: true } } },
         },
         tieBreakMatches: {
           where: {
-            status: { not: MatchStatus.FINISHED }
+            status: { not: MatchStatus.FINISHED },
           },
           orderBy: { tieBreakIndex: 'asc' },
           take: 1,
@@ -1772,9 +1722,9 @@ export class MatchesService {
             id: true,
             whiteEntryId: true,
             blackEntryId: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     if (!match) {
@@ -1784,26 +1734,24 @@ export class MatchesService {
     // ⚠️ Sécurité : Vérifier que les entryIds existent (pas de BYE/PENDING incomplet)
     if (!match.whiteEntryId || !match.blackEntryId) {
       throw new BadRequestException(
-        'Ce match n\'a pas d\'entrées complètes (BYE ou match incomplet)',
+        "Ce match n'a pas d'entrées complètes (BYE ou match incomplet)",
       );
     }
 
     // ⚠️ PIÈGE 1 - Vérification d'autorisation
     const whitePlayerId = match.whiteEntry?.playerId;
     const blackPlayerId = match.blackEntry?.playerId;
-    
+
     if (!whitePlayerId || !blackPlayerId) {
-      throw new BadRequestException(
-        'Ce match n\'a pas de joueurs associés aux entrées',
-      );
+      throw new BadRequestException("Ce match n'a pas de joueurs associés aux entrées");
     }
-    
+
     if (playerId !== whitePlayerId && playerId !== blackPlayerId) {
       // Le joueur n'a pas le droit d'accéder à ce match
       // ⚠️ DÉCISION : Throw ForbiddenException immédiatement (pas de retour de matchId)
       throw new ForbiddenException({
         code: 'PLAYER_NOT_IN_MATCH',
-        message: 'Vous n\'êtes pas un participant de ce match'
+        message: "Vous n'êtes pas un participant de ce match",
       });
     }
 
@@ -1823,45 +1771,42 @@ export class MatchesService {
         // Tous les tie-breaks sont terminés, mais parent pas encore mis à jour
         // Recharger le parent et, si encore DRAW, déclencher resolveTieBreak() (best effort)
         const updatedParent = await this.prisma.match.findUnique({
-          where: { id: matchId }
+          where: { id: matchId },
         });
-        
+
         if (updatedParent && updatedParent.result === MatchResult.DRAW) {
           // Parent toujours en DRAW : déclencher résolution (best effort, non bloquant)
           const tournamentId = match.tournamentId || 'unknown';
-          this.resolveTieBreak(matchId).catch(err => {
+          this.resolveTieBreak(matchId).catch((err) => {
             this.logger.warn(
               `[getActivePlayableMatchId] best-effort resolveTieBreak failed - matchId=${matchId}, tournamentId=${tournamentId}, error=${err.message}`,
             );
           });
         }
-        
+
         // Retourner le parent (même s'il est encore en DRAW, l'utilisateur verra l'état actuel)
         return matchId;
       }
-      
+
       // Retourner le tie-break actif (tieBreakIndex minimal non terminé)
       const activeTieBreak = match.tieBreakMatches[0];
-      
+
       // ⚠️ Option A - Vérification par entryIds (plus robuste)
       // Vérifier que les entryIds du tie-break correspondent au set {parent.whiteEntryId, parent.blackEntryId}
       const parentEntryIds = new Set([match.whiteEntryId, match.blackEntryId]);
-      const tieBreakEntryIds = new Set([
-        activeTieBreak.whiteEntryId,
-        activeTieBreak.blackEntryId,
-      ]);
-      
+      const tieBreakEntryIds = new Set([activeTieBreak.whiteEntryId, activeTieBreak.blackEntryId]);
+
       // Les deux sets doivent contenir les mêmes entryIds
       if (
         parentEntryIds.size === tieBreakEntryIds.size &&
-        [...parentEntryIds].every(id => tieBreakEntryIds.has(id))
+        [...parentEntryIds].every((id) => tieBreakEntryIds.has(id))
       ) {
         return activeTieBreak.id;
       } else {
         // Cas théoriquement impossible mais sécurité : throw ForbiddenException
         throw new ForbiddenException({
           code: 'PLAYER_NOT_IN_MATCH',
-          message: 'Vous n\'êtes pas un participant de ce match'
+          message: "Vous n'êtes pas un participant de ce match",
         });
       }
     }
@@ -1872,9 +1817,9 @@ export class MatchesService {
 
   /**
    * Phase 6.0.D.4 - Résout un tie-break et met à jour le match parent
-   * 
+   *
    * Cette méthode est appelée en "best effort" : les erreurs sont loggées mais ne sont pas propagées.
-   * 
+   *
    * @param parentMatchId - ID du match parent avec tie-break pending
    */
   async resolveTieBreak(parentMatchId: string): Promise<void> {
@@ -1903,9 +1848,7 @@ export class MatchesService {
     });
 
     if (!parentMatch) {
-      throw new NotFoundException(
-        `Match parent avec l'ID "${parentMatchId}" introuvable`,
-      );
+      throw new NotFoundException(`Match parent avec l'ID "${parentMatchId}" introuvable`);
     }
 
     // 2. Vérifier que c'est bien un parent avec tie-break pending
@@ -1964,9 +1907,8 @@ export class MatchesService {
           );
           return;
         }
-        resultReason = tieBreakPolicy === TieBreakPolicy.RAPID 
-          ? 'TIE_BREAK_RAPID' 
-          : 'TIE_BREAK_BLITZ';
+        resultReason =
+          tieBreakPolicy === TieBreakPolicy.RAPID ? 'TIE_BREAK_RAPID' : 'TIE_BREAK_BLITZ';
         break;
 
       case TieBreakPolicy.ARMAGEDDON:
@@ -2000,9 +1942,10 @@ export class MatchesService {
           );
           return;
         }
-        resultReason = tieBreakPolicy === TieBreakPolicy.BEST_OF_3
-          ? 'TIE_BREAK_BEST_OF_3'
-          : 'TIE_BREAK_BEST_OF_5';
+        resultReason =
+          tieBreakPolicy === TieBreakPolicy.BEST_OF_3
+            ? 'TIE_BREAK_BEST_OF_3'
+            : 'TIE_BREAK_BEST_OF_5';
         break;
 
       default:
@@ -2016,9 +1959,7 @@ export class MatchesService {
 
     // 5. Mettre à jour le match parent
     const parentResult =
-      winnerEntryId === parentMatch.whiteEntryId
-        ? MatchResult.WHITE_WIN
-        : MatchResult.BLACK_WIN;
+      winnerEntryId === parentMatch.whiteEntryId ? MatchResult.WHITE_WIN : MatchResult.BLACK_WIN;
 
     await this.prisma.match.update({
       where: { id: parentMatchId },
@@ -2042,15 +1983,17 @@ export class MatchesService {
 
   /**
    * Phase 6.0.D.4 - Trouve le vainqueur d'un BEST_OF_N en comptant les victoires par entryId
-   * 
+   *
    * @param tieBreakMatches - Liste des matchs tie-break terminés (triés par tieBreakIndex)
    * @returns EntryId du vainqueur ou null si aucun vainqueur déterminé (égalité ou pas assez de victoires)
    */
-  private findBestOfNWinner(tieBreakMatches: Array<{
-    result: MatchResult;
-    whiteEntryId: string;
-    blackEntryId: string;
-  }>): string | null {
+  private findBestOfNWinner(
+    tieBreakMatches: Array<{
+      result: MatchResult;
+      whiteEntryId: string;
+      blackEntryId: string;
+    }>,
+  ): string | null {
     // Compter les victoires par entryId
     const winsByEntryId: Record<string, number> = {};
 
@@ -2094,4 +2037,3 @@ export class MatchesService {
     return null;
   }
 }
-

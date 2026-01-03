@@ -99,6 +99,8 @@ Ce dossier contient toute la documentation du projet Elite64.
   Implémentation Phase 6.0.D.3 : création automatique de matchs tie-break après un DRAW (automatique ou manuel), séquence post-transaction respectée, idempotence via contrainte unique DB, gestion de toutes les politiques (RAPID, BLITZ, ARMAGEDDON, BEST_OF_3, BEST_OF_5), assignation déterministe des couleurs, tests unitaires complets (14 tests).
 - **[Phase 6.0.D.4 - Redirection Anti-Friction et Résolution Déterministe](./phase-06_gameplay-echecs/backend/phase-06.0.D.4_redirection-resolution_backend.md)**  
   Implémentation Phase 6.0.D.4 : redirection sécurisée vers tie-break actif (`getActivePlayableMatchId()`), résolution déterministe des tie-breaks (`resolveTieBreak()`), modification de `generateNextRoundIfNeeded()` selon Décision B3, intégration dans `getMatchState()`, `joinMatch()`, `playMove()`, patch d'observabilité (logs améliorés), tests unitaires complets (12 tests Phase 6.0.D.4).
+- **[Phase 6.0.D.5 - Intégration avec Brackets et Validations Finales](./phase-06_gameplay-echecs/backend/phase-06.0.D.5_integration-brackets-validations_backend.md)**  
+  Implémentation Phase 6.0.D.5 : validations finales pour DRAW automatiques dans `playMove()` (garde-fous `requiresDecisiveResult` et `drawRuleMode`), correction de la redirection D.4 (`activeMatchId` dans la transaction), remplacement de `console.error` par `logger.error`, vérification de la conformité de `generateNextRoundIfNeeded()` (Décision B3), tests unitaires complets (3 tests Phase 6.0.D.5).
 - **[Phase 6.1 - Frontend Gameplay MVP](./phase-06_gameplay-echecs/frontend/phase-06.1_frontend-gameplay_frontend.md)**  
   Documentation complète du frontend gameplay : page de match, intégration react-chessboard, polling, gestion des coups, promotion, résignation, navigation depuis tournoi.
 - **[Phase 6.2 - Tests E2E Gameplay Complets](./phase-06_gameplay-echecs/cross/phase-06.2_e2e-gameplay-tests_cross.md)**  
@@ -152,9 +154,10 @@ Chaque phase est subdivisée en :
 
 ---
 
-**Dernière mise à jour** : 01 Janvier 2026
+**Dernière mise à jour** : 03 Janvier 2026
 
 **Changements récents** :
+- ✅ **Phase 6.0.D.5 terminée** (03 Janvier 2026) : Validations finales pour DRAW automatiques (garde-fous `requiresDecisiveResult` et `drawRuleMode`), correction de la redirection D.4, remplacement de `console.error` par `logger.error`, tests unitaires complets (3 tests). Documentation complète créée.
 - ✅ **Clarification structure des frais** (01 Janvier 2026) : Documentation complète de la distinction entre commission plateforme (5%) et frais de tournoi (4.75%), prélèvement total de 9.75%. Documentation de l'affichage financier dans l'espace admin pour les super-admins. Voir [Clarification structure des frais](./governance/audits/clarification-structure-frais-2026-01-01.md).
 - ✅ **Consolidation documentation et governance** (01 Janvier 2026) : Déplacement du dossier `governance/` vers `docs/governance/` pour centraliser toute la documentation. Mise à jour de toutes les références internes. Correction des occurrences restantes de ChessBet dans la documentation technique.
 - ✅ **Phase 6.1 - Frontend Gameplay MVP terminée** (15 Décembre 2025) : Implémentation complète de la page de match (`/matches/[id]`) avec intégration `react-chessboard@4.7.2`, polling 2s, gestion des coups, promotion, résignation, navigation depuis tournoi. Correction du bug de finalisation automatique des tournois (backend). Documentation complète créée.

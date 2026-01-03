@@ -1,11 +1,4 @@
-import {
-  IsString,
-  IsInt,
-  IsOptional,
-  IsDateString,
-  Min,
-  IsEnum,
-} from 'class-validator';
+import { IsString, IsInt, IsOptional, IsDateString, Min, IsEnum } from 'class-validator';
 import { TournamentStatus } from '@prisma/client';
 
 export class UpdateTournamentDto {
@@ -66,4 +59,3 @@ export class UpdateTournamentDto {
   @IsOptional()
   status?: TournamentStatus;
 }
-

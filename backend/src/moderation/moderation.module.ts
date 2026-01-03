@@ -6,4 +6,3 @@ import { PlayerRestrictionsService } from './player-restrictions.service';
   exports: [PlayerRestrictionsService],
 })
 export class ModerationModule {}
-

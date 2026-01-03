@@ -51,21 +51,23 @@ export class AuthService {
     if (!player.isActive) {
       throw new ForbiddenException({
         code: 'ACCOUNT_SUSPENDED',
-        message: "Votre compte a été suspendu. Contactez le support si vous pensez qu'il s'agit d'une erreur.",
+        message:
+          "Votre compte a été suspendu. Contactez le support si vous pensez qu'il s'agit d'une erreur.",
       });
     }
 
     // Générer le token JWT
-    const payload: JwtPayload = { 
-      sub: player.id, 
-      email: player.email, 
+    const payload: JwtPayload = {
+      sub: player.id,
+      email: player.email,
       username: player.username,
       role: player.role,
     };
     const accessToken = this.jwtService.sign(payload);
 
     // Retourner les informations du joueur (sans passwordHash) et le token
-    const { passwordHash: _, ...playerWithoutPassword } = player;
+    const { passwordHash, ...playerWithoutPassword } = player;
+    void passwordHash;
     return {
       accessToken,
       player: playerWithoutPassword,
@@ -159,7 +161,7 @@ export class AuthService {
     try {
       await this.mailService.sendPasswordResetMail(player.email, resetToken);
     } catch (error) {
-      console.error('Erreur lors de l\'envoi de l\'email de réinitialisation:', error);
+      console.error("Erreur lors de l'envoi de l'email de réinitialisation:", error);
       // On continue quand même pour ne pas leak l'existence du compte
     }
 
@@ -221,9 +223,8 @@ export class AuthService {
     try {
       await this.mailService.sendEmailVerificationMail(playerEmail, verificationToken);
     } catch (error) {
-      console.error('Erreur lors de l\'envoi de l\'email de vérification:', error);
+      console.error("Erreur lors de l'envoi de l'email de vérification:", error);
       // On ne throw pas pour ne pas bloquer la création du compte
     }
   }
 }
-

@@ -9,4 +9,3 @@ export class TransactionsController {
   // Le focus est sur la logique de service qui sera utilisée par d'autres modules
   // Les routes seront ajoutées au fur et à mesure des besoins
 }
-

@@ -20,14 +20,16 @@ export class PlayerRestrictionsService {
     if (!player.isActive) {
       throw new ForbiddenException({
         code: 'ACCOUNT_SUSPENDED',
-        message: "Votre compte a été suspendu. Contactez le support si vous pensez qu'il s'agit d'une erreur.",
+        message:
+          "Votre compte a été suspendu. Contactez le support si vous pensez qu'il s'agit d'une erreur.",
       });
     }
 
     if (player.blockTournaments) {
       throw new ForbiddenException({
         code: 'TOURNAMENTS_BLOCKED',
-        message: "Votre compte ne peut actuellement pas participer aux tournois. Contactez le support pour plus d'informations.",
+        message:
+          "Votre compte ne peut actuellement pas participer aux tournois. Contactez le support pour plus d'informations.",
       });
     }
   }
@@ -40,14 +42,16 @@ export class PlayerRestrictionsService {
     if (!player.isActive) {
       throw new ForbiddenException({
         code: 'ACCOUNT_SUSPENDED',
-        message: "Votre compte a été suspendu. Contactez le support si vous pensez qu'il s'agit d'une erreur.",
+        message:
+          "Votre compte a été suspendu. Contactez le support si vous pensez qu'il s'agit d'une erreur.",
       });
     }
 
     if (player.blockWalletDeposits) {
       throw new ForbiddenException({
         code: 'DEPOSITS_BLOCKED',
-        message: "Les dépôts sont temporairement indisponibles sur votre compte. Contactez le support pour plus d'informations.",
+        message:
+          "Les dépôts sont temporairement indisponibles sur votre compte. Contactez le support pour plus d'informations.",
       });
     }
   }
@@ -60,16 +64,17 @@ export class PlayerRestrictionsService {
     if (!player.isActive) {
       throw new ForbiddenException({
         code: 'ACCOUNT_SUSPENDED',
-        message: "Votre compte a été suspendu. Contactez le support si vous pensez qu'il s'agit d'une erreur.",
+        message:
+          "Votre compte a été suspendu. Contactez le support si vous pensez qu'il s'agit d'une erreur.",
       });
     }
 
     if (player.blockWalletWithdrawals) {
       throw new ForbiddenException({
         code: 'WITHDRAWALS_BLOCKED',
-        message: "Les retraits sont temporairement suspendus sur votre compte. Contactez le support pour plus d'informations.",
+        message:
+          "Les retraits sont temporairement suspendus sur votre compte. Contactez le support pour plus d'informations.",
       });
     }
   }
 }
-

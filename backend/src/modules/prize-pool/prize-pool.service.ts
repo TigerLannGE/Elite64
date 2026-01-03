@@ -1,14 +1,6 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import {
-  PrizePool,
-  TournamentStatus,
-  TournamentEntryStatus,
-} from '@prisma/client';
+import { PrizePool, TournamentStatus, TournamentEntryStatus } from '@prisma/client';
 
 // Constantes pour le calcul du prize pool
 const COMMISSION_RATE = 0.05; // 5% commission plateforme
@@ -104,9 +96,7 @@ export class PrizePoolService {
     });
 
     if (!tournament) {
-      throw new NotFoundException(
-        `Tournoi avec l'ID "${tournamentId}" introuvable`,
-      );
+      throw new NotFoundException(`Tournoi avec l'ID "${tournamentId}" introuvable`);
     }
 
     // 2. Si count < tournament.minPlayers -> throw (annulation gérée côté service d'appel)
@@ -171,4 +161,3 @@ export class PrizePoolService {
     return prizePool;
   }
 }
-

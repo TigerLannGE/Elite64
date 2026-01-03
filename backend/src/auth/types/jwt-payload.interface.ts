@@ -6,4 +6,3 @@ export interface JwtPayload {
   username: string;
   role: PlayerRole;
 }
-

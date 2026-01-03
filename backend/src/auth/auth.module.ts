@@ -24,4 +24,3 @@ import { MailModule } from '../mail/mail.module';
   exports: [AuthService, RolesGuard, ActivePlayerGuard],
 })
 export class AuthModule {}
-

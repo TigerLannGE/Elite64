@@ -9,7 +9,7 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   // Validation globale pour les DTOs
   app.useGlobalPipes(
     new ValidationPipe({
@@ -18,7 +18,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  
+
   // CORS configuré pour permettre les requêtes depuis le frontend
   app.enableCors({
     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
@@ -27,10 +27,8 @@ async function bootstrap() {
 
   const port = process.env.PORT_BACKEND || 4000;
   await app.listen(port);
-  
+
   console.log(`🚀 Backend running on http://localhost:${port}`);
 }
 
 bootstrap();
-
-

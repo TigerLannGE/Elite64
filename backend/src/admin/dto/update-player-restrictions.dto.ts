@@ -18,4 +18,3 @@ export class UpdatePlayerRestrictionsDto {
   @MaxLength(1000)
   moderationNote?: string;
 }
-

@@ -14,4 +14,3 @@ export class ReportMatchResultDto {
   @MaxLength(255)
   resultReason?: string; // ex: "CHECKMATE", "TIMEOUT", "RESIGNATION", "NO_SHOW"
 }
-

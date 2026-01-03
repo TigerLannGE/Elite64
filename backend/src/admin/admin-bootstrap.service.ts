@@ -39,21 +39,13 @@ export class AdminBootstrapService implements OnModuleInit {
           data: { role: PlayerRole.SUPER_ADMIN },
         });
 
-        this.logger.log(
-          `✅ Player "${player.email}" has been promoted to SUPER_ADMIN`,
-        );
+        this.logger.log(`✅ Player "${player.email}" has been promoted to SUPER_ADMIN`);
       } else {
-        this.logger.log(
-          `Player "${player.email}" is already SUPER_ADMIN`,
-        );
+        this.logger.log(`Player "${player.email}" is already SUPER_ADMIN`);
       }
     } catch (error) {
-      this.logger.error(
-        `Error during super admin bootstrap: ${error.message}`,
-        error.stack,
-      );
+      this.logger.error(`Error during super admin bootstrap: ${error.message}`, error.stack);
       // Ne pas bloquer le démarrage de l'application en cas d'erreur
     }
   }
 }
-

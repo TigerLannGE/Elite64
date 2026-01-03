@@ -27,10 +27,7 @@ export class MatchesController {
     @Param('tournamentId') tournamentId: string,
     @Query('playerId') playerId?: string,
   ) {
-    return this.matchesService.listMatchesForTournament(
-      tournamentId,
-      playerId,
-    );
+    return this.matchesService.listMatchesForTournament(tournamentId, playerId);
   }
 
   /**
@@ -40,20 +37,12 @@ export class MatchesController {
    */
   @UseGuards(JwtAuthGuard, ActivePlayerGuard)
   @Get('me')
-  async listMyMatches(
-    @Request() req: any,
-    @Query('tournamentId') tournamentId?: string,
-  ) {
+  async listMyMatches(@Request() req: any, @Query('tournamentId') tournamentId?: string) {
     if (!tournamentId) {
-      throw new BadRequestException(
-        'Le paramètre tournamentId est requis',
-      );
+      throw new BadRequestException('Le paramètre tournamentId est requis');
     }
     const playerId = req.user.sub;
-    return this.matchesService.listMatchesForTournament(
-      tournamentId,
-      playerId,
-    );
+    return this.matchesService.listMatchesForTournament(tournamentId, playerId);
   }
 
   /**
@@ -84,11 +73,7 @@ export class MatchesController {
    */
   @UseGuards(JwtAuthGuard, ActivePlayerGuard)
   @Post(':id/move')
-  async playMove(
-    @Param('id') matchId: string,
-    @Body() dto: PlayMoveDto,
-    @Request() req: any,
-  ) {
+  async playMove(@Param('id') matchId: string, @Body() dto: PlayMoveDto, @Request() req: any) {
     const playerId = req.user.sub;
     return this.matchesService.playMove(matchId, playerId, dto);
   }
@@ -117,4 +102,3 @@ export class MatchesController {
     return this.matchesService.getMatchById(matchId);
   }
 }
-

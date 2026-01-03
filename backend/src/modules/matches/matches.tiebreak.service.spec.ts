@@ -4,17 +4,11 @@ import { MatchesService } from './matches.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TournamentsService } from '../tournaments/tournaments.service';
 import { ChessEngineService } from './chess-engine.service';
-import {
-  MatchStatus,
-  MatchResult,
-  TieBreakPolicy,
-  DrawRuleMode,
-} from '@prisma/client';
+import { MatchStatus, MatchResult, TieBreakPolicy } from '@prisma/client';
 import { RESULT_REASON_TIEBREAK_PENDING } from './match.constants';
 
 describe('MatchesService - Phase 6.0.D.3 (Tie-Break Creation)', () => {
   let service: MatchesService;
-  let prismaService: PrismaService;
 
   const mockPrismaService = {
     match: {
@@ -90,7 +84,6 @@ describe('MatchesService - Phase 6.0.D.3 (Tie-Break Creation)', () => {
     }).compile();
 
     service = module.get<MatchesService>(MatchesService);
-    prismaService = module.get<PrismaService>(PrismaService);
   });
 
   afterEach(() => {
@@ -253,9 +246,7 @@ describe('MatchesService - Phase 6.0.D.3 (Tie-Break Creation)', () => {
       mockPrismaService.match.create.mockRejectedValue(p2002Error);
 
       // Ne doit pas throw, juste ignorer
-      await expect(
-        service.createTieBreakMatches(mockParentMatchId),
-      ).resolves.not.toThrow();
+      await expect(service.createTieBreakMatches(mockParentMatchId)).resolves.not.toThrow();
 
       expect(mockPrismaService.match.create).toHaveBeenCalled();
     });
@@ -273,17 +264,17 @@ describe('MatchesService - Phase 6.0.D.3 (Tie-Break Creation)', () => {
       (otherError as any).code = 'P2001';
       mockPrismaService.match.create.mockRejectedValue(otherError);
 
-      await expect(
-        service.createTieBreakMatches(mockParentMatchId),
-      ).rejects.toThrow('Database connection failed');
+      await expect(service.createTieBreakMatches(mockParentMatchId)).rejects.toThrow(
+        'Database connection failed',
+      );
     });
 
     it('devrait throw NotFoundException si match parent inexistant', async () => {
       mockPrismaService.match.findUnique.mockResolvedValue(null);
 
-      await expect(
-        service.createTieBreakMatches('non-existent-id'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.createTieBreakMatches('non-existent-id')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('devrait no-op si match est déjà un tie-break', async () => {
@@ -297,7 +288,7 @@ describe('MatchesService - Phase 6.0.D.3 (Tie-Break Creation)', () => {
       expect(mockPrismaService.match.create).not.toHaveBeenCalled();
     });
 
-    it('devrait no-op si match n\'est pas DRAW', async () => {
+    it("devrait no-op si match n'est pas DRAW", async () => {
       mockPrismaService.match.findUnique.mockResolvedValue({
         ...mockParentMatch,
         result: MatchResult.WHITE_WIN,
@@ -418,7 +409,7 @@ describe('MatchesService - Phase 6.0.D.3 (Tie-Break Creation)', () => {
   });
 
   describe('getActivePlayableMatchId - Phase 6.0.D.4', () => {
-    it('devrait retourner matchId si match n\'est pas un parent avec tie-break pending', async () => {
+    it("devrait retourner matchId si match n'est pas un parent avec tie-break pending", async () => {
       mockPrismaService.match.findUnique.mockResolvedValue({
         ...mockParentMatch,
         result: MatchResult.WHITE_WIN, // Pas DRAW
@@ -461,7 +452,7 @@ describe('MatchesService - Phase 6.0.D.3 (Tie-Break Creation)', () => {
       expect(result).toBe('tiebreak-1');
     });
 
-    it('devrait throw ForbiddenException si playerId n\'est pas autorisé', async () => {
+    it("devrait throw ForbiddenException si playerId n'est pas autorisé", async () => {
       mockPrismaService.match.findUnique.mockResolvedValue({
         ...mockParentMatch,
         tournament: {
@@ -471,10 +462,7 @@ describe('MatchesService - Phase 6.0.D.3 (Tie-Break Creation)', () => {
       });
 
       try {
-        await (service as any).getActivePlayableMatchId(
-          mockParentMatchId,
-          'other-player-123',
-        );
+        await (service as any).getActivePlayableMatchId(mockParentMatchId, 'other-player-123');
         fail('Devrait throw ForbiddenException');
       } catch (err) {
         expect(err).toBeInstanceOf(ForbiddenException);
@@ -519,7 +507,7 @@ describe('MatchesService - Phase 6.0.D.3 (Tie-Break Creation)', () => {
       expect(resolveTieBreakSpy).toHaveBeenCalledWith(mockParentMatchId);
     });
 
-    it('devrait throw BadRequestException si match n\'a pas d\'entrées complètes (BYE)', async () => {
+    it("devrait throw BadRequestException si match n'a pas d'entrées complètes (BYE)", async () => {
       mockPrismaService.match.findUnique.mockResolvedValue({
         ...mockParentMatch,
         whiteEntryId: null, // BYE
@@ -539,9 +527,7 @@ describe('MatchesService - Phase 6.0.D.3 (Tie-Break Creation)', () => {
   describe('resolveTieBreak - Phase 6.0.D.4', () => {
     beforeEach(() => {
       // Mock pour generateNextRoundIfNeeded
-      jest
-        .spyOn(service as any, 'generateNextRoundIfNeeded')
-        .mockResolvedValue(undefined);
+      jest.spyOn(service as any, 'generateNextRoundIfNeeded').mockResolvedValue(undefined);
     });
 
     it('devrait résoudre RAPID : winner direct', async () => {
@@ -739,4 +725,3 @@ describe('MatchesService - Phase 6.0.D.3 (Tie-Break Creation)', () => {
     });
   });
 });
-

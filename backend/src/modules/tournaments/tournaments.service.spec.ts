@@ -13,7 +13,6 @@ import { TOURNAMENT_VALIDATION_ERRORS } from './tournament-validation.constants'
 
 describe('TournamentsService - Phase 6.0.D.2', () => {
   let service: TournamentsService;
-  let prismaService: PrismaService;
 
   const mockPrismaService = {
     tournament: {
@@ -42,7 +41,6 @@ describe('TournamentsService - Phase 6.0.D.2', () => {
     }).compile();
 
     service = module.get<TournamentsService>(TournamentsService);
-    prismaService = module.get<PrismaService>(PrismaService);
   });
 
   afterEach(() => {
@@ -66,13 +64,13 @@ describe('TournamentsService - Phase 6.0.D.2', () => {
         tieBreakPolicy: TieBreakPolicy.NONE,
       };
 
-      await expect(
-        service.createTournamentAsAdmin(dto, 'admin-id'),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.createTournamentAsAdmin(dto, 'admin-id')).rejects.toThrow(
+        BadRequestException,
+      );
 
-      await expect(
-        service.createTournamentAsAdmin(dto, 'admin-id'),
-      ).rejects.toThrow(TOURNAMENT_VALIDATION_ERRORS.REQUIRES_DECISIVE_RESULT_WITHOUT_TIEBREAK);
+      await expect(service.createTournamentAsAdmin(dto, 'admin-id')).rejects.toThrow(
+        TOURNAMENT_VALIDATION_ERRORS.REQUIRES_DECISIVE_RESULT_WITHOUT_TIEBREAK,
+      );
 
       expect(mockPrismaService.tournament.create).not.toHaveBeenCalled();
     });
@@ -84,13 +82,13 @@ describe('TournamentsService - Phase 6.0.D.2', () => {
         tieBreakPolicy: TieBreakPolicy.NONE,
       };
 
-      await expect(
-        service.createTournamentAsAdmin(dto, 'admin-id'),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.createTournamentAsAdmin(dto, 'admin-id')).rejects.toThrow(
+        BadRequestException,
+      );
 
-      await expect(
-        service.createTournamentAsAdmin(dto, 'admin-id'),
-      ).rejects.toThrow(TOURNAMENT_VALIDATION_ERRORS.NO_DRAW_WITHOUT_TIEBREAK);
+      await expect(service.createTournamentAsAdmin(dto, 'admin-id')).rejects.toThrow(
+        TOURNAMENT_VALIDATION_ERRORS.NO_DRAW_WITHOUT_TIEBREAK,
+      );
 
       expect(mockPrismaService.tournament.create).not.toHaveBeenCalled();
     });
@@ -171,13 +169,13 @@ describe('TournamentsService - Phase 6.0.D.2', () => {
         // tieBreakPolicy non envoyé (reste NONE depuis DB)
       };
 
-      await expect(
-        service.updateTournamentAsAdmin('tournament-id', dto),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.updateTournamentAsAdmin('tournament-id', dto)).rejects.toThrow(
+        BadRequestException,
+      );
 
-      await expect(
-        service.updateTournamentAsAdmin('tournament-id', dto),
-      ).rejects.toThrow(TOURNAMENT_VALIDATION_ERRORS.REQUIRES_DECISIVE_RESULT_WITHOUT_TIEBREAK);
+      await expect(service.updateTournamentAsAdmin('tournament-id', dto)).rejects.toThrow(
+        TOURNAMENT_VALIDATION_ERRORS.REQUIRES_DECISIVE_RESULT_WITHOUT_TIEBREAK,
+      );
 
       expect(mockPrismaService.tournament.update).not.toHaveBeenCalled();
     });
@@ -188,13 +186,13 @@ describe('TournamentsService - Phase 6.0.D.2', () => {
         // tieBreakPolicy non envoyé (reste NONE depuis DB)
       };
 
-      await expect(
-        service.updateTournamentAsAdmin('tournament-id', dto),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.updateTournamentAsAdmin('tournament-id', dto)).rejects.toThrow(
+        BadRequestException,
+      );
 
-      await expect(
-        service.updateTournamentAsAdmin('tournament-id', dto),
-      ).rejects.toThrow(TOURNAMENT_VALIDATION_ERRORS.NO_DRAW_WITHOUT_TIEBREAK);
+      await expect(service.updateTournamentAsAdmin('tournament-id', dto)).rejects.toThrow(
+        TOURNAMENT_VALIDATION_ERRORS.NO_DRAW_WITHOUT_TIEBREAK,
+      );
 
       expect(mockPrismaService.tournament.update).not.toHaveBeenCalled();
     });
@@ -234,4 +232,3 @@ describe('TournamentsService - Phase 6.0.D.2', () => {
     });
   });
 });
-

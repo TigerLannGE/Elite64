@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { TransactionsService } from '../transactions/transactions.service';
 import { PlayerRestrictionsService } from '../moderation/player-restrictions.service';
@@ -68,9 +64,7 @@ export class WalletsService {
   async testCredit(playerId: string, amountCents: number) {
     // Vérifier que nous sommes en mode développement
     if (process.env.NODE_ENV === 'production') {
-      throw new ForbiddenException(
-        'Cette fonctionnalité n\'est pas disponible en production',
-      );
+      throw new ForbiddenException("Cette fonctionnalité n'est pas disponible en production");
     }
 
     // Récupérer le joueur avec ses restrictions
@@ -86,9 +80,7 @@ export class WalletsService {
     });
 
     if (!player) {
-      throw new NotFoundException(
-        `Joueur avec l'ID "${playerId}" introuvable`,
-      );
+      throw new NotFoundException(`Joueur avec l'ID "${playerId}" introuvable`);
     }
 
     // Vérifier les restrictions avant toute opération de dépôt
@@ -112,6 +104,7 @@ export class WalletsService {
    * Prévoit déjà la vérification des restrictions.
    */
   async withdraw(playerId: string, amountCents: number) {
+    void amountCents;
     // Récupérer le joueur avec ses restrictions
     const player = await this.prisma.player.findUnique({
       where: { id: playerId },
@@ -125,9 +118,7 @@ export class WalletsService {
     });
 
     if (!player) {
-      throw new NotFoundException(
-        `Joueur avec l'ID "${playerId}" introuvable`,
-      );
+      throw new NotFoundException(`Joueur avec l'ID "${playerId}" introuvable`);
     }
 
     // Vérifier les restrictions avant toute opération de retrait
@@ -138,4 +129,3 @@ export class WalletsService {
     throw new ForbiddenException('Les retraits ne sont pas encore implémentés');
   }
 }
-

@@ -8,8 +8,3 @@ import { Module } from '@nestjs/common';
   // exports: [PlayersService],
 })
 export class PlayersModule {}
-
-
-
-
-

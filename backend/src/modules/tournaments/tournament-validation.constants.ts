@@ -8,4 +8,3 @@ export const TOURNAMENT_VALIDATION_ERRORS = {
   NO_DRAW_WITHOUT_TIEBREAK:
     'Configuration invalide : drawRuleMode=NO_DRAW nécessite un tieBreakPolicy != NONE.',
 } as const;
-

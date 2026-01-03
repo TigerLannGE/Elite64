@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Param,
-  Body,
-  UseGuards,
-  Request,
-} from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, UseGuards, Request } from '@nestjs/common';
 import { WalletsService } from './wallets.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ActivePlayerGuard } from '../auth/guards/active-player.guard';
@@ -34,4 +26,3 @@ export class WalletsController {
     return this.walletsService.findByPlayerId(playerId);
   }
 }
-

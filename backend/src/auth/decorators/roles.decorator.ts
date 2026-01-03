@@ -9,4 +9,3 @@ export const Roles = (...roles: PlayerRole[]) => SetMetadata(ROLES_KEY, roles);
  * SUPER_ADMIN peut faire tout ce qu'un ADMIN peut faire
  */
 export const ADMIN_ROLES = [PlayerRole.ADMIN, PlayerRole.SUPER_ADMIN] as const;
-

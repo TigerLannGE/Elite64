@@ -185,4 +185,3 @@ export class AdminPlayersService {
     return updatedPlayer;
   }
 }
-

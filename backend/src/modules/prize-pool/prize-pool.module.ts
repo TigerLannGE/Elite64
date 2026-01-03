@@ -8,7 +8,3 @@ import { PrizePoolService } from './prize-pool.service';
   exports: [PrizePoolService],
 })
 export class PrizePoolModule {}
-
-
-
-

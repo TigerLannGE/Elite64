@@ -11,18 +11,9 @@ import { TournamentsModule } from '../tournaments/tournaments.module';
 // Enregistrement des résultats, validation, etc.
 
 @Module({
-  imports: [
-    PrismaModule,
-    AuthModule,
-    forwardRef(() => TournamentsModule),
-  ],
+  imports: [PrismaModule, AuthModule, forwardRef(() => TournamentsModule)],
   controllers: [MatchesController, MatchesAdminController],
   providers: [MatchesService, ChessEngineService],
   exports: [MatchesService, ChessEngineService],
 })
 export class MatchesModule {}
-
-
-
-
-

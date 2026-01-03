@@ -1,23 +1,15 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import {
-  PrizePool,
-  TournamentStatus,
-  TournamentEntryStatus,
-} from '@prisma/client';
+import { PrizePool, TournamentStatus, TournamentEntryStatus } from '@prisma/client';
 
 // Constantes canoniques pour le calcul du prize pool
 // Prélèvement opérateur total : 9,75%
-const COMMISSION_RATE = 0.05;        // 5% commission plateforme
-const TOURNAMENT_FEES_RATE = 0.0475;  // 4,75% frais d'organisation de tournoi
+const COMMISSION_RATE = 0.05; // 5% commission plateforme
+const TOURNAMENT_FEES_RATE = 0.0475; // 4,75% frais d'organisation de tournoi
 // ⚠️ OPERATOR_TOTAL_RATE (0.0975) : UNIQUEMENT pour documentation/assertion
 // NE JAMAIS utiliser pour calculer operatorTotalCents directement
 // Toujours calculer : operatorTotalCents = commissionCents + tournamentFeesCents
-const OPERATOR_TOTAL_RATE = 0.0975;   // 9,75% total (documentation uniquement)
+const OPERATOR_TOTAL_RATE = 0.0975; // 9,75% total (documentation uniquement)
 
 export interface PrizePoolComputationInput {
   playersCount: number;
@@ -26,10 +18,10 @@ export interface PrizePoolComputationInput {
 
 export interface PrizePoolComputationResult {
   totalEntriesCents: number;
-  commissionCents: number;           // 5% du total
-  tournamentFeesCents: number;        // 4,75% du total
-  operatorTotalCents: number;         // 9,75% du total
-  distributableCents: number;         // 90,25% du total
+  commissionCents: number; // 5% du total
+  tournamentFeesCents: number; // 4,75% du total
+  operatorTotalCents: number; // 9,75% du total
+  distributableCents: number; // 90,25% du total
 }
 
 @Injectable()
@@ -41,9 +33,7 @@ export class PrizePoolService {
    * Utilise le calcul canonique explicite (plus de logique implicite).
    * Ne persiste rien en base de données.
    */
-  computePrizePool(
-    input: PrizePoolComputationInput,
-  ): PrizePoolComputationResult {
+  computePrizePool(input: PrizePoolComputationInput): PrizePoolComputationResult {
     // 1. Total des inscriptions
     const totalEntriesCents = input.playersCount * input.buyInCents;
 
@@ -51,9 +41,7 @@ export class PrizePoolService {
     const commissionCents = Math.floor(totalEntriesCents * COMMISSION_RATE);
 
     // 3. Frais d'organisation : 4,75% du total
-    const tournamentFeesCents = Math.floor(
-      totalEntriesCents * TOURNAMENT_FEES_RATE,
-    );
+    const tournamentFeesCents = Math.floor(totalEntriesCents * TOURNAMENT_FEES_RATE);
 
     // 4. Total prélèvement opérateur : SOMME des deux composantes
     // ⚠️ CRITIQUE : Ne jamais calculer via OPERATOR_TOTAL_RATE pour éviter les écarts d'arrondi
@@ -70,9 +58,7 @@ export class PrizePoolService {
 
     // Assertion de cohérence (développement uniquement)
     if (process.env.NODE_ENV === 'development') {
-      const expectedOperatorTotal = Math.floor(
-        totalEntriesCents * OPERATOR_TOTAL_RATE,
-      );
+      const expectedOperatorTotal = Math.floor(totalEntriesCents * OPERATOR_TOTAL_RATE);
       const diff = Math.abs(operatorTotalCents - expectedOperatorTotal);
       if (diff > 1) {
         console.warn(
@@ -144,9 +130,7 @@ export class PrizePoolService {
     });
 
     if (!tournament) {
-      throw new NotFoundException(
-        `Tournoi avec l'ID "${tournamentId}" introuvable`,
-      );
+      throw new NotFoundException(`Tournoi avec l'ID "${tournamentId}" introuvable`);
     }
 
     // 2. Si count < tournament.minPlayers -> throw (annulation gérée côté service d'appel)
@@ -213,4 +197,3 @@ export class PrizePoolService {
     return prizePool;
   }
 }
-

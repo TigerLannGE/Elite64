@@ -17,16 +17,14 @@ import {
   TournamentEntryStatus,
   TieBreakPolicy,
   DrawRuleMode,
-  Prisma,
 } from '@prisma/client';
-import { Chess } from 'chess.js';
 import { ReportMatchResultDto } from './dto/report-match-result.dto';
 import { PlayMoveDto } from './dto/play-move.dto';
 import { MatchStateViewDto } from './dto/match-state-view.dto';
 import { TournamentsService } from '../tournaments/tournaments.service';
 import { ChessEngineService } from './chess-engine.service';
 import { GameEndReason } from './types/chess-engine.types';
-import { JOIN_WINDOW_SECONDS, NO_SHOW_GRACE_SECONDS, TOTAL_NO_SHOW_MS } from './match.config';
+import { TOTAL_NO_SHOW_MS } from './match.config';
 import { RESULT_REASON_TIEBREAK_PENDING } from './match.constants';
 
 @Injectable()
@@ -1015,6 +1013,7 @@ export class MatchesService {
         const winnerColor = playerColor === MatchColor.WHITE ? MatchColor.BLACK : MatchColor.WHITE;
         const winnerEntryId =
           winnerColor === MatchColor.WHITE ? match.whiteEntryId : match.blackEntryId;
+        void winnerEntryId;
         const result =
           winnerColor === MatchColor.WHITE ? MatchResult.WHITE_WIN : MatchResult.BLACK_WIN;
 

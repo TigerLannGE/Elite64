@@ -4,7 +4,6 @@ import {
   IsOptional,
   IsDateString,
   Min,
-  Max,
   IsEnum,
   IsBoolean,
   IsObject,
@@ -84,4 +83,3 @@ export class CreateTournamentDto {
   @IsString()
   tieBreakTimeControl?: string; // ex: "3+2", "10+5"
 }
-

@@ -10,7 +10,6 @@ import { RESULT_REASON_TIEBREAK_PENDING } from './match.constants';
 describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
   let service: MatchesService;
   let prismaService: any;
-  let tournamentsService: any;
   let chessEngineService: ChessEngineService;
   let mockTransaction: any;
 
@@ -133,7 +132,6 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
 
     service = module.get<MatchesService>(MatchesService);
     prismaService = mockPrismaService;
-    tournamentsService = mockTournamentsService;
     chessEngineService = module.get<ChessEngineService>(ChessEngineService);
 
     // Initialiser mockTransaction

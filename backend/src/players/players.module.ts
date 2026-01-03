@@ -11,4 +11,3 @@ import { MailModule } from '../mail/mail.module';
   exports: [PlayersService],
 })
 export class PlayersModule {}
-

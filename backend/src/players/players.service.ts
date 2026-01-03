@@ -1,4 +1,9 @@
-import { Injectable, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { MailService } from '../mail/mail.service';
@@ -20,7 +25,7 @@ export class PlayersService {
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    
+
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
       age--;
     }
@@ -90,12 +95,13 @@ export class PlayersService {
     try {
       await this.mailService.sendEmailVerificationMail(player.email, emailVerificationToken);
     } catch (error) {
-      console.error('Erreur lors de l\'envoi de l\'email de vérification:', error);
+      console.error("Erreur lors de l'envoi de l'email de vérification:", error);
       // On continue quand même pour ne pas bloquer la création du compte
     }
 
     // Retourner le joueur sans le passwordHash
-    const { passwordHash: _, ...playerWithoutPassword } = player;
+    const { passwordHash: _passwordHash, ...playerWithoutPassword } = player;
+    void _passwordHash;
     return playerWithoutPassword;
   }
 
@@ -153,4 +159,3 @@ export class PlayersService {
     };
   }
 }
-

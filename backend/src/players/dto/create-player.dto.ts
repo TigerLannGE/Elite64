@@ -24,4 +24,3 @@ export class CreatePlayerDto {
   @IsNotEmpty()
   dateOfBirth: string; // Format ISO: "2000-05-20"
 }
-

@@ -88,7 +88,7 @@ export class MailService {
       const info = await this.transporter.sendMail(mailOptions);
       console.log(`✓ Email de vérification envoyé avec succès. Message ID: ${info.messageId}`);
     } catch (error) {
-      console.error('✗ Erreur lors de l\'envoi de l\'e-mail de vérification:');
+      console.error("✗ Erreur lors de l'envoi de l'e-mail de vérification:");
       console.error('  Détails:', error);
       if (error.code) {
         console.error(`  Code d'erreur: ${error.code}`);
@@ -135,7 +135,7 @@ export class MailService {
       const info = await this.transporter.sendMail(mailOptions);
       console.log(`✓ Email de réinitialisation envoyé avec succès. Message ID: ${info.messageId}`);
     } catch (error) {
-      console.error('✗ Erreur lors de l\'envoi de l\'e-mail de réinitialisation:');
+      console.error("✗ Erreur lors de l'envoi de l'e-mail de réinitialisation:");
       console.error('  Détails:', error);
       if (error.code) {
         console.error(`  Code d'erreur: ${error.code}`);
@@ -147,4 +147,3 @@ export class MailService {
     }
   }
 }
-

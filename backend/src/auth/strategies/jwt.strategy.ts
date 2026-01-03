@@ -34,16 +34,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!player.isActive) {
       throw new ForbiddenException({
         code: 'ACCOUNT_SUSPENDED',
-        message: "Votre compte a été suspendu. Contactez le support si vous pensez qu'il s'agit d'une erreur.",
+        message:
+          "Votre compte a été suspendu. Contactez le support si vous pensez qu'il s'agit d'une erreur.",
       });
     }
 
-    return { 
-      sub: player.id, 
-      email: player.email, 
+    return {
+      sub: player.id,
+      email: player.email,
       username: player.username,
       role: player.role,
     };
   }
 }
-

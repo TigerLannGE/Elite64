@@ -2,7 +2,6 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  ForbiddenException,
   Inject,
   forwardRef,
 } from '@nestjs/common';
@@ -101,15 +100,11 @@ export class TournamentsService {
   /**
    * Crée un tournoi en statut DRAFT ou SCHEDULED (admin uniquement)
    */
-  async createTournamentAsAdmin(
-    dto: CreateTournamentDto,
-    adminId: string,
-  ): Promise<Tournament> {
+  async createTournamentAsAdmin(dto: CreateTournamentDto, adminId: string): Promise<Tournament> {
+    void adminId;
     // Validation : minPlayers <= maxPlayers
     if (dto.minPlayers > dto.maxPlayers) {
-      throw new BadRequestException(
-        'minPlayers ne peut pas être supérieur à maxPlayers',
-      );
+      throw new BadRequestException('minPlayers ne peut pas être supérieur à maxPlayers');
     }
 
     // Validation : registrationClosesAt doit être avant startsAt si les deux sont définis
@@ -117,9 +112,7 @@ export class TournamentsService {
       const registrationClosesAt = new Date(dto.registrationClosesAt);
       const startsAt = new Date(dto.startsAt);
       if (registrationClosesAt >= startsAt) {
-        throw new BadRequestException(
-          'registrationClosesAt doit être antérieur à startsAt',
-        );
+        throw new BadRequestException('registrationClosesAt doit être antérieur à startsAt');
       }
     }
 
@@ -138,9 +131,7 @@ export class TournamentsService {
 
     // Validation B : drawRuleMode = NO_DRAW nécessite un tieBreakPolicy != NONE
     if (finalDrawRuleMode === DrawRuleMode.NO_DRAW && finalTieBreakPolicy === TieBreakPolicy.NONE) {
-      throw new BadRequestException(
-        TOURNAMENT_VALIDATION_ERRORS.NO_DRAW_WITHOUT_TIEBREAK,
-      );
+      throw new BadRequestException(TOURNAMENT_VALIDATION_ERRORS.NO_DRAW_WITHOUT_TIEBREAK);
     }
 
     // Créer le tournoi
@@ -156,9 +147,7 @@ export class TournamentsService {
         eloMax: dto.eloMax,
         startsAt: dto.startsAt ? new Date(dto.startsAt) : null,
         endsAt: dto.endsAt ? new Date(dto.endsAt) : null,
-        registrationClosesAt: dto.registrationClosesAt
-          ? new Date(dto.registrationClosesAt)
-          : null,
+        registrationClosesAt: dto.registrationClosesAt ? new Date(dto.registrationClosesAt) : null,
         legalZoneCode: dto.legalZoneCode,
         status: dto.status || TournamentStatus.DRAFT,
         // Phase 6.0.D - Règles avancées
@@ -188,11 +177,7 @@ export class TournamentsService {
           // Tournois actifs avec filtres de date
           {
             status: {
-              in: [
-                TournamentStatus.SCHEDULED,
-                TournamentStatus.READY,
-                TournamentStatus.RUNNING,
-              ],
+              in: [TournamentStatus.SCHEDULED, TournamentStatus.READY, TournamentStatus.RUNNING],
             },
             OR: [
               {
@@ -229,14 +214,12 @@ export class TournamentsService {
     return tournaments.map((tournament) => {
       const currentPlayers = tournament.entries.length;
 
-      const prizePools = this.prizePoolService.computePrizePoolForMinCurrentMax(
-        {
-          minPlayers: tournament.minPlayers,
-          maxPlayers: tournament.maxPlayers,
-          currentPlayers,
-          buyInCents: tournament.buyInCents,
-        },
-      );
+      const prizePools = this.prizePoolService.computePrizePoolForMinCurrentMax({
+        minPlayers: tournament.minPlayers,
+        maxPlayers: tournament.maxPlayers,
+        currentPlayers,
+        buyInCents: tournament.buyInCents,
+      });
 
       return {
         id: tournament.id,
@@ -365,9 +348,7 @@ export class TournamentsService {
     });
 
     if (!tournament) {
-      throw new NotFoundException(
-        `Tournoi avec l'ID "${tournamentId}" introuvable`,
-      );
+      throw new NotFoundException(`Tournoi avec l'ID "${tournamentId}" introuvable`);
     }
 
     // Vérifier le statut (SCHEDULED)
@@ -381,9 +362,7 @@ export class TournamentsService {
     const now = new Date();
     const registrationClosesAt = tournament.registrationClosesAt || tournament.startsAt;
     if (registrationClosesAt && now >= registrationClosesAt) {
-      throw new BadRequestException(
-        'Les inscriptions sont closes pour ce tournoi',
-      );
+      throw new BadRequestException('Les inscriptions sont closes pour ce tournoi');
     }
 
     // 2. Vérifier que le player n'est pas déjà inscrit
@@ -397,9 +376,7 @@ export class TournamentsService {
     });
 
     if (existingEntry) {
-      throw new BadRequestException(
-        'Vous êtes déjà inscrit à ce tournoi',
-      );
+      throw new BadRequestException('Vous êtes déjà inscrit à ce tournoi');
     }
 
     // 3. Vérifier que le tournoi n'a pas atteint maxPlayers
@@ -421,9 +398,7 @@ export class TournamentsService {
     });
 
     if (!player) {
-      throw new NotFoundException(
-        `Joueur avec l'ID "${playerId}" introuvable`,
-      );
+      throw new NotFoundException(`Joueur avec l'ID "${playerId}" introuvable`);
     }
 
     // Vérifier les restrictions avant toute opération
@@ -435,9 +410,7 @@ export class TournamentsService {
     });
 
     if (!wallet) {
-      throw new NotFoundException(
-        `Portefeuille introuvable pour le joueur "${playerId}"`,
-      );
+      throw new NotFoundException(`Portefeuille introuvable pour le joueur "${playerId}"`);
     }
 
     // 6. Utiliser transactionsService.debitWallet
@@ -494,9 +467,7 @@ export class TournamentsService {
     });
 
     if (!tournament) {
-      throw new NotFoundException(
-        `Tournoi avec l'ID "${tournamentId}" introuvable`,
-      );
+      throw new NotFoundException(`Tournoi avec l'ID "${tournamentId}" introuvable`);
     }
 
     const confirmedCount = tournament.entries.length;
@@ -533,9 +504,7 @@ export class TournamentsService {
     }
 
     // 3. Si nombre d'inscrits >= minPlayers : figer le prize pool
-    const prizePool = await this.prizePoolService.lockPrizePoolForTournament(
-      tournamentId,
-    );
+    const prizePool = await this.prizePoolService.lockPrizePoolForTournament(tournamentId);
 
     return {
       action: 'locked',
@@ -563,9 +532,7 @@ export class TournamentsService {
     });
 
     if (!tournament) {
-      throw new NotFoundException(
-        `Tournoi avec l'ID "${tournamentId}" introuvable`,
-      );
+      throw new NotFoundException(`Tournoi avec l'ID "${tournamentId}" introuvable`);
     }
 
     // Vérifier que le statut permet la modification
@@ -581,12 +548,7 @@ export class TournamentsService {
     // Si le tournoi a des inscrits, certains champs ne peuvent pas être modifiés
     const hasEntries = tournament.entries.length > 0;
     if (hasEntries) {
-      const restrictedFields = [
-        'buyInCents',
-        'minPlayers',
-        'maxPlayers',
-        'currency',
-      ];
+      const restrictedFields = ['buyInCents', 'minPlayers', 'maxPlayers', 'currency'];
       for (const field of restrictedFields) {
         if (dto[field] !== undefined) {
           throw new BadRequestException(
@@ -598,9 +560,14 @@ export class TournamentsService {
 
     // Phase 6.0.D - Validation des configurations incompatibles (après merge)
     // Construire l'état final après merge DTO + DB (respecter undefined vs null)
-    const finalDrawRuleMode = dto.drawRuleMode !== undefined ? dto.drawRuleMode : tournament.drawRuleMode;
-    const finalTieBreakPolicy = dto.tieBreakPolicy !== undefined ? dto.tieBreakPolicy : tournament.tieBreakPolicy;
-    const finalRequiresDecisiveResult = dto.requiresDecisiveResult !== undefined ? dto.requiresDecisiveResult : tournament.requiresDecisiveResult;
+    const finalDrawRuleMode =
+      dto.drawRuleMode !== undefined ? dto.drawRuleMode : tournament.drawRuleMode;
+    const finalTieBreakPolicy =
+      dto.tieBreakPolicy !== undefined ? dto.tieBreakPolicy : tournament.tieBreakPolicy;
+    const finalRequiresDecisiveResult =
+      dto.requiresDecisiveResult !== undefined
+        ? dto.requiresDecisiveResult
+        : tournament.requiresDecisiveResult;
 
     // Validation A : requiresDecisiveResult = true nécessite un tieBreakPolicy != NONE
     if (finalRequiresDecisiveResult === true && finalTieBreakPolicy === TieBreakPolicy.NONE) {
@@ -611,9 +578,7 @@ export class TournamentsService {
 
     // Validation B : drawRuleMode = NO_DRAW nécessite un tieBreakPolicy != NONE
     if (finalDrawRuleMode === DrawRuleMode.NO_DRAW && finalTieBreakPolicy === TieBreakPolicy.NONE) {
-      throw new BadRequestException(
-        TOURNAMENT_VALIDATION_ERRORS.NO_DRAW_WITHOUT_TIEBREAK,
-      );
+      throw new BadRequestException(TOURNAMENT_VALIDATION_ERRORS.NO_DRAW_WITHOUT_TIEBREAK);
     }
 
     // Préparer les données de mise à jour
@@ -628,29 +593,28 @@ export class TournamentsService {
     if (dto.eloMax !== undefined) updateData.eloMax = dto.eloMax;
     if (dto.startsAt !== undefined)
       updateData.startsAt = dto.startsAt ? new Date(dto.startsAt) : null;
-    if (dto.endsAt !== undefined)
-      updateData.endsAt = dto.endsAt ? new Date(dto.endsAt) : null;
+    if (dto.endsAt !== undefined) updateData.endsAt = dto.endsAt ? new Date(dto.endsAt) : null;
     if (dto.registrationClosesAt !== undefined)
       updateData.registrationClosesAt = dto.registrationClosesAt
         ? new Date(dto.registrationClosesAt)
         : null;
-    if (dto.legalZoneCode !== undefined)
-      updateData.legalZoneCode = dto.legalZoneCode;
+    if (dto.legalZoneCode !== undefined) updateData.legalZoneCode = dto.legalZoneCode;
     if (dto.status !== undefined) updateData.status = dto.status;
     // Phase 6.0.D - Règles avancées
     if (dto.drawRuleMode !== undefined) updateData.drawRuleMode = dto.drawRuleMode;
-    if (dto.drawConfig !== undefined) updateData.drawConfig = dto.drawConfig as Prisma.InputJsonValue;
-    if (dto.requiresDecisiveResult !== undefined) updateData.requiresDecisiveResult = dto.requiresDecisiveResult;
+    if (dto.drawConfig !== undefined)
+      updateData.drawConfig = dto.drawConfig as Prisma.InputJsonValue;
+    if (dto.requiresDecisiveResult !== undefined)
+      updateData.requiresDecisiveResult = dto.requiresDecisiveResult;
     if (dto.tieBreakPolicy !== undefined) updateData.tieBreakPolicy = dto.tieBreakPolicy;
-    if (dto.tieBreakTimeControl !== undefined) updateData.tieBreakTimeControl = dto.tieBreakTimeControl;
+    if (dto.tieBreakTimeControl !== undefined)
+      updateData.tieBreakTimeControl = dto.tieBreakTimeControl;
 
     // Validation : minPlayers <= maxPlayers si les deux sont modifiés
     const finalMinPlayers = updateData.minPlayers ?? tournament.minPlayers;
     const finalMaxPlayers = updateData.maxPlayers ?? tournament.maxPlayers;
     if (finalMinPlayers > finalMaxPlayers) {
-      throw new BadRequestException(
-        'minPlayers ne peut pas être supérieur à maxPlayers',
-      );
+      throw new BadRequestException('minPlayers ne peut pas être supérieur à maxPlayers');
     }
 
     // Mettre à jour
@@ -692,18 +656,13 @@ export class TournamentsService {
               },
             },
           },
-          orderBy: [
-            { roundNumber: 'desc' },
-            { boardNumber: 'asc' },
-          ],
+          orderBy: [{ roundNumber: 'desc' }, { boardNumber: 'asc' }],
         },
       },
     });
 
     if (!tournament) {
-      throw new NotFoundException(
-        `Tournoi avec l'ID "${tournamentId}" introuvable`,
-      );
+      throw new NotFoundException(`Tournoi avec l'ID "${tournamentId}" introuvable`);
     }
 
     if (tournament.status !== TournamentStatus.RUNNING) {
@@ -713,9 +672,7 @@ export class TournamentsService {
     }
 
     if (!tournament.prizePool) {
-      throw new BadRequestException(
-        'Aucun prize pool associé à ce tournoi',
-      );
+      throw new BadRequestException('Aucun prize pool associé à ce tournoi');
     }
 
     // 2. Récupérer tous les matches du tournoi, identifier les positions
@@ -725,17 +682,11 @@ export class TournamentsService {
 
     // Trouver la dernière ronde (roundNumber max)
     if (tournament.matches.length === 0) {
-      throw new BadRequestException(
-        'Aucun match trouvé pour ce tournoi',
-      );
+      throw new BadRequestException('Aucun match trouvé pour ce tournoi');
     }
 
-    const maxRound = Math.max(
-      ...tournament.matches.map((m) => m.roundNumber),
-    );
-    const finalRoundMatches = tournament.matches.filter(
-      (m) => m.roundNumber === maxRound,
-    );
+    const maxRound = Math.max(...tournament.matches.map((m) => m.roundNumber));
+    const finalRoundMatches = tournament.matches.filter((m) => m.roundNumber === maxRound);
 
     // Identifier le vainqueur (celui qui a gagné le match final)
     const finalMatch = finalRoundMatches[0];
@@ -751,9 +702,7 @@ export class TournamentsService {
 
     // Si pas de vainqueur clair, on ne peut pas finaliser
     if (!winnerEntryId) {
-      throw new BadRequestException(
-        'Impossible de déterminer le vainqueur du tournoi',
-      );
+      throw new BadRequestException('Impossible de déterminer le vainqueur du tournoi');
     }
 
     // Identifier le finaliste (le perdant du match final)
@@ -798,9 +747,7 @@ export class TournamentsService {
 
     // Position 1 (vainqueur)
     if (distributionJson['1'] && distributionJson['1'] > 0) {
-      const payoutCents = Math.floor(
-        distributableCents * distributionJson['1'],
-      );
+      const payoutCents = Math.floor(distributableCents * distributionJson['1']);
       if (payoutCents > 0 && winnerEntryId) {
         payouts.push({
           entryId: winnerEntryId,
@@ -812,9 +759,7 @@ export class TournamentsService {
 
     // Position 2 (finaliste)
     if (distributionJson['2'] && distributionJson['2'] > 0) {
-      const payoutCents = Math.floor(
-        distributableCents * distributionJson['2'],
-      );
+      const payoutCents = Math.floor(distributableCents * distributionJson['2']);
       if (payoutCents > 0 && finalistEntryId) {
         payouts.push({
           entryId: finalistEntryId,
@@ -874,9 +819,7 @@ export class TournamentsService {
     });
 
     if (!tournament) {
-      throw new NotFoundException(
-        `Tournoi avec l'ID "${tournamentId}" introuvable`,
-      );
+      throw new NotFoundException(`Tournoi avec l'ID "${tournamentId}" introuvable`);
     }
 
     if (tournament.status !== TournamentStatus.READY) {
@@ -887,9 +830,7 @@ export class TournamentsService {
 
     // 2. Appeler MatchesService.generateInitialMatchesForTournament(tournamentId)
     //    Cette méthode met déjà à jour le statut en RUNNING
-    const matches = await this.matchesService.generateInitialMatchesForTournament(
-      tournamentId,
-    );
+    const matches = await this.matchesService.generateInitialMatchesForTournament(tournamentId);
 
     // 3. Retourner les matches créés
     return matches;
@@ -904,9 +845,7 @@ export class TournamentsService {
     });
 
     if (!tournament) {
-      throw new NotFoundException(
-        `Tournoi avec l'ID "${tournamentId}" introuvable`,
-      );
+      throw new NotFoundException(`Tournoi avec l'ID "${tournamentId}" introuvable`);
     }
 
     const matches = await this.prisma.match.findMany({
@@ -935,10 +874,7 @@ export class TournamentsService {
           },
         },
       },
-      orderBy: [
-        { roundNumber: 'asc' },
-        { boardNumber: 'asc' },
-      ],
+      orderBy: [{ roundNumber: 'asc' }, { boardNumber: 'asc' }],
     });
 
     // Grouper par ronde
@@ -1006,9 +942,7 @@ export class TournamentsService {
     });
 
     if (!tournament) {
-      throw new NotFoundException(
-        `Tournoi avec l'ID "${tournamentId}" introuvable`,
-      );
+      throw new NotFoundException(`Tournoi avec l'ID "${tournamentId}" introuvable`);
     }
 
     // Calculer les statistiques pour chaque joueur
@@ -1080,10 +1014,7 @@ export class TournamentsService {
       }));
 
     // Calculer les payouts si le tournoi est terminé et qu'il y a un prize pool
-    if (
-      tournament.status === TournamentStatus.FINISHED &&
-      tournament.prizePool
-    ) {
+    if (tournament.status === TournamentStatus.FINISHED && tournament.prizePool) {
       const distributableCents = tournament.prizePool.distributableCents;
       let distributionJson: Record<string, number> = {};
 
@@ -1092,10 +1023,7 @@ export class TournamentsService {
           distributionJson =
             typeof tournament.prizePool.distributionJson === 'string'
               ? JSON.parse(tournament.prizePool.distributionJson)
-              : (tournament.prizePool.distributionJson as Record<
-                  string,
-                  number
-                >);
+              : (tournament.prizePool.distributionJson as Record<string, number>);
         } catch (e) {
           distributionJson = { '1': 1.0 };
         }
@@ -1107,9 +1035,7 @@ export class TournamentsService {
       for (const standing of standings) {
         const positionKey = standing.position.toString();
         if (distributionJson[positionKey] && distributionJson[positionKey] > 0) {
-          standing.payoutCents = Math.floor(
-            distributableCents * distributionJson[positionKey],
-          );
+          standing.payoutCents = Math.floor(distributableCents * distributionJson[positionKey]);
         }
       }
     }
@@ -1127,9 +1053,7 @@ export class TournamentsService {
     });
 
     if (!tournament) {
-      throw new NotFoundException(
-        `Tournoi avec l'ID "${tournamentId}" introuvable`,
-      );
+      throw new NotFoundException(`Tournoi avec l'ID "${tournamentId}" introuvable`);
     }
 
     // Supprimer le tournoi et toutes ses relations (cascade via Prisma)
@@ -1140,4 +1064,3 @@ export class TournamentsService {
     return { message: `Tournoi "${tournament.name}" supprimé avec succès` };
   }
 }
-

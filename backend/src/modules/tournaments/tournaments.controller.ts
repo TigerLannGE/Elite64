@@ -36,9 +36,7 @@ export class TournamentsController {
    * IMPORTANT: Cette route doit être définie AVANT @Get(':id') pour éviter les conflits
    */
   @Get(':id/matches')
-  async getTournamentMatches(
-    @Param('id') tournamentId: string,
-  ) {
+  async getTournamentMatches(@Param('id') tournamentId: string) {
     return this.tournamentsService.getTournamentMatches(tournamentId);
   }
 
@@ -48,9 +46,7 @@ export class TournamentsController {
    * IMPORTANT: Cette route doit être définie AVANT @Get(':id') pour éviter les conflits
    */
   @Get(':id/standings')
-  async getTournamentStandings(
-    @Param('id') tournamentId: string,
-  ) {
+  async getTournamentStandings(@Param('id') tournamentId: string) {
     return this.tournamentsService.getTournamentStandings(tournamentId);
   }
 
@@ -60,10 +56,7 @@ export class TournamentsController {
    */
   @UseGuards(JwtAuthGuard, ActivePlayerGuard)
   @Post(':id/join')
-  async joinTournament(
-    @Param('id') tournamentId: string,
-    @Request() req: any,
-  ) {
+  async joinTournament(@Param('id') tournamentId: string, @Request() req: any) {
     return this.tournamentsService.joinTournament(tournamentId, req.user.sub);
   }
 
@@ -108,10 +101,7 @@ export class TournamentsAdminController {
   ) {
     // Récupérer l'adminId depuis req.user (injecté par JwtAuthGuard)
     const adminId = req.user.sub;
-    return this.tournamentsService.createTournamentAsAdmin(
-      createTournamentDto,
-      adminId,
-    );
+    return this.tournamentsService.createTournamentAsAdmin(createTournamentDto, adminId);
   }
 
   /**
@@ -124,10 +114,7 @@ export class TournamentsAdminController {
     @Param('id') tournamentId: string,
     @Body() updateTournamentDto: UpdateTournamentDto,
   ) {
-    return this.tournamentsService.updateTournamentAsAdmin(
-      tournamentId,
-      updateTournamentDto,
-    );
+    return this.tournamentsService.updateTournamentAsAdmin(tournamentId, updateTournamentDto);
   }
 
   /**
@@ -135,9 +122,7 @@ export class TournamentsAdminController {
    * Ferme les inscriptions et traite le tournoi (annulation ou figement du prize pool)
    */
   @Post(':id/close-registration')
-  async closeRegistrationAndProcess(
-    @Param('id') tournamentId: string,
-  ) {
+  async closeRegistrationAndProcess(@Param('id') tournamentId: string) {
     return this.tournamentsService.closeRegistrationAndProcess(tournamentId);
   }
 

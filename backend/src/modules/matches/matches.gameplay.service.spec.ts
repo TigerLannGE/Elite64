@@ -137,7 +137,16 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
     // Initialiser mockTransaction
     mockTransaction = prismaService.getTransactionMock();
 
+    // Nettoyer les mocks avant de définir les nôtres
     jest.clearAllMocks();
+
+    // Mock global pour getActivePlayableMatchId et maybeResolveNoShow (Phase 6.0.D.4/D.5)
+    // Ces méthodes privées sont appelées dans joinMatch, getMatchState, et playMove
+    // On les mocke pour qu'elles ne consomment pas les mocks de prisma.match.findUnique
+    jest
+      .spyOn(service as any, 'getActivePlayableMatchId')
+      .mockImplementation(async (matchId: string) => Promise.resolve(matchId));
+    jest.spyOn(service as any, 'maybeResolveNoShow').mockResolvedValue(undefined);
   });
 
   beforeEach(() => {
@@ -275,6 +284,17 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
       moves: [],
     };
 
+    beforeEach(() => {
+      // Mock pour getActivePlayableMatchId (appel à prismaService.match.findUnique)
+      // Le mock global de getActivePlayableMatchId devrait empêcher cet appel,
+      // mais on mocke aussi prismaService.match.findUnique au cas où
+      prismaService.match.findUnique.mockResolvedValue({
+        ...runningMatch,
+        tournament: { tieBreakPolicy: TieBreakPolicy.NONE },
+        tieBreakMatches: [],
+      });
+    });
+
     it('devrait accepter e2-e4 depuis start position', async () => {
       const moveResult = chessEngineService.validateAndApplyMove(runningMatch.currentFen, {
         from: 'e2',
@@ -283,10 +303,8 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
 
       expect(moveResult.success).toBe(true);
 
-      // Mock pour la transaction (1er appel depuis maybeResolveNoShow, 2e depuis playMove)
-      mockTransaction.match.findUnique
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(runningMatch);
+      // Mock pour la transaction (maybeResolveNoShow est mocké globalement, donc seulement playMove)
+      mockTransaction.match.findUnique.mockResolvedValueOnce(runningMatch);
       mockTransaction.matchMove.create.mockResolvedValueOnce({
         id: 'move-123',
         matchId: mockMatchId,
@@ -331,10 +349,8 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
     });
 
     it('devrait rejeter un coup illégal', async () => {
-      // Mock pour la transaction (1er appel depuis maybeResolveNoShow, 2e depuis playMove)
-      mockTransaction.match.findUnique
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(runningMatch);
+      // Mock pour la transaction (maybeResolveNoShow est mocké globalement, donc seulement playMove)
+      mockTransaction.match.findUnique.mockResolvedValueOnce(runningMatch);
 
       await expect(
         service.playMove(mockMatchId, mockWhitePlayerId, {
@@ -351,10 +367,8 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
         currentFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1', // Après e4, c'est au noir
       };
 
-      // Mock pour la transaction (1er appel depuis maybeResolveNoShow, 2e depuis playMove)
-      mockTransaction.match.findUnique
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(matchAfterWhiteMove);
+      // Mock pour la transaction (maybeResolveNoShow est mocké globalement, donc seulement playMove)
+      mockTransaction.match.findUnique.mockResolvedValueOnce(matchAfterWhiteMove);
 
       await expect(
         service.playMove(mockMatchId, mockWhitePlayerId, {
@@ -370,10 +384,8 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
         to: 'e4',
       });
 
-      // Mock pour la transaction (1er appel depuis maybeResolveNoShow, 2e depuis playMove)
-      mockTransaction.match.findUnique
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(runningMatch);
+      // Mock pour la transaction (maybeResolveNoShow est mocké globalement, donc seulement playMove)
+      mockTransaction.match.findUnique.mockResolvedValueOnce(runningMatch);
       mockTransaction.matchMove.create.mockResolvedValueOnce({
         id: 'move-123',
         matchId: mockMatchId,
@@ -426,8 +438,8 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
     });
 
     it("devrait rejeter un match qui n'est pas RUNNING", async () => {
-      // Mock pour la transaction (1er appel depuis maybeResolveNoShow, 2e depuis playMove)
-      mockTransaction.match.findUnique.mockResolvedValueOnce(null).mockResolvedValueOnce({
+      // Mock pour la transaction (maybeResolveNoShow est mocké globalement, donc seulement playMove)
+      mockTransaction.match.findUnique.mockResolvedValueOnce({
         ...mockMatch,
         status: MatchStatus.PENDING,
       });
@@ -457,11 +469,8 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
     let loggerErrorSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      // Mock getActivePlayableMatchId et maybeResolveNoShow (méthodes privées)
-      jest.spyOn(service as any, 'getActivePlayableMatchId').mockResolvedValue(mockMatchId);
-      jest.spyOn(service as any, 'maybeResolveNoShow').mockResolvedValue(undefined);
-
       // Silencer logger.error pour ces tests (configurations invalides testées volontairement)
+      // Note: getActivePlayableMatchId et maybeResolveNoShow sont déjà mockés au niveau global
       loggerErrorSpy = jest.spyOn((service as any).logger, 'error').mockImplementation(() => {});
     });
 
@@ -659,6 +668,12 @@ describe('MatchesService - Gameplay (Phase 6.0.C)', () => {
 
   describe('maybeResolveNoShow', () => {
     beforeEach(() => {
+      // Restaurer le comportement réel de maybeResolveNoShow pour ces tests
+      jest.restoreAllMocks();
+      // Redéfinir seulement les mocks nécessaires
+      jest
+        .spyOn(service as any, 'getActivePlayableMatchId')
+        .mockImplementation(async (matchId: string) => Promise.resolve(matchId));
       // S'assurer que generateNextRoundIfNeeded ne casse pas les tests
       jest.spyOn(service as any, 'generateNextRoundIfNeeded').mockResolvedValue(undefined);
     });

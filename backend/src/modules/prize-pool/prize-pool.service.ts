@@ -25,9 +25,7 @@ export class PrizePoolService {
    * Calcule le prize pool basé sur le nombre de joueurs et le buy-in.
    * Ne persiste rien en base de données.
    */
-  computePrizePool(
-    input: PrizePoolComputationInput,
-  ): PrizePoolComputationResult {
+  computePrizePool(input: PrizePoolComputationInput): PrizePoolComputationResult {
     // 1. totalEntriesCents = playersCount * buyInCents
     const totalEntriesCents = input.playersCount * input.buyInCents;
 

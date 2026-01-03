@@ -72,6 +72,8 @@ Ce dossier contient toute la documentation du projet ChessBet.
   Spécification détaillée de l'orchestration gameplay côté backend : endpoints REST, DTO canonique, gestion du temps, résignation, no-show.
 - **[Phase 6.0.C - Audit Report](./phase-06_gameplay-echecs/cross/phase-06.0.C_audit-report_cross.md)**  
   Rapport d'audit strict de la Phase 6.0.C : vérification des invariants, transactions Prisma, détection de fin de partie.
+- **[Phase 6.0.D.5 - Intégration avec Brackets et Validations Finales](./phase-06_gameplay-echecs/backend/phase-06.0.D.5_integration-brackets-validations_backend.md)**  
+  Implémentation Phase 6.0.D.5 : validations finales pour DRAW automatiques dans `playMove()` (garde-fous `requiresDecisiveResult` et `drawRuleMode`), correction de la redirection D.4 (`activeMatchId` dans la transaction), remplacement de `console.error` par `logger.error`, vérification de la conformité de `generateNextRoundIfNeeded()` (Décision B3), tests unitaires complets (3 tests Phase 6.0.D.5).
 - **[Phase 6.1 - Frontend Gameplay MVP](./phase-06_gameplay-echecs/frontend/phase-06.1_frontend-gameplay_frontend.md)**  
   Documentation complète du frontend gameplay : page de match, intégration react-chessboard, polling, gestion des coups, promotion, résignation, navigation depuis tournoi.
 - **[Phase 6.2 - Tests E2E Gameplay Complets](./phase-06_gameplay-echecs/cross/phase-06.2_e2e-gameplay-tests_cross.md)**  
@@ -128,6 +130,7 @@ Chaque phase est subdivisée en :
 **Dernière mise à jour** : 15 Décembre 2025
 
 **Changements récents** :
+- ✅ **Phase 6.0.D.5 terminée** (03 Janvier 2026) : Validations finales pour DRAW automatiques (garde-fous `requiresDecisiveResult` et `drawRuleMode`), correction de la redirection D.4, remplacement de `console.error` par `logger.error`, tests unitaires complets (3 tests). Documentation complète créée.
 - ✅ **Phase 6.1 - Frontend Gameplay MVP terminée** (15 Décembre 2025) : Implémentation complète de la page de match (`/matches/[id]`) avec intégration `react-chessboard@4.7.2`, polling 2s, gestion des coups, promotion, résignation, navigation depuis tournoi. Correction du bug de finalisation automatique des tournois (backend). Documentation complète créée.
 - ✅ **Historique des tournois terminés** (15 Décembre 2025) : Modification de `listPublicTournaments()` pour inclure les tournois FINISHED. Le frontend peut maintenant afficher l'onglet "Terminés" avec l'historique complet des tournois passés. Documentation mise à jour dans [Phase 03](./phase-03_tournois-structure/backend/phase-03_tournaments-prize-pool_backend.md).
 - ✅ **Guide de dépannage Prisma** (15 Décembre 2025) : Documentation complète des problèmes courants (migrations, colonnes manquantes, synchronisation DB), avec workflow de résolution et cas réel Phase 6.0.A.

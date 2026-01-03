@@ -1,0 +1,1 @@
+﻿export const RESULT_REASON_TIEBREAK_PENDING = 'TIEBREAK_PENDING' as const;

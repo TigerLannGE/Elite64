@@ -51,7 +51,7 @@
 
 ### Fichier créé
 
-**`docs/_RAPPORT_INCOHERENCES.md`** - Rapport d'audit complet de la documentation
+**`docs/_audits/_RAPPORT_INCOHERENCES.md`** - Rapport d'audit complet de la documentation
 
 **Contenu** :
 - ✅ Identification de toutes les incohérences
@@ -105,7 +105,7 @@
 |-----------|--------|
 | **Documents techniques** | 27 (26 + 1 nouveau) |
 | **README principal** | 1 |
-| **Rapports et outils** | 4 (_CORRESPONDANCE, _RAPPORT_CORRECTIONS, _RAPPORT_INCOHERENCES, _RAPPORT_FINAL) |
+| **Rapports et outils** | 4 (_CORRESPONDANCE_CHEMINS, _RAPPORT_CORRECTIONS_LIENS, _RAPPORT_INCOHERENCES, _RAPPORT_FINAL_ETAPE3) |
 | **TOTAL** | **32 fichiers .md** |
 
 ---

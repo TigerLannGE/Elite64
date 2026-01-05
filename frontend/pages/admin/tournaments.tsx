@@ -143,7 +143,7 @@ export default function AdminTournaments() {
 
   if (authLoading || !isAdmin) {
     return (
-      <Layout title="Admin - Tournois - ChessBet">
+      <Layout title="Admin - Tournois - Elite64">
         <div className="container mx-auto px-4 py-16 flex items-center justify-center">
           <div className="text-white text-center">
             <div className="text-4xl mb-4 animate-pulse">⏳</div>
@@ -155,7 +155,7 @@ export default function AdminTournaments() {
   }
 
   return (
-    <Layout title="Gestion des tournois - ChessBet">
+    <Layout title="Gestion des tournois - Elite64">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">

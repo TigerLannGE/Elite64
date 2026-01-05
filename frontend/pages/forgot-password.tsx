@@ -28,7 +28,7 @@ export default function ForgotPassword() {
 
   if (submitted) {
     return (
-      <Layout title="Mot de passe oublié - ChessBet">
+      <Layout title="Mot de passe oublié - Elite64">
         <div className="container mx-auto px-4 py-16 flex items-center justify-center">
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 border border-white/20 max-w-md w-full text-center">
             <div className="text-4xl mb-4">📧</div>
@@ -54,7 +54,7 @@ export default function ForgotPassword() {
   }
 
   return (
-    <Layout title="Mot de passe oublié - ChessBet">
+    <Layout title="Mot de passe oublié - Elite64">
       <div className="container mx-auto px-4 py-16 flex items-center justify-center">
         <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 border border-white/20 max-w-md w-full">
           <h1 className="text-3xl font-bold text-white mb-6 text-center">

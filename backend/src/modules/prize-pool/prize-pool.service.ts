@@ -3,8 +3,9 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { PrizePool, TournamentStatus, TournamentEntryStatus } from '@prisma/client';
 
 // Constantes pour le calcul du prize pool
+// Modèle économique : prélèvement total de 9.75% (5% commission + 4.75% frais tournoi)
 const COMMISSION_RATE = 0.05; // 5% commission plateforme
-const REDISTRIBUTION_RATE = 0.95; // 95% du montant après commission va aux joueurs
+const TOURNAMENT_FEE_RATE = 0.0475; // 4.75% frais de tournoi
 
 export interface PrizePoolComputationInput {
   playersCount: number;
@@ -29,14 +30,15 @@ export class PrizePoolService {
     // 1. totalEntriesCents = playersCount * buyInCents
     const totalEntriesCents = input.playersCount * input.buyInCents;
 
-    // 2. commissionCents = floor(totalEntriesCents * COMMISSION_RATE)
+    // 2. commissionCents = floor(totalEntriesCents * COMMISSION_RATE) [5%]
     const commissionCents = Math.floor(totalEntriesCents * COMMISSION_RATE);
 
-    // 3. base = totalEntriesCents - commissionCents
-    const base = totalEntriesCents - commissionCents;
+    // 3. tournamentFeeCents = floor(totalEntriesCents * TOURNAMENT_FEE_RATE) [4.75%]
+    const tournamentFeeCents = Math.floor(totalEntriesCents * TOURNAMENT_FEE_RATE);
 
-    // 4. distributableCents = floor(base * REDISTRIBUTION_RATE)
-    const distributableCents = Math.floor(base * REDISTRIBUTION_RATE);
+    // 4. distributableCents = totalEntriesCents - commissionCents - tournamentFeeCents
+    //    Prélèvement total = 5% + 4.75% = 9.75%
+    const distributableCents = totalEntriesCents - commissionCents - tournamentFeeCents;
 
     // 5. Retourner { totalEntriesCents, commissionCents, distributableCents }
     return {

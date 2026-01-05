@@ -131,7 +131,7 @@ export default function Lobby() {
 
   if (loading || loadingTournaments) {
     return (
-      <Layout title="Lobby - ChessBet">
+      <Layout title="Lobby - Elite64">
         <div className="container mx-auto px-4 py-16 flex items-center justify-center">
           <div className="text-white text-center">
             <div className="text-4xl mb-4 animate-pulse">⏳</div>
@@ -147,7 +147,7 @@ export default function Lobby() {
   }
 
   return (
-    <Layout title="Lobby - ChessBet">
+    <Layout title="Lobby - Elite64">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-8">

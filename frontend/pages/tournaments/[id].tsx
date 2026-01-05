@@ -153,7 +153,7 @@ export default function TournamentDetail() {
 
   if (authLoading || loading) {
     return (
-      <Layout title="Détail du tournoi - ChessBet">
+      <Layout title="Détail du tournoi - Elite64">
         <div className="container mx-auto px-4 py-16 flex items-center justify-center">
           <div className="text-white text-center">
             <div className="text-4xl mb-4 animate-pulse">⏳</div>
@@ -170,7 +170,7 @@ export default function TournamentDetail() {
 
   if (notFound) {
     return (
-      <Layout title="Tournoi introuvable - ChessBet">
+      <Layout title="Tournoi introuvable - Elite64">
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl font-bold text-white mb-4">
@@ -201,7 +201,7 @@ export default function TournamentDetail() {
 
   if (error || !tournament) {
     return (
-      <Layout title="Erreur - ChessBet">
+      <Layout title="Erreur - Elite64">
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-4xl mx-auto">
             <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-6 mb-6">
@@ -230,7 +230,7 @@ export default function TournamentDetail() {
   }
 
   return (
-    <Layout title={`${tournament.name} - ChessBet`}>
+    <Layout title={`${tournament.name} - Elite64`}>
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-6xl mx-auto">
           {/* Navigation */}

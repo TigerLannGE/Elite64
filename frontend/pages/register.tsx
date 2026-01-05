@@ -61,7 +61,7 @@ export default function Register() {
 
   if (success) {
     return (
-      <Layout title="Inscription réussie - ChessBet">
+      <Layout title="Inscription réussie - Elite64">
         <div className="container mx-auto px-4 py-16 flex items-center justify-center">
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 border border-white/20 max-w-md w-full text-center">
             <div className="text-4xl mb-4">✅</div>
@@ -84,7 +84,7 @@ export default function Register() {
   }
 
   return (
-    <Layout title="Inscription - ChessBet">
+    <Layout title="Inscription - Elite64">
       <div className="container mx-auto px-4 py-16 flex items-center justify-center">
         <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 border border-white/20 max-w-md w-full">
           <h1 className="text-3xl font-bold text-white mb-6 text-center">

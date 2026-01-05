@@ -19,6 +19,11 @@ out/
 .env.development.local
 .env.test.local
 .env.production.local
+# Exceptions : fichiers template à versionner
+!env.example
+!.env.example
+!.env.template
+!.env.sample
 
 # IDE
 .vscode/
@@ -45,3 +50,8 @@ e2e-*.log
 **/test-results/*.txt
 **/test-results/*.log
 !**/test-results/.gitkeep
+
+# Playwright
+playwright-report/
+test-results/
+playwright/.cache/

@@ -134,7 +134,7 @@ export default function WalletPage() {
   // Ne rien afficher si non connecté (redirection en cours)
   if (!isAuthenticated || authLoading) {
     return (
-      <Layout title="Mon portefeuille - ChessBet">
+      <Layout title="Mon portefeuille - Elite64">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center text-gray-300">Chargement...</div>
         </div>
@@ -143,7 +143,7 @@ export default function WalletPage() {
   }
 
   return (
-    <Layout title="Mon portefeuille - ChessBet">
+    <Layout title="Mon portefeuille - Elite64">
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold text-white mb-8">Mon portefeuille</h1>
 

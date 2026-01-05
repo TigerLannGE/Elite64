@@ -1,7 +1,7 @@
 # Phase 6.1 - Frontend Gameplay MVP - Documentation Frontend
 
 **Date de création** : 15 décembre 2025  
-**Dernière mise à jour** : 15 décembre 2025 (Problème 4 : Promotion - corrigé et validé en production)  
+**Dernière mise à jour** : 03 janvier 2026 (Phase 6.1.B complétée)  
 **Statut** : ✅ Complété
 
 ---
@@ -770,14 +770,37 @@ Ces éléments seront améliorés dans les phases 6.2+ avec des modals React.
 
 ## 🚀 Prochaines Étapes (Phases Futures)
 
-### Phase 6.2 - Améliorations UX
+### Phase 6.1.B - Gameplay UX Completion ✅
 
-- [ ] Affichage du chronomètre avec compte à rebours
-- [ ] Historique des coups en notation algébrique
+- ✅ Affichage du chronomètre avec compte à rebours (implémenté en 6.1.B)
+- ✅ États UI DRAW et TIEBREAK_PENDING (implémenté en 6.1.B)
+- ✅ Mapping codes d'erreur backend → messages UX (implémenté en 6.1.B)
+- ✅ Polling robuste avec retry/backoff (implémenté en 6.1.B)
+- ✅ Indicateur de connexion (implémenté en 6.1.B)
+
+**Voir** : [Phase 6.1.B - Gameplay UX Completion](./phase-06.1.B_gameplay-ux-completion_frontend.md)
+
+### Phase 6.2.A - UX Clarity Gameplay ✅
+
+- ✅ Historique des coups en notation algébrique (implémenté en 6.2.A)
+- ✅ Highlight du dernier coup joué (implémenté en 6.2.A)
+
+**Voir** : [Phase 6.2.A - UX Clarity Gameplay](./phase-06.2.A_ux-clarity-gameplay_frontend.md)
+
+### Phase 6.2.B - Tests UI E2E (futures)
+
+- [ ] Tests E2E de l'interface utilisateur avec outil de test navigateur (Playwright/Cypress)
+- [ ] Tests de l'échiquier interactif (drag/drop, validation visuelle)
+- [ ] Tests des états UI (DRAW, TIEBREAK_PENDING, timer, erreurs)
+- [ ] Tests de navigation et flux utilisateur complets
+
+**Voir** : [Phase 6.2.B - Tests UI E2E](./phase-06.2.B_ui-e2e-tests_frontend.md)
+
+### Phase 6.2.C - UX Polish Gameplay (futures)
+
 - [ ] Modals React pour promotion/confirmations (remplacer prompt/alert)
 - [ ] Sons pour les coups (déplacement, capture, échec)
 - [ ] Animations fluides des pièces
-- [ ] Highlight du dernier coup joué
 - [ ] Highlight des cases menacées (échec)
 
 ### Phase 6.3 - WebSocket et Temps Réel
@@ -813,7 +836,9 @@ Ces éléments seront améliorés dans les phases 6.2+ avec des modals React.
 | Promotion des pions | ✅ Phase 6.0.C | ✅ Phase 6.1 |
 | Résignation | ✅ Phase 6.0.C | ✅ Phase 6.1 |
 | Finalisation automatique | ✅ Phase 6.1 (fix) | N/A |
-| Chronomètre visuel | ✅ Backend | ❌ Phase 6.2 |
+| Chronomètre visuel | ✅ Backend | ✅ Phase 6.1.B |
+| Historique des coups | N/A | ✅ Phase 6.2.A |
+| Highlight dernier coup | N/A | ✅ Phase 6.2.A |
 | WebSocket | ❌ Phase 6.3 | ❌ Phase 6.3 |
 
 ---
@@ -833,6 +858,10 @@ Ces éléments seront améliorés dans les phases 6.2+ avec des modals React.
 
 ### Tests et Validation
 
+- [Phase 6.1.B - Gameplay UX Completion](./phase-06.1.B_gameplay-ux-completion_frontend.md)  
+  Améliorations UX : timer, états DRAW/TIEBREAK_PENDING, mapping erreurs, polling robuste
+- [Phase 6.2.A - UX Clarity Gameplay](./phase-06.2.A_ux-clarity-gameplay_frontend.md)  
+  Améliorations UX clarté : historique des coups (SAN), highlight dernier coup
 - [Phase 6.2 - Tests E2E Gameplay Complets](../cross/phase-06.2_e2e-gameplay-tests_cross.md)  
   Suite complète de tests End-to-End validant tous les types de mouvements aux échecs via l'API. **Résultat : 11/11 PASS (100%)**
 

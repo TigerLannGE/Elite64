@@ -11,9 +11,9 @@ Infomaniak est un hébergeur suisse qui fournit des services email professionnel
 ```env
 SMTP_HOST=mail.infomaniak.com
 SMTP_PORT=587
-SMTP_USER=contact@chessbet.ch
+SMTP_USER=no-reply@elite64.app
 SMTP_PASS=Dark-Revan-GE-9418657
-SMTP_FROM="ChessBet <no-reply@chessbet.ch>"
+SMTP_FROM="Elite64 <no-reply@elite64.app>"
 ```
 
 ### Ports disponibles

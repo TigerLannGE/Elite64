@@ -535,9 +535,9 @@ Phase 4: Vérifier
 ## 📖 Références
 
 - **Convention de nommage** : Voir `.cursorrules`
-- **Commandes rapides** : Voir `COMMANDES_CURSOR.md`
-- **Rapports d'audit** : Voir `_RAPPORT_*.md`
-- **Table de correspondance** : Voir `_CORRESPONDANCE_CHEMINS.md`
+- **Commandes rapides** : Voir `./COMMANDES_CURSOR.md`
+- **Rapports d'audit** : Voir `../_audits/_RAPPORT_*.md`
+- **Table de correspondance** : Voir `../_audits/_CORRESPONDANCE_CHEMINS.md`
 
 ---
 

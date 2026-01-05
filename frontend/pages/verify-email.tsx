@@ -33,7 +33,7 @@ export default function VerifyEmail() {
   }, [token])
 
   return (
-    <Layout title="Vérification d&apos;email - ChessBet">
+    <Layout title="Vérification d&apos;email - Elite64">
       <div className="container mx-auto px-4 py-16 flex items-center justify-center">
         <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 border border-white/20 max-w-md w-full text-center">
           {status === 'loading' && (

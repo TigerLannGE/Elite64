@@ -1,5 +1,5 @@
 {
-  "name": "chessbet-frontend",
+  "name": "elite64-frontend",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -11,7 +11,12 @@
     "e2e:gameplay:slow": "tsx scripts/e2e-gameplay.ts --slow",
     "e2e:gameplay:verbose": "tsx scripts/e2e-gameplay.ts --verbose",
     "e2e:comprehensive": "tsx scripts/e2e-gameplay-comprehensive.ts",
-    "e2e:comprehensive:verbose": "tsx scripts/e2e-gameplay-comprehensive.ts --verbose"
+    "e2e:comprehensive:verbose": "tsx scripts/e2e-gameplay-comprehensive.ts --verbose",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:report": "playwright show-report",
+    "branding:scan": "node scripts/check-branding.js"
   },
   "dependencies": {
     "next": "^14.2.35",
@@ -20,6 +25,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@types/node": "^20.3.1",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",

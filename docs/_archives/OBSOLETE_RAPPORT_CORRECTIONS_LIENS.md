@@ -35,8 +35,8 @@
 
 | Fichier | Description |
 |---------|-------------|
-| `docs/_CORRESPONDANCE_CHEMINS.md` | Table de correspondance complète des anciens vers nouveaux chemins |
-| `docs/_RAPPORT_CORRECTIONS_LIENS.md` | Ce rapport de correction |
+| `_CORRESPONDANCE_CHEMINS.md` | Table de correspondance complète des anciens vers nouveaux chemins |
+| `_RAPPORT_CORRECTIONS_LIENS.md` | Ce rapport de correction |
 
 ---
 

@@ -4,7 +4,7 @@ import Layout from '../components/Layout'
 export default function Home() {
   return (
     <Layout
-      title="ChessBet - Tournois d&apos;échecs à enjeu, 100% basés sur la compétence"
+      title="Elite64 – Competitive Chess Arena - Tournois d&apos;échecs à enjeu, 100% basés sur la compétence"
       description="Compétitions d&apos;échecs basées sur la compétence. Pas de paris. Pas de hasard. Prize pools fixes."
     >
       <div className="container mx-auto px-4 py-16">
@@ -85,7 +85,7 @@ export default function Home() {
                   Jeux de compétence uniquement
                 </h3>
                 <p>
-                  ChessBet organise des <strong>concours de compétence</strong> (skill competitions) où les résultats dépendent exclusivement de la compétence des joueurs aux échecs. Aucun élément de hasard n&apos;intervient dans les matchs.
+                  Elite64 organise des <strong>concours de compétence</strong> (skill competitions) où les résultats dépendent exclusivement de la compétence des joueurs aux échecs. Aucun élément de hasard n&apos;intervient dans les matchs.
                 </p>
               </div>
               

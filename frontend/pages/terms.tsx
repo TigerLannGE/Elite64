@@ -2,7 +2,7 @@ import Layout from '../components/Layout'
 
 export default function Terms() {
   return (
-    <Layout title="Conditions Générales - ChessBet">
+    <Layout title="Conditions Générales - Elite64">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl font-bold text-white mb-8">
@@ -13,7 +13,7 @@ export default function Terms() {
             <section>
               <h2 className="text-2xl font-semibold text-white mb-4">1. Objet</h2>
               <p>
-                Les présentes Conditions Générales d&apos;Utilisation (CGU) régissent l&apos;utilisation de la plateforme ChessBet,
+                Les présentes Conditions Générales d&apos;Utilisation (CGU) régissent l&apos;utilisation de la plateforme Elite64,
                 qui organise des compétitions d&apos;échecs basées sur la compétence (skill games).
               </p>
             </section>
@@ -21,7 +21,7 @@ export default function Terms() {
             <section>
               <h2 className="text-2xl font-semibold text-white mb-4">2. Nature du service</h2>
               <p>
-                ChessBet organise des <strong className="text-white">concours de compétence</strong> où les résultats
+                Elite64 organise des <strong className="text-white">concours de compétence</strong> où les résultats
                 dépendent exclusivement de la compétence des joueurs aux échecs. Aucun élément de hasard n&apos;intervient
                 dans les matchs. Les prize pools sont fixes et déterminés à l&apos;avance.
               </p>
@@ -53,7 +53,7 @@ export default function Terms() {
             <section>
               <h2 className="text-2xl font-semibold text-white mb-4">5. Responsabilité</h2>
               <p>
-                ChessBet ne peut être tenu responsable des dommages directs ou indirects résultant de l&apos;utilisation
+                Elite64 ne peut être tenu responsable des dommages directs ou indirects résultant de l&apos;utilisation
                 ou de l&apos;impossibilité d&apos;utiliser la plateforme.
               </p>
             </section>
@@ -61,7 +61,7 @@ export default function Terms() {
             <section>
               <h2 className="text-2xl font-semibold text-white mb-4">6. Modifications</h2>
               <p>
-                ChessBet se réserve le droit de modifier les présentes CGU à tout moment. Les utilisateurs seront
+                Elite64 se réserve le droit de modifier les présentes CGU à tout moment. Les utilisateurs seront
                 informés des modifications importantes.
               </p>
             </section>
@@ -69,8 +69,12 @@ export default function Terms() {
             <section>
               <h2 className="text-2xl font-semibold text-white mb-4">7. Contact</h2>
               <p>
-                Pour toute question concernant les présentes CGU, vous pouvez nous contacter via les moyens
-                de contact disponibles sur la plateforme.
+                Pour toute question concernant les présentes CGU, vous pouvez nous contacter à l&apos;adresse suivante :
+              </p>
+              <p className="mt-2">
+                <a href="mailto:contact@elite64.app" className="text-blue-400 hover:text-blue-300 underline">
+                  contact@elite64.app
+                </a>
               </p>
             </section>
 

@@ -99,7 +99,7 @@ dans la Phase 07 scope cross
 4. ✅ Rechercher tous les liens vers ce document
 5. ✅ Corriger ou marquer tous les liens
 6. ✅ Mettre à jour `docs/README.md`
-7. ✅ Mettre à jour `docs/_CORRESPONDANCE_CHEMINS.md`
+7. ✅ Mettre à jour `docs/_audits/_CORRESPONDANCE_CHEMINS.md`
 
 ---
 
@@ -261,7 +261,7 @@ en ajoutant les nouvelles pages créées
 2. ✅ Compter les documents par phase et scope
 3. ✅ Vérifier la cohérence globale
 4. ✅ Identifier les incohérences
-5. ✅ Créer un rapport détaillé (type `_RAPPORT_*.md`)
+5. ✅ Créer un rapport détaillé (type `../_audits/_RAPPORT_*.md`)
 
 ---
 
@@ -278,7 +278,7 @@ en ajoutant les nouvelles pages créées
 3. ✅ Identifier les documents manquants
 4. ✅ Analyser les doublons potentiels
 5. ✅ Proposer un plan d'action par priorité
-6. ✅ Créer un fichier `_RAPPORT_AUDIT_[date].md`
+6. ✅ Créer un fichier `../_audits/_RAPPORT_AUDIT_[date].md`
 
 ---
 
@@ -480,7 +480,7 @@ phase-04_roles-admin-interface_frontend.md
 ## 🔗 Références
 
 - **Règles AI** : Voir `.cursorrules` à la racine du projet
-- **Guide de maintenance** : Voir `MAINTENANCE_GUIDE.md`
+- **Guide de maintenance** : Voir `./MAINTENANCE_GUIDE.md`
 - **Templates** : Voir `MAINTENANCE_GUIDE.md` section Templates
 - **Convention de nommage** : `phase-XX[.X.X]_description-kebab-case_scope.md`
 
